@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.liveramp</groupId>
+    <artifactId>pom-ant-structure</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <!--TODO replace with your project name-->
+  <artifactId>example_prject</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <dependencies>
+    <!--TODO fill in -->
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>all-snapshots</id>
+      <url>http://artifactory.liveramp.net/artifactory/all-snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
+
+</project>
