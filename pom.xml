@@ -9,7 +9,7 @@
   </parent>
 
   <!--TODO replace with your project name-->
-  <artifactId>example_prject</artifactId>
+  <artifactId>example_project</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <dependencies>
