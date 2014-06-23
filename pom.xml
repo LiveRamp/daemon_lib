@@ -2,18 +2,32 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.liveramp</groupId>
-    <artifactId>pom-ant-structure</artifactId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
-
   <!--TODO replace with your project name-->
   <artifactId>example_project</artifactId>
   <version>1.0-SNAPSHOT</version>
 
+  <parent>
+    <groupId>com.liveramp</groupId>
+    <!--TODO if your project depends on hadoop, replace with "pom-hadoop-common"-->
+    <artifactId>pom-ant-structure</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <!--TODO if your project needs rldb set up for builds. remove this block and uncomment the db_schemas dependency below-->
+  <properties>
+    <skip.db.init>true</skip.db.init>
+  </properties>
+
   <dependencies>
-    <!--TODO fill in -->
+    <!--TODO add project dependencies here-->
+
+    <!--TODO if your project will need a database setup for builds, uncomment this-->
+    <!--<dependency>-->
+      <!--<groupId>com.liveramp</groupId>-->
+      <!--<artifactId>db_schemas</artifactId>-->
+      <!--<version>1.0-SNAPSHOT</version>-->
+    <!--</dependency>-->
+
   </dependencies>
 
   <repositories>
