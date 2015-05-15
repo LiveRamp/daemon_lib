@@ -31,7 +31,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
       int pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier);
       processController.registerProcess(pid, new JobletConfigMetadata(identifier));
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException(e); // TODO(asarkar):figure out what to do here
     }
   }
 

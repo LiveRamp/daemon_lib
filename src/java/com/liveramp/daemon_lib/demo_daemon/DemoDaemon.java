@@ -33,7 +33,7 @@ public class DemoDaemon {
         Thread.sleep(100 * 1000);
         LOG.info("Done");
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        throw new RuntimeException(e); // TODO(asarkar):figure out what to do here
       }
     }
 
