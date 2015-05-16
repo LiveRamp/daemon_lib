@@ -1,5 +1,7 @@
 package com.liveramp.daemon_lib;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,12 +10,13 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
 
-  private final JobletExecutor<T> executor;
   private final String identifier;
+  private final JobletExecutor<T> executor;
   private final JobletConfigProducer<T> configProducer;
+
   private boolean running;
 
-  public Daemon(String identifier, JobletExecutor executor, JobletConfigProducer configProducer) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer) {
     this.identifier = identifier;
     this.configProducer = configProducer;
     this.executor = executor;
@@ -55,7 +58,7 @@ public class Daemon<T extends JobletConfig> {
 
   private void doSleep() {
     try {
-      Thread.sleep((long)10000);
+      Thread.sleep(TimeUnit.SECONDS.toMillis(10));
     } catch (InterruptedException e) {
       LOG.error("Daemon interrupted: ", e);
     }

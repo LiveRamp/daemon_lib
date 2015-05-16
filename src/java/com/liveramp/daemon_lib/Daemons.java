@@ -9,7 +9,7 @@ public class Daemons {
 
   public static <T extends JobletConfig> Daemon forked(String identifier, int maxProcess, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer) throws IOException {
     final String tmpPath = BASE_TMP_PATH + identifier;
-    return new Daemon(
+    return new Daemon<T>(
         identifier,
         JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactory),
         jobletConfigProducer
