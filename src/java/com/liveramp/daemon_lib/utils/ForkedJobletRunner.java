@@ -44,7 +44,7 @@ public class ForkedJobletRunner {
     }
   }
 
-  public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+  public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, DaemonException {
     LoggingHelper.setLoggingProperties("forked-joblet-runner");
 
     String jobletFactoryClassName = args[0];

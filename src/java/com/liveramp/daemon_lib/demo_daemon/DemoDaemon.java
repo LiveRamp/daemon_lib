@@ -27,13 +27,13 @@ public class DemoDaemon {
     }
 
     @Override
-    public void run() {
+    public void run() throws DaemonException {
       try {
         LOG.info("Running " + id);
         Thread.sleep(100 * 1000);
         LOG.info("Done");
       } catch (InterruptedException e) {
-        throw new RuntimeException(e); // TODO(asarkar):figure out what to do here
+        throw new DaemonException(e);
       }
     }
 
