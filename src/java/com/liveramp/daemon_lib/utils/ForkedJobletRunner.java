@@ -24,7 +24,7 @@ public class ForkedJobletRunner {
 
   public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier) throws IOException {
     prepareScript();
-    // TODO(asarkar): find a better way to escape the class name
+    // The quotes are to support innter classes (com.liveramp.SomeClass$InnerClass) - the $ gets interpreted by bash as a special character)
     int pid = ProcessUtil.runCommand(JOBLET_RUNNER_SCRIPT, "\'" + jobletFactoryClass.getName() + "\'", configStore.getPath(), cofigIdentifier);
 
     return pid;
