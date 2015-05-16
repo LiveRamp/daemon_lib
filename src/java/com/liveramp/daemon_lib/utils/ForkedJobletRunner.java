@@ -40,6 +40,9 @@ public class ForkedJobletRunner {
 
       ByteStreams.copy(scriptResourceInput, scriptProductionOutput);
 
+      scriptResourceInput.close();
+      scriptProductionOutput.close();
+
       productionScript.setExecutable(true);
     }
   }
