@@ -4,6 +4,7 @@ import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
+import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
@@ -24,13 +25,13 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
   }
 
   @Override
-  public void execute(T config) {
+  public void execute(T config) throws DaemonException {
     try {
       String identifier = configStorage.storeConfig(config);
       int pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier);
       processController.registerProcess(pid, new JobletConfigMetadata(identifier));
     } catch (Exception e) {
-      throw new RuntimeException(e); // TODO(asarkar):figure out what to do here
+      throw new DaemonException(e); // TODO(asarkar): is this okay?
     }
   }
 
