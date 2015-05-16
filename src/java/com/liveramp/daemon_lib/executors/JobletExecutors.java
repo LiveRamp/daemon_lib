@@ -1,4 +1,4 @@
-package com.liveramp.daemon_lib.joblet_executors;
+package com.liveramp.daemon_lib.executors;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,9 +8,9 @@ import org.apache.commons.io.FileUtils;
 
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.local.FsHelper;
-import com.liveramp.daemon_lib.local.LocalProcessController;
-import com.liveramp.daemon_lib.local.PsPidGetter;
+import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
+import com.liveramp.daemon_lib.executors.processes.local.LocalProcessController;
+import com.liveramp.daemon_lib.executors.processes.local.PsPidGetter;
 import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;

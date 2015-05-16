@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 public class Daemon<T extends JobletConfig> {

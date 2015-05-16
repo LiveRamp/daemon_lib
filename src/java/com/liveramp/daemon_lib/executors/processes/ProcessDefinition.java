@@ -1,4 +1,4 @@
-package com.liveramp.daemon_lib.processes;
+package com.liveramp.daemon_lib.executors.processes;
 
 public class ProcessDefinition<T extends ProcessMetadata> {
   private final int pid;

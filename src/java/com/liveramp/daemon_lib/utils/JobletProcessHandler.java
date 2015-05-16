@@ -5,8 +5,8 @@ import java.io.IOException;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.local.ProcessHandler;
-import com.liveramp.daemon_lib.processes.ProcessDefinition;
+import com.liveramp.daemon_lib.executors.processes.local.ProcessHandler;
+import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 
 public class JobletProcessHandler<T extends JobletConfig> implements ProcessHandler<JobletConfigMetadata> {
   private final JobletFactory<T> jobletFactory;

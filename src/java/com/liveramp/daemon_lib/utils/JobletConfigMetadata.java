@@ -3,7 +3,7 @@ package com.liveramp.daemon_lib.utils;
 import com.google.gson.Gson;
 
 import com.liveramp.commons.util.BytesUtils;
-import com.liveramp.daemon_lib.processes.ProcessMetadata;
+import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 
 public class JobletConfigMetadata implements ProcessMetadata {
   private final String identifier;

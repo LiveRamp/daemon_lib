@@ -1,7 +1,6 @@
-package com.liveramp.daemon_lib.joblet_executors;
+package com.liveramp.daemon_lib.executors;
 
 import com.liveramp.daemon_lib.JobletConfig;
-import com.liveramp.daemon_lib.JobletExecutor;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletFactory;
 

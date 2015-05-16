@@ -2,7 +2,7 @@ package com.liveramp.daemon_lib;
 
 import java.io.IOException;
 
-import com.liveramp.daemon_lib.joblet_executors.JobletExecutors;
+import com.liveramp.daemon_lib.executors.JobletExecutors;
 
 public class Daemons {
   private static final String BASE_TMP_PATH = "/tmp/daemons/";

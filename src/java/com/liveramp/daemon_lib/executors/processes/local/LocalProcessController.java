@@ -1,4 +1,4 @@
-package com.liveramp.daemon_lib.local;
+package com.liveramp.daemon_lib.executors.processes.local;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,10 +10,10 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.liveramp.daemon_lib.processes.ProcessController;
-import com.liveramp.daemon_lib.processes.ProcessControllerException;
-import com.liveramp.daemon_lib.processes.ProcessDefinition;
-import com.liveramp.daemon_lib.processes.ProcessMetadata;
+import com.liveramp.daemon_lib.executors.processes.ProcessController;
+import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
+import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
+import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 
 
 public class LocalProcessController<T extends ProcessMetadata> extends Thread implements ProcessController<T> {

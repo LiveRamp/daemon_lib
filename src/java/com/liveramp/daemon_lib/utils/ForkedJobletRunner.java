@@ -11,7 +11,7 @@ import org.apache.commons.io.FileUtils;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.processes.ProcessUtil;
+import com.liveramp.daemon_lib.executors.processes.ProcessUtil;
 import com.liveramp.java_support.logging.LoggingHelper;
 
 public class ForkedJobletRunner {

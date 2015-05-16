@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 import static org.mockito.Matchers.any;

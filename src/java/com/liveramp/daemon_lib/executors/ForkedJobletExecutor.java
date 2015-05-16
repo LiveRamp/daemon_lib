@@ -1,10 +1,9 @@
-package com.liveramp.daemon_lib.joblet_executors;
+package com.liveramp.daemon_lib.executors;
 
 import com.liveramp.daemon_lib.JobletConfig;
-import com.liveramp.daemon_lib.JobletExecutor;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.processes.ProcessController;
-import com.liveramp.daemon_lib.processes.ProcessControllerException;
+import com.liveramp.daemon_lib.executors.processes.ProcessController;
+import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
