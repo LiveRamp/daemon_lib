@@ -1,4 +1,5 @@
 #!/bin/sh
 
-sleep 100
-#java -cp build/s2s_dispatcher-1.0-SNAPSHOT.jar ForkedJobletRunner "$@"
+JOBJAR=`find . -name "*.job.jar" | head -1`
+
+hadoop jar $JOBJAR com.liveramp.daemon_lib.utils.ForkedJobletRunner "$@"
