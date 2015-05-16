@@ -39,12 +39,14 @@ public class ForkedJobletRunner {
       FileOutputStream scriptProductionOutput = new FileOutputStream(JOBLET_RUNNER_SCRIPT);
 
       ByteStreams.copy(scriptResourceInput, scriptProductionOutput);
+
+      productionScript.setExecutable(true);
     }
   }
 
   public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
     LoggingHelper.setLoggingProperties("forked-joblet-runner");
-    
+
     String jobletFactoryClassName = args[0];
     String configStorePath = args[1];
     String id = args[2];
