@@ -69,10 +69,10 @@ public class DemoDaemon {
     }
   }
 
-  public static void main(String[] args) throws DaemonException, IOException {
+  public static void main(String[] args) throws DaemonException, IOException, IllegalAccessException, InstantiationException {
     LoggingHelper.setLoggingProperties("demo-daemon");
 
-    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, new DemoJoblet.Factory(), new DemoJoblet.Producer());
+    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, DemoJoblet.Factory.class, new DemoJoblet.Producer());
     daemon.start();
   }
 }

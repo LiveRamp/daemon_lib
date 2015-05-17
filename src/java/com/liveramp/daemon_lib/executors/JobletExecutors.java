@@ -20,11 +20,12 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, JobletFactory<T> jobletFactory) throws IOException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass) throws IOException, IllegalAccessException, InstantiationException {
       File pidDir = new File(tmpPath, "pids");
       File configStoreDir = new File(tmpPath, "config_store");
       FileUtils.forceMkdir(pidDir);
 
+      JobletFactory<T> jobletFactory = jobletFactoryClass.newInstance();
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<JobletConfigMetadata>(
           new FsHelper(pidDir.getPath()),
@@ -35,9 +36,6 @@ public class JobletExecutors {
       );
 
       Executors.newSingleThreadExecutor().submit(new ProcessControllerRunner(processController));
-
-      @SuppressWarnings("unchecked")
-      Class<? extends JobletFactory<? extends T>> jobletFactoryClass = (Class<? extends JobletFactory<? extends T>>)jobletFactory.getClass();
 
       return new ForkedJobletExecutor<T>(maxProcesses, jobletFactoryClass, configStore, processController, ForkedJobletRunner.production());
     }
