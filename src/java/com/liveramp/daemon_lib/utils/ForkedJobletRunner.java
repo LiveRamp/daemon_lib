@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
@@ -24,10 +25,15 @@ public class ForkedJobletRunner {
 
   public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier) throws IOException {
     prepareScript();
-    // The quotes are to support innter classes (com.liveramp.SomeClass$InnerClass) - the $ gets interpreted by bash as a special character)
-    int pid = ProcessUtil.runCommand(JOBLET_RUNNER_SCRIPT, "\'" + jobletFactoryClass.getName() + "\'", configStore.getPath(), cofigIdentifier);
+
+    int pid = ProcessUtil.runCommand(JOBLET_RUNNER_SCRIPT, escape(jobletFactoryClass.getName()), configStore.getPath(), cofigIdentifier);
 
     return pid;
+  }
+
+  private static String escape(String str) {
+    // support nested static classes
+    return StringUtils.replace(str, "$", "\\$");
   }
 
   private static void prepareScript() throws IOException {
