@@ -71,7 +71,6 @@ public class DemoDaemon {
 
   public static void main(String[] args) throws DaemonException, IOException {
     LoggingHelper.setLoggingProperties("demo-daemon");
-    LoggingHelper.configureConsoleLogging();
 
     Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, new DemoJoblet.Factory(), new DemoJoblet.Producer());
     daemon.start();
