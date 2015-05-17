@@ -73,7 +73,7 @@ public class DemoDaemon {
     LoggingHelper.setLoggingProperties("demo-daemon");
     LoggingHelper.configureConsoleLogging();
 
-    Daemon daemon = Daemons.forked("demo", 4, new DemoJoblet.Factory(), new DemoJoblet.Producer());
+    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, new DemoJoblet.Factory(), new DemoJoblet.Producer());
     daemon.start();
   }
 }
