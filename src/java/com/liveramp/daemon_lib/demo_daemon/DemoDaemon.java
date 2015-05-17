@@ -51,7 +51,7 @@ public class DemoDaemon {
       }
     }
 
-    public static class Factory extends JobletFactory<Config> {
+    public static class Factory implements JobletFactory<Config> {
       @Override
       public Joblet create(Config config) {
         return new DemoJoblet(config.id);

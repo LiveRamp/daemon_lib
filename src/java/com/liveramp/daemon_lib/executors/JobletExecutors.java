@@ -2,8 +2,10 @@ package com.liveramp.daemon_lib.executors;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.Executors;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 
 import com.liveramp.daemon_lib.JobletConfig;
@@ -21,6 +23,8 @@ public class JobletExecutors {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
     public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass) throws IOException, IllegalAccessException, InstantiationException {
+      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
+
       File pidDir = new File(tmpPath, "pids");
       File configStoreDir = new File(tmpPath, "config_store");
       FileUtils.forceMkdir(pidDir);
@@ -38,6 +42,16 @@ public class JobletExecutors {
       Executors.newSingleThreadExecutor().submit(new ProcessControllerRunner(processController));
 
       return new ForkedJobletExecutor<T>(maxProcesses, jobletFactoryClass, configStore, processController, ForkedJobletRunner.production());
+    }
+
+    private static boolean hasNoArgConstructor(Class klass) {
+      for (Constructor constructor : klass.getConstructors()) {
+        if (constructor.getParameterTypes().length == 0) {
+          return true;
+        }
+      }
+
+      return false;
     }
   }
 
