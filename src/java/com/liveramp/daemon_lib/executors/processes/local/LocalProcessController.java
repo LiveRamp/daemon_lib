@@ -71,7 +71,7 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
         Map<Integer, PidGetter.PidData> runningPids = pidGetter.getPids();
         Iterator<ProcessDefinition<T>> iterator = watchedProcesses.iterator();
         while (iterator.hasNext()) {
-          ProcessDefinition watchedProcess = iterator.next();
+          ProcessDefinition<T> watchedProcess = iterator.next();
           if (!runningPids.containsKey(watchedProcess.getPid())) {
             LOG.info("Deregister process {}.", watchedProcess.getPid());
             File watchedFile = fsHelper.getPidPath(watchedProcess.getPid());
