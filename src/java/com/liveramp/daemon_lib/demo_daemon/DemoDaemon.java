@@ -22,7 +22,7 @@ public class DemoDaemon {
 
     private final int id;
 
-    private DemoJoblet(int id) {
+    public DemoJoblet(int id) {
       this.id = id;
     }
 
@@ -46,7 +46,7 @@ public class DemoDaemon {
       private static final long serialVersionUID = 1;
       private final int id;
 
-      private Config(int id) {
+      public Config(int id) {
         this.id = id;
       }
     }
