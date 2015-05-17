@@ -33,7 +33,7 @@ public class ForkedJobletRunner {
 
   private static String escape(String str) {
     // support nested static classes
-    return StringUtils.replace(str, "$", "\\$");
+    return "\"" + StringUtils.replace(str, "$", "\\$") + "\"";
   }
 
   private static void prepareScript() throws IOException {
