@@ -42,7 +42,7 @@ public class DemoDaemon {
       System.out.println("Complete");
     }
 
-    private static class Config implements JobletConfig {
+    public static class Config implements JobletConfig {
       private static final long serialVersionUID = 1;
       private final int id;
 
