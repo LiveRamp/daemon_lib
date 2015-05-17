@@ -25,7 +25,7 @@ public class JobletExecutors {
       File configStoreDir = new File(tmpPath, "config_store");
       FileUtils.forceMkdir(pidDir);
 
-      JobletConfigStorage<T> configStore = JobletConfigStorage.<T>production(configStoreDir.getPath());
+      JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<JobletConfigMetadata>(
           new FsHelper(pidDir.getPath()),
           new JobletProcessHandler<T>(jobletFactory, configStore),
