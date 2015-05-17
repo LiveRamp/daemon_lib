@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.liveramp.daemon_lib.demo_daemon.DemoDaemon;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
@@ -38,8 +37,6 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
     this.metadataSerializer = metadataSerializer;
     this.stop = false;
     this.currentProcesses = Lists.newLinkedList();
-
-    Class<DemoDaemon.DemoJoblet.Config> configClass = DemoDaemon.DemoJoblet.Config.class;
 
     setDaemon(true);
   }
