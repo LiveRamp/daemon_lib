@@ -5,8 +5,8 @@ import java.io.IOException;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.executors.processes.local.ProcessHandler;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
+import com.liveramp.daemon_lib.executors.processes.local.ProcessHandler;
 
 public class JobletProcessHandler<T extends JobletConfig> implements ProcessHandler<JobletConfigMetadata> {
   private final JobletFactory<T> jobletFactory;
@@ -30,6 +30,8 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
       Joblet joblet = jobletFactory.create(jobletConfig);
       joblet.onComplete();
     } catch (IOException e) {
+      // TODO(asarkar): figure this out
+    } catch (ClassNotFoundException e) {
       // TODO(asarkar): figure this out
     }
   }

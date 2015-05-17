@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SerializationUtils;
@@ -34,11 +35,11 @@ public class JobletConfigStorage<T extends JobletConfig> {
     return identifier;
   }
 
-  public T loadConfig(String identifier) throws IOException {
+  public T loadConfig(String identifier) throws IOException, ClassNotFoundException {
     try {
-      FileInputStream fis = new FileInputStream(getPath(identifier));
-      T config = (T)SerializationUtils.deserialize(fis);
-      fis.close();
+      ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getPath(identifier)));
+      T config = (T)ois.readObject();
+      ois.close();
 
       return config;
     } catch (FileNotFoundException e) {
