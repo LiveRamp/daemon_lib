@@ -57,6 +57,10 @@ public class Daemon<T extends JobletConfig> {
     running = false;
   }
 
+  public String getIdentifier() {
+    return identifier;
+  }
+
   private void doSleep() {
     try {
       Thread.sleep(TimeUnit.SECONDS.toMillis(10));

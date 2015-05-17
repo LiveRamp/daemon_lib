@@ -1,7 +1,5 @@
 package com.liveramp.daemon_lib.demo_daemon;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +10,7 @@ import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.utils.DaemonException;
+import com.liveramp.daemon_lib.utils.DaemonRunner;
 import com.liveramp.java_support.logging.LoggingHelper;
 
 public class DemoDaemon {
@@ -69,10 +68,10 @@ public class DemoDaemon {
     }
   }
 
-  public static void main(String[] args) throws DaemonException, IOException, IllegalAccessException, InstantiationException {
+  public static void main(String[] args) throws Exception {
     LoggingHelper.setLoggingProperties("demo-daemon");
 
     Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, DemoJoblet.Factory.class, new DemoJoblet.Producer());
-    daemon.start();
+    DaemonRunner.run(daemon);
   }
 }
