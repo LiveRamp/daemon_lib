@@ -24,7 +24,9 @@ public class JobletConfigStorage<T extends JobletConfig> {
     try {
       File path = getPath(identifier);
       FileUtils.forceMkdir(path.getParentFile());
-      SerializationUtils.serialize(config, new FileOutputStream(path));
+      FileOutputStream fos = new FileOutputStream(path);
+      SerializationUtils.serialize(config, fos);
+      fos.close();
     } catch (FileNotFoundException e) {
       throw new IOException(e);
     }
@@ -34,7 +36,11 @@ public class JobletConfigStorage<T extends JobletConfig> {
 
   public T loadConfig(String identifier) throws IOException {
     try {
-      return (T)SerializationUtils.deserialize(new FileInputStream(getPath(identifier)));
+      FileInputStream fis = new FileInputStream(getPath(identifier));
+      T config = (T)SerializationUtils.deserialize(fis);
+      fis.close();
+
+      return config;
     } catch (FileNotFoundException e) {
       throw new IOException(e);
     }
