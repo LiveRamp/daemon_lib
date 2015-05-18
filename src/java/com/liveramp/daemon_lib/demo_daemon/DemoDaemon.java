@@ -40,38 +40,38 @@ public class DemoDaemon {
     public void onComplete() {
       System.out.println("Complete");
     }
+  }
 
-    public static class Config implements JobletConfig {
-      private static final long serialVersionUID = 1;
-      private final int id;
+  public static class Config implements JobletConfig {
+    private static final long serialVersionUID = 1;
+    private final int id;
 
-      public Config(int id) {
-        this.id = id;
-      }
+    public Config(int id) {
+      this.id = id;
     }
+  }
 
-    public static class Factory implements JobletFactory<Config> {
-      @Override
-      public Joblet create(Config config) {
-        return new DemoJoblet(config.id);
-      }
+  public static class Factory implements JobletFactory<Config> {
+    @Override
+    public Joblet create(Config config) {
+      return new DemoJoblet(config.id);
     }
+  }
 
-    public static class Producer implements JobletConfigProducer<Config> {
-      private int i = 0;
+  public static class Producer implements JobletConfigProducer<Config> {
+    private int i = 0;
 
-      @Override
-      public Config getNextConfig() {
-        System.out.println(i);
-        return new Config(++i);
-      }
+    @Override
+    public Config getNextConfig() {
+      System.out.println(i);
+      return new Config(++i);
     }
   }
 
   public static void main(String[] args) throws Exception {
     LoggingHelper.setLoggingProperties("demo-daemon");
 
-    Daemon daemon = new Daemons.Forked<DemoJoblet.Config>("/tmp/daemons", "demo", 4, DemoJoblet.Factory.class, new DemoJoblet.Producer()).get();
+    Daemon daemon = new Daemons.Forked<Config>("/tmp/daemons", "demo", 4, Factory.class, new Producer()).get();
     DaemonRunner.run(daemon);
   }
 }
