@@ -1,7 +1,5 @@
 package com.liveramp.daemon_lib.utils;
 
-import java.io.IOException;
-
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
@@ -23,16 +21,14 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
   }
 
   @Override
-  public void onRemove(ProcessDefinition<JobletConfigMetadata> watchedProcess) {
+  public void onRemove(ProcessDefinition<JobletConfigMetadata> watchedProcess) throws DaemonException {
     try {
       JobletConfigMetadata metadata = watchedProcess.getMetadata();
       T jobletConfig = configStorage.loadConfig(metadata.getIdentifier());
       Joblet joblet = jobletFactory.create(jobletConfig);
       joblet.onComplete();
-    } catch (IOException e) {
-      // TODO(asarkar): figure this out
-    } catch (ClassNotFoundException e) {
-      // TODO(asarkar): figure this out
+    } catch (Exception e) {
+      throw new DaemonException(e);
     }
   }
 }

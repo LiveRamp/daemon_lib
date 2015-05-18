@@ -75,7 +75,7 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
           if (!runningPids.containsKey(watchedProcess.getPid())) {
             LOG.info("Deregister process {}.", watchedProcess.getPid());
             File watchedFile = fsHelper.getPidPath(watchedProcess.getPid());
-            processHandler.onRemove(watchedProcess);
+            processHandler.onRemove(watchedProcess); // TODO(asarkar) handle DaemonException
             watchedFile.delete();
             iterator.remove();
           }
