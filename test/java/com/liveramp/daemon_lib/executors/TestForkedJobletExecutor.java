@@ -65,6 +65,6 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     Assert.assertEquals(false, executor.canExecuteAnother());
   }
 
-  private static abstract class MockJobletFactory extends JobletFactory<JobletConfig> {
+  private interface MockJobletFactory extends JobletFactory<JobletConfig> {
   }
 }
