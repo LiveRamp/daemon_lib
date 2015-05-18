@@ -3,7 +3,6 @@ package com.liveramp.daemon_lib.executors;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
-import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
@@ -31,17 +30,12 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
       int pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier);
       processController.registerProcess(pid, new JobletConfigMetadata(identifier));
     } catch (Exception e) {
-      throw new DaemonException(e); // TODO(asarkar): is this okay?
+      throw new DaemonException(e);
     }
   }
 
   @Override
   public boolean canExecuteAnother() {
-    try {
-      return processController.getProcesses().size() < maxProcesses;
-    } catch (ProcessControllerException e) {
-      // TODO(asarkar): consider retrying?
-      throw new RuntimeException(e);
-    }
+    return processController.getProcesses().size() < maxProcesses;
   }
 }
