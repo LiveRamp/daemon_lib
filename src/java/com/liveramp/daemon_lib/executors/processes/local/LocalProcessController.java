@@ -59,7 +59,7 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
   }
 
   @Override
-  public List<ProcessDefinition<T>> getProcesses()  {
+  public List<ProcessDefinition<T>> getProcesses() {
     return currentProcesses;
   }
 
