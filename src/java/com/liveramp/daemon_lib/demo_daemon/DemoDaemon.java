@@ -71,7 +71,7 @@ public class DemoDaemon {
   public static void main(String[] args) throws Exception {
     LoggingHelper.setLoggingProperties("demo-daemon");
 
-    Daemon daemon = new Daemons.Forked<Config>("/tmp/daemons", "demo", 4, Factory.class, new Producer()).get();
+    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, Factory.class, new Producer());
     DaemonRunner.run(daemon);
   }
 }
