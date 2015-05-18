@@ -7,5 +7,5 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 public interface Joblet extends Serializable {
   public void run() throws DaemonException;
 
-  public void onComplete();
+  public void onComplete() throws DaemonException;
 }
