@@ -47,9 +47,10 @@ public class Daemon<T extends JobletConfig> {
         executor.execute(jobletConfig);
         return true;
       }
+    } else {
+      LOG.info("Too many running joblets");
     }
 
-    LOG.info("Too many running joblets");
     return false;
   }
 
