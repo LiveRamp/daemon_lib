@@ -12,4 +12,11 @@ public class IDConfig implements JobletConfig {
   public long getId() {
     return id;
   }
+
+  @Override
+  public String toString() {
+    return "IDConfig{" +
+        "id=" + id +
+        '}';
+  }
 }
