@@ -18,7 +18,21 @@ public class DaemonRunner {
 
     @Override
     protected void run() throws Exception {
+      Runtime.getRuntime().addShutdownHook(new ShutdownHandler(daemon));
       daemon.start();
+    }
+
+    private class ShutdownHandler extends Thread {
+      private final Daemon daemon;
+
+      public ShutdownHandler(Daemon daemon) {
+        this.daemon = daemon;
+      }
+
+      @Override
+      public void run() {
+        daemon.stop();
+      }
     }
   }
 }
