@@ -37,8 +37,6 @@ public class Daemon<T extends JobletConfig> {
   }
 
   protected boolean processNext() throws DaemonException {
-    LOG.info("Attempting to process next joblet");
-
     if (executor.canExecuteAnother()) {
       T jobletConfig = configProducer.getNextConfig();
 
