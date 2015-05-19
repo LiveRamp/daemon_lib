@@ -37,7 +37,7 @@ public class DemoDaemon {
     }
 
     @Override
-    public void onComplete() {
+    public void afterExecution() {
       System.out.println("Complete");
     }
   }

@@ -26,7 +26,7 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
       JobletConfigMetadata metadata = watchedProcess.getMetadata();
       T jobletConfig = configStorage.loadConfig(metadata.getIdentifier());
       Joblet joblet = jobletFactory.create(jobletConfig);
-      joblet.onComplete();
+      joblet.afterExecution();
     } catch (Exception e) {
       throw new DaemonException(e);
     }
