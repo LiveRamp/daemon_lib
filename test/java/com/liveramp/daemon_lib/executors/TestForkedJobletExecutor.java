@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.liveramp.daemon_lib.DaemonLibTestCase;
+import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
@@ -33,6 +34,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   private ForkedJobletRunner jobletRunner;
   private JobletConfig config;
   private ForkedJobletExecutor<JobletConfig> executor;
+  private JobletCallbacks jobletCallbacks;
 
   private static final ProcessDefinition<JobletConfigMetadata> DUMMY_PROCESS = new ProcessDefinition<JobletConfigMetadata>(1, new JobletConfigMetadata("a"));
 
@@ -41,7 +43,8 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     this.configStorage = Mockito.mock(JobletConfigStorage.class);
     this.processController = Mockito.mock(ProcessController.class);
     this.jobletRunner = Mockito.mock(ForkedJobletRunner.class);
-    this.executor = new ForkedJobletExecutor<JobletConfig>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner);
+    this.jobletCallbacks = Mockito.mock(JobletCallbacks.class);
+    this.executor = new ForkedJobletExecutor<JobletConfig>(MAX_PROCESSES, MockJobletFactory.class, jobletCallbacks, configStorage, processController, jobletRunner);
 
     this.config = Mockito.mock(JobletConfig.class);
   }
@@ -54,6 +57,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     executor.execute(config);
 
     Mockito.verify(processController, times(1)).registerProcess(eq(PID), any(JobletConfigMetadata.class)); // TODO(asarkar): shouldn't actually be testing this - its an implementation detail
+    Mockito.verify(jobletCallbacks).before(config);
   }
 
   @Test

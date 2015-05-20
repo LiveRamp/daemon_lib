@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 
+import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
@@ -22,18 +23,17 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
 
       File pidDir = new File(tmpPath, "pids");
       File configStoreDir = new File(tmpPath, "config_store");
       FileUtils.forceMkdir(pidDir);
 
-      JobletFactory<T> jobletFactory = jobletFactoryClass.newInstance();
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<JobletConfigMetadata>(
           new FsHelper(pidDir.getPath()),
-          new JobletProcessHandler<T>(jobletFactory, configStore),
+          new JobletProcessHandler<T>(jobletCallbacks, configStore),
           new PsPidGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
@@ -41,7 +41,7 @@ public class JobletExecutors {
 
       Executors.newSingleThreadExecutor().submit(new ProcessControllerRunner(processController));
 
-      return new ForkedJobletExecutor<T>(maxProcesses, jobletFactoryClass, configStore, processController, ForkedJobletRunner.production());
+      return new ForkedJobletExecutor<T>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production());
     }
 
     private static boolean hasNoArgConstructor(Class klass) {

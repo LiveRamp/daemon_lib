@@ -55,7 +55,6 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
     if (!tmpFile.renameTo(pidFile)) {
       throw new ProcessControllerException(String.format("Unable to commit control file '%s' for %d pid.", pidFile.toString(), process.getPid()));
     }
-    processHandler.onAdd(process);
   }
 
   @Override

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.Daemons;
 import com.liveramp.daemon_lib.Joblet;
+import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
@@ -36,11 +37,6 @@ public class DemoDaemon {
         throw new DaemonException(e);
       }
     }
-
-    @Override
-    public void afterExecution() {
-      System.out.println("Complete");
-    }
   }
 
   public static class Config implements JobletConfig {
@@ -69,10 +65,22 @@ public class DemoDaemon {
     }
   }
 
+  private static class Callbacks implements JobletCallbacks<Config> {
+    @Override
+    public void before(Config config) throws DaemonException {
+      System.out.println("Called before callback for config: " + config.id);
+    }
+
+    @Override
+    public void after(Config config) throws DaemonException {
+      System.out.println("Called after callback for config: " + config.id);
+    }
+  }
+
   public static void main(String[] args) throws Exception {
     LoggingHelper.setLoggingProperties("demo-daemon");
 
-    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, Factory.class, new Producer(), AlertsHandlers.distribution(DemoDaemon.class));
+    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, Factory.class, new Producer(), AlertsHandlers.distribution(DemoDaemon.class), new Callbacks());
     DaemonRunner.run(daemon);
   }
 }
