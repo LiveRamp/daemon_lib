@@ -6,8 +6,10 @@ import org.mockito.Mockito;
 
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.utils.DaemonException;
+import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
@@ -20,10 +22,10 @@ public class TestDaemon extends DaemonLibTestCase {
   @Before
   @SuppressWarnings("unchecked")
   public void setup() {
-    this.executor = Mockito.mock(JobletExecutor.class);
-    this.config = Mockito.mock(JobletConfig.class);
-    this.configProducer = Mockito.mock(JobletConfigProducer.class);
-    this.daemon = new Daemon("identifier", executor, configProducer);
+    this.executor = mock(JobletExecutor.class);
+    this.config = mock(JobletConfig.class);
+    this.configProducer = mock(JobletConfigProducer.class);
+    this.daemon = new Daemon("identifier", executor, configProducer, mock(AlertsHandler.class));
   }
 
   @Test
