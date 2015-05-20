@@ -11,6 +11,7 @@ import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.DaemonRunner;
+import com.liveramp.java_support.alerts_handler.AlertsHandlers;
 import com.liveramp.java_support.logging.LoggingHelper;
 
 public class DemoDaemon {
@@ -71,7 +72,7 @@ public class DemoDaemon {
   public static void main(String[] args) throws Exception {
     LoggingHelper.setLoggingProperties("demo-daemon");
 
-    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, Factory.class, new Producer());
+    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, Factory.class, new Producer(), AlertsHandlers.distribution(DemoDaemon.class));
     DaemonRunner.run(daemon);
   }
 }
