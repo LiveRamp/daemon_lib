@@ -18,14 +18,21 @@ public class Daemon<T extends JobletConfig> {
   private final JobletExecutor<T> executor;
   private final AlertsHandler alertsHandler;
   private final JobletConfigProducer<T> configProducer;
+  private final int sleepingSeconds;
 
   private boolean running;
+  private static final int DEFAULT_SLEEPING_SECONDS = 10;
 
   public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
+    this(identifier, executor, configProducer, alertsHandler, DEFAULT_SLEEPING_SECONDS);
+  }
+
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, int sleepingSeconds) {
     this.identifier = identifier;
     this.configProducer = configProducer;
     this.executor = executor;
     this.alertsHandler = alertsHandler;
+    this.sleepingSeconds = sleepingSeconds;
     this.running = false;
   }
 
@@ -74,7 +81,7 @@ public class Daemon<T extends JobletConfig> {
 
   private void doSleep() {
     try {
-      Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+      Thread.sleep(TimeUnit.SECONDS.toMillis(sleepingSeconds));
     } catch (InterruptedException e) {
       LOG.error("Daemon interrupted: ", e);
     }

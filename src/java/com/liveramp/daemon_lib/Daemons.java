@@ -13,7 +13,16 @@ public class Daemons {
         identifier,
         JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactoryClass, jobletCallbacks),
         jobletConfigProducer,
-        alertsHandler
-    );
+        alertsHandler);
+  }
+
+  public static <T extends JobletConfig> Daemon<T> forked(String workingDir, String identifier, int maxProcess, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks, int sleepingSeconds) throws IOException, InstantiationException, IllegalAccessException {
+    final String tmpPath = new File(workingDir, identifier).getPath();
+    return new Daemon<T>(
+        identifier,
+        JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactoryClass, jobletCallbacks),
+        jobletConfigProducer,
+        alertsHandler,
+        sleepingSeconds);
   }
 }
