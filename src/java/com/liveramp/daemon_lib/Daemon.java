@@ -50,6 +50,7 @@ public class Daemon<T extends JobletConfig> {
 
   protected boolean processNext() {
     if (executor.canExecuteAnother()) {
+      LOG.info("Can process another config");
       T jobletConfig;
       try {
         jobletConfig = configProducer.getNextConfig();
@@ -66,8 +67,13 @@ public class Daemon<T extends JobletConfig> {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
         }
         return true;
+      } else {
+        LOG.info("Found no joblet config");
       }
+    } else {
+      LOG.info("Cannot process another config");
     }
+
     return false;
   }
 
