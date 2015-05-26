@@ -25,7 +25,7 @@ public class ForkedJobletRunner {
   public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier) throws IOException {
     prepareScript();
 
-    int pid = ProcessUtil.runCommand(JOBLET_RUNNER_SCRIPT, jobletFactoryClass.getName(), configStore.getPath(), cofigIdentifier);
+    int pid = ProcessUtil.runCommand(JOBLET_RUNNER_SCRIPT, quote(jobletFactoryClass.getName()), configStore.getPath(), cofigIdentifier);
 
     return pid;
   }
@@ -47,10 +47,22 @@ public class ForkedJobletRunner {
     }
   }
 
+  private static String quote(String s) {
+    return "'" + s + "'";
+  }
+
+  private static String unquote(String s) {
+    if (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\'') {
+      return s.substring(1, s.length() - 1);
+    } else {
+      throw new IllegalArgumentException("String is not quoted");
+    }
+  }
+
   public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, DaemonException {
     LoggingHelper.setLoggingProperties("forked-joblet-runner");
 
-    String jobletFactoryClassName = args[0];
+    String jobletFactoryClassName = unquote(args[0]);
     String configStorePath = args[1];
     String id = args[2];
 
