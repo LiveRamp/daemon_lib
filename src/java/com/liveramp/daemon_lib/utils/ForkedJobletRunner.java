@@ -7,6 +7,8 @@ import java.io.InputStream;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
@@ -15,6 +17,8 @@ import com.liveramp.daemon_lib.executors.processes.ProcessUtil;
 import com.liveramp.java_support.logging.LoggingHelper;
 
 public class ForkedJobletRunner {
+  private static final Logger LOG = LoggerFactory.getLogger(ForkedJobletRunner.class);
+
   private static final String JOBLET_RUNNER_SCRIPT = "bin/joblet_runner.sh";
   private static final String JOBLET_RUNNER_SCRIPT_SOURCE = "com/liveramp/daemon_lib/utils/joblet_runner.txt";
 
@@ -62,6 +66,7 @@ public class ForkedJobletRunner {
   public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, DaemonException {
     LoggingHelper.setLoggingProperties("forked-joblet-runner");
 
+    LOG.info("Joblet Factory Class: " + args[0]);
     String jobletFactoryClassName = unquote(args[0]);
     String configStorePath = args[1];
     String id = args[2];
