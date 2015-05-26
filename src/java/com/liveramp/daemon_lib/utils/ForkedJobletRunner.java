@@ -59,7 +59,7 @@ public class ForkedJobletRunner {
     if (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\'') {
       return s.substring(1, s.length() - 1);
     } else {
-      throw new IllegalArgumentException("String is not quoted");
+      return s;
     }
   }
 
@@ -68,6 +68,8 @@ public class ForkedJobletRunner {
 
     LOG.info("Joblet Factory Class: " + args[0]);
     String jobletFactoryClassName = unquote(args[0]);
+    LOG.info("Joblet Factory Class (Unquoted): " + args[0]);
+
     String configStorePath = args[1];
     String id = args[2];
 
