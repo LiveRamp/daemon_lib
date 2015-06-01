@@ -18,16 +18,16 @@ public class Daemon<T extends JobletConfig> {
   private final JobletExecutor<T> executor;
   private final AlertsHandler alertsHandler;
   private final JobletConfigProducer<T> configProducer;
-  private final int sleepingSeconds;
+  private final Integer sleepingSeconds;
 
   private boolean running;
-  private static final int DEFAULT_SLEEPING_SECONDS = 10;
+  private static final Integer DEFAULT_SLEEPING_SECONDS = 10;
 
   public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
     this(identifier, executor, configProducer, alertsHandler, DEFAULT_SLEEPING_SECONDS);
   }
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, int sleepingSeconds) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, Integer sleepingSeconds) {
     this.identifier = identifier;
     this.configProducer = configProducer;
     this.executor = executor;
@@ -42,7 +42,9 @@ public class Daemon<T extends JobletConfig> {
 
     while (running) {
       processNext();
-      doSleep();
+      if (sleepingSeconds != null) {
+        doSleep(sleepingSeconds);
+      }
     }
 
     LOG.info("Exiting daemon ({})", identifier);
@@ -85,9 +87,9 @@ public class Daemon<T extends JobletConfig> {
     return identifier;
   }
 
-  private void doSleep() {
+  private static void doSleep(Integer seconds) {
     try {
-      Thread.sleep(TimeUnit.SECONDS.toMillis(sleepingSeconds));
+      Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
     } catch (InterruptedException e) {
       LOG.error("Daemon interrupted: ", e);
     }
