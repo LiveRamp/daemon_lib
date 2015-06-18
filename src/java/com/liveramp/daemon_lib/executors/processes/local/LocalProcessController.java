@@ -44,7 +44,7 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
   @Override
   public void registerProcess(int pid, T metadata) throws ProcessControllerException {
     LOG.info("Registering process {}.", pid);
-    ProcessDefinition<T> process = new ProcessDefinition<T>(pid, metadata);
+    ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadata);
     File tmpFile = fsHelper.getPidTmpPath(process.getPid());
     try {
       fsHelper.writeMetadata(tmpFile, metadataSerializer.toBytes(process.getMetadata()));
@@ -103,7 +103,7 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
         if (s.matches("\\d+")) {
           int pid = Integer.parseInt(s);
           File pidPath = fsHelper.getPidPath(pid);
-          ProcessDefinition<T> process = new ProcessDefinition<T>(pid, metadataSerializer.fromBytes(fsHelper.readMetadata(pidPath)));
+          ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadataSerializer.fromBytes(fsHelper.readMetadata(pidPath)));
           pids.add(process);
         }
       }

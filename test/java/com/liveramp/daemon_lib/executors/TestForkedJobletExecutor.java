@@ -36,7 +36,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   private ForkedJobletExecutor<JobletConfig> executor;
   private JobletCallbacks jobletCallbacks;
 
-  private static final ProcessDefinition<JobletConfigMetadata> DUMMY_PROCESS = new ProcessDefinition<JobletConfigMetadata>(1, new JobletConfigMetadata("a"));
+  private static final ProcessDefinition<JobletConfigMetadata> DUMMY_PROCESS = new ProcessDefinition<>(1, new JobletConfigMetadata("a"));
 
   @Before
   public void setup() {
@@ -44,7 +44,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     this.processController = Mockito.mock(ProcessController.class);
     this.jobletRunner = Mockito.mock(ForkedJobletRunner.class);
     this.jobletCallbacks = Mockito.mock(JobletCallbacks.class);
-    this.executor = new ForkedJobletExecutor<JobletConfig>(MAX_PROCESSES, MockJobletFactory.class, jobletCallbacks, configStorage, processController, jobletRunner);
+    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, jobletCallbacks, configStorage, processController, jobletRunner);
 
     this.config = Mockito.mock(JobletConfig.class);
   }
