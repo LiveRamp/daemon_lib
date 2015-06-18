@@ -52,7 +52,7 @@ public class JobletConfigStorage<T extends JobletConfig> {
   }
 
   public static <T extends JobletConfig> JobletConfigStorage<T> production(String path) {
-    return new JobletConfigStorage<T>(path);
+    return new JobletConfigStorage<>(path);
   }
 
   private String createIdentifier(JobletConfig config) {

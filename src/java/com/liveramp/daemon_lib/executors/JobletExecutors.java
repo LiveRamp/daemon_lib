@@ -31,9 +31,9 @@ public class JobletExecutors {
       FileUtils.forceMkdir(pidDir);
 
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
-      LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<JobletConfigMetadata>(
+      LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
           new FsHelper(pidDir.getPath()),
-          new JobletProcessHandler<T>(jobletCallbacks, configStore),
+          new JobletProcessHandler<>(jobletCallbacks, configStore),
           new PsPidGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
@@ -41,7 +41,7 @@ public class JobletExecutors {
 
       Executors.newSingleThreadExecutor().submit(new ProcessControllerRunner(processController));
 
-      return new ForkedJobletExecutor<T>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production());
+      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production());
     }
 
     private static boolean hasNoArgConstructor(Class klass) {

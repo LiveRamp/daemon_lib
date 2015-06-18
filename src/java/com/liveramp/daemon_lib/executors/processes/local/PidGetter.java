@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface PidGetter {
 
-  public static class PidData {
+  class PidData {
     String command;
 
     @Override
@@ -15,6 +15,6 @@ public interface PidGetter {
     }
   }
 
-  public Map<Integer, PidData> getPids() throws Exception;
+  Map<Integer, PidData> getPids() throws Exception;
 
 }

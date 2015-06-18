@@ -13,9 +13,8 @@ public class PsPidGetter implements PidGetter {
   public Map<Integer, PidData> getPids() throws IOException {
     Map<Integer, PidData> pidToCommand = Maps.newHashMap();
     Process p = Runtime.getRuntime().exec("ps -Aopid,command");
-    BufferedReader inputStream = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-    try {
+    try (BufferedReader inputStream = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
       boolean first = true;
       String line;
       while ((line = inputStream.readLine()) != null) {
@@ -35,7 +34,6 @@ public class PsPidGetter implements PidGetter {
     } catch (Exception e) {
       throw new IOException(e);
     } finally {
-      inputStream.close();
       p.destroy();
     }
   }
