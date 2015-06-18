@@ -1,5 +1,7 @@
 package com.liveramp.daemon_lib.executors;
 
+import java.util.Map;
+
 import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
@@ -16,14 +18,16 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
   private final ForkedJobletRunner jobletRunner;
   private final int maxProcesses;
   private final Class<? extends JobletFactory<? extends T>> jobletFactoryClass;
+  private final Map<String, String> envVariables;
 
-  public ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ForkedJobletRunner jobletRunner) {
+  public ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ForkedJobletRunner jobletRunner, Map<String, String> envVariables) {
     this.maxProcesses = maxProcesses;
     this.jobletFactoryClass = jobletFactoryClass;
     this.jobletCallbacks = jobletCallbacks;
     this.configStorage = configStorage;
     this.processController = processController;
     this.jobletRunner = jobletRunner;
+    this.envVariables = envVariables;
   }
 
   @Override
@@ -31,7 +35,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
     try {
       String identifier = configStorage.storeConfig(config);
       jobletCallbacks.before(config);
-      int pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier);
+      int pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier, envVariables);
       processController.registerProcess(pid, new JobletConfigMetadata(identifier));
     } catch (Exception e) {
       throw new DaemonException(e);

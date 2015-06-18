@@ -3,6 +3,7 @@ package com.liveramp.daemon_lib.executors;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 import com.google.common.base.Preconditions;
@@ -23,7 +24,7 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks, Map<String, String> envVariables) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
 
       File pidDir = new File(tmpPath, "pids");
@@ -41,7 +42,7 @@ public class JobletExecutors {
 
       Executors.newSingleThreadExecutor().submit(new ProcessControllerRunner(processController));
 
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production());
+      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production(), envVariables);
     }
 
     private static boolean hasNoArgConstructor(Class klass) {

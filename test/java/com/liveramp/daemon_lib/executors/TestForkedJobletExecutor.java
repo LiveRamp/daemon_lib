@@ -3,6 +3,7 @@ package com.liveramp.daemon_lib.executors;
 import java.io.IOException;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     this.processController = Mockito.mock(ProcessController.class);
     this.jobletRunner = Mockito.mock(ForkedJobletRunner.class);
     this.jobletCallbacks = Mockito.mock(JobletCallbacks.class);
-    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, jobletCallbacks, configStorage, processController, jobletRunner);
+    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, jobletCallbacks, configStorage, processController, jobletRunner, Maps.<String, String>newHashMap());
 
     this.config = Mockito.mock(JobletConfig.class);
   }
@@ -52,7 +53,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   @Test
   public void execute() throws IOException, ProcessControllerException, DaemonException {
     Mockito.when(configStorage.storeConfig(config)).thenReturn(MOCK_IDENTIFIER);
-    Mockito.when(jobletRunner.run(MockJobletFactory.class, configStorage, MOCK_IDENTIFIER)).thenReturn(PID);
+    Mockito.when(jobletRunner.run(MockJobletFactory.class, configStorage, MOCK_IDENTIFIER, Maps.<String, String>newHashMap())).thenReturn(PID);
 
     executor.execute(config);
 

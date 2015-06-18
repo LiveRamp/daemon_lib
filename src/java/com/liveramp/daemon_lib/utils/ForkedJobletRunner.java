@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
@@ -26,10 +27,12 @@ public class ForkedJobletRunner {
     return new ForkedJobletRunner();
   }
 
-  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier) throws IOException {
+  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables) throws IOException {
     prepareScript();
 
-    int pid = ProcessUtil.runCommand(JOBLET_RUNNER_SCRIPT, quote(jobletFactoryClass.getName()), configStore.getPath(), cofigIdentifier);
+    ProcessBuilder processBuilder = new ProcessBuilder(JOBLET_RUNNER_SCRIPT, quote(jobletFactoryClass.getName()), configStore.getPath(), cofigIdentifier);
+    processBuilder.environment().putAll(envVariables);
+    int pid = ProcessUtil.run(processBuilder);
 
     return pid;
   }

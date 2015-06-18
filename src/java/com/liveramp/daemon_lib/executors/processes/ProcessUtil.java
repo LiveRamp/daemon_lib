@@ -13,10 +13,8 @@ import org.slf4j.LoggerFactory;
 public class ProcessUtil {
   private static Logger LOG = LoggerFactory.getLogger(ProcessUtil.class);
 
-  public static int runCommand(String... command) throws IOException {
-    LOG.info("Run \"" + Arrays.toString(command) + "\" in " + System.getProperty("user.dir"));
-
-    Process process = new ProcessBuilder(command).start();
+  public static int run(ProcessBuilder processBuiler) throws IOException {
+    Process process = processBuiler.start();
 
     process.getInputStream().close();
     process.getErrorStream().close();

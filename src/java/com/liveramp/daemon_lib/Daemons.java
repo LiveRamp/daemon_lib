@@ -3,6 +3,8 @@ package com.liveramp.daemon_lib;
 import java.io.File;
 import java.io.IOException;
 
+import com.google.common.collect.Maps;
+
 import com.liveramp.daemon_lib.executors.JobletExecutors;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
@@ -11,7 +13,7 @@ public class Daemons {
     final String tmpPath = new File(workingDir, identifier).getPath();
     return new Daemon<>(
         identifier,
-        JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactoryClass, jobletCallbacks),
+        JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactoryClass, jobletCallbacks, Maps.<String, String>newHashMap()),
         jobletConfigProducer,
         alertsHandler);
   }
@@ -20,7 +22,7 @@ public class Daemons {
     final String tmpPath = new File(workingDir, identifier).getPath();
     return new Daemon<>(
         identifier,
-        JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactoryClass, jobletCallbacks),
+        JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactoryClass, jobletCallbacks, Maps.<String, String>newHashMap()),
         jobletConfigProducer,
         alertsHandler,
         sleepingSeconds);
