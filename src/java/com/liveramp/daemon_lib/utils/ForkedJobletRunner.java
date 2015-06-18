@@ -37,6 +37,7 @@ public class ForkedJobletRunner {
   private static void prepareScript() throws IOException {
     File productionScript = new File(JOBLET_RUNNER_SCRIPT);
     if (!productionScript.exists()) {
+      LOG.info("joblet_runner script doesn't exist - creating it now");
       InputStream scriptResourceInput = ForkedJobletRunner.class.getClassLoader().getResourceAsStream(JOBLET_RUNNER_SCRIPT_SOURCE);
 
       FileUtils.forceMkdir(productionScript.getParentFile());
