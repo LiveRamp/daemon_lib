@@ -77,7 +77,9 @@ public class Daemon<T extends JobletConfig> {
 
   private void doSleep() {
     try {
-      Thread.sleep(TimeUnit.SECONDS.toMillis(sleepingSeconds));
+      if (sleepingSeconds > 0) {
+        Thread.sleep(TimeUnit.SECONDS.toMillis(sleepingSeconds));
+      }
     } catch (InterruptedException e) {
       LOG.error("Daemon interrupted: ", e);
     }
