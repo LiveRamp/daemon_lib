@@ -21,11 +21,6 @@ public class Daemon<T extends JobletConfig> {
   private final int sleepingSeconds;
 
   private boolean running;
-  private static final int DEFAULT_SLEEPING_SECONDS = 10;
-
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
-    this(identifier, executor, configProducer, alertsHandler, DEFAULT_SLEEPING_SECONDS);
-  }
 
   public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, int sleepingSeconds) {
     this.identifier = identifier;

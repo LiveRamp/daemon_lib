@@ -8,7 +8,9 @@ public class DaemonBuilder<T extends JobletConfig> {
   private final JobletExecutor<T> executor;
   private final JobletConfigProducer<T> configProducer;
   private final AlertsHandler alertsHandler;
-  private Integer sleepingSeconds;
+  private int sleepingSeconds;
+
+  private static final int DEFAULT_SLEEPING_SECONDS = 10;
 
   public DaemonBuilder(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
     this.identifier = identifier;
@@ -16,10 +18,10 @@ public class DaemonBuilder<T extends JobletConfig> {
     this.configProducer = configProducer;
     this.alertsHandler = alertsHandler;
 
-    this.sleepingSeconds = null;
+    this.sleepingSeconds = DEFAULT_SLEEPING_SECONDS;
   }
 
-  public DaemonBuilder<T> setSleepingSeconds(Integer sleepingSeconds) {
+  public DaemonBuilder<T> setSleepingSeconds(int sleepingSeconds) {
     this.sleepingSeconds = sleepingSeconds;
 
     return this;
