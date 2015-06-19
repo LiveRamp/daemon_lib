@@ -25,7 +25,7 @@ public class TestDaemon extends DaemonLibTestCase {
     this.executor = mock(JobletExecutor.class);
     this.config = mock(JobletConfig.class);
     this.configProducer = mock(JobletConfigProducer.class);
-    this.daemon = new Daemon("identifier", executor, configProducer, mock(AlertsHandler.class));
+    this.daemon = new Daemon("identifier", executor, configProducer, mock(AlertsHandler.class), 10);
   }
 
   @Test
