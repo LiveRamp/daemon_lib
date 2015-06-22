@@ -21,6 +21,14 @@ import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 import com.liveramp.daemon_lib.utils.JobletProcessHandler;
 
 public class JobletExecutors {
+
+  public static class Blocking {
+    public static <T extends JobletConfig> BlockingJobletExecutor<T> get(Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
+      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
+      return new BlockingJobletExecutor<>(jobletFactoryClass.newInstance(), jobletCallbacks);
+    }
+  }
+
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
@@ -45,15 +53,6 @@ public class JobletExecutors {
       return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production(), envVariables);
     }
 
-    private static boolean hasNoArgConstructor(Class klass) {
-      for (Constructor constructor : klass.getConstructors()) {
-        if (constructor.getParameterTypes().length == 0) {
-          return true;
-        }
-      }
-
-      return false;
-    }
   }
 
   private static class ProcessControllerRunner implements Runnable {
@@ -68,4 +67,15 @@ public class JobletExecutors {
       controller.start();
     }
   }
+
+  private static boolean hasNoArgConstructor(Class klass) {
+    for (Constructor constructor : klass.getConstructors()) {
+      if (constructor.getParameterTypes().length == 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
 }
