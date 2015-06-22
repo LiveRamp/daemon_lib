@@ -20,6 +20,15 @@ public class Daemons {
         .build();
   }
 
+  public static <T extends JobletConfig> Daemon<T> blocking(String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws InstantiationException, IllegalAccessException {
+    return new DaemonBuilder<>(
+        identifier,
+        JobletExecutors.Blocking.get(jobletFactoryClass, jobletCallbacks),
+        jobletConfigProducer,
+        alertsHandler)
+        .build();
+  }
+
   private static <T extends JobletConfig> DaemonBuilder<T> getBuilder(String workingDir, String identifier, int maxProcess, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
     final String tmpPath = new File(workingDir, identifier).getPath();
     return new DaemonBuilder<>(
