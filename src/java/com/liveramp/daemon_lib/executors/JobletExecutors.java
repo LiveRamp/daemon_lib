@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
@@ -53,6 +54,17 @@ public class JobletExecutors {
       return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production(), envVariables);
     }
 
+  }
+
+  public static class Threaded {
+    public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(ThreadPoolExecutor threadPool, int maxActiveJoblets, JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) {
+      Preconditions.checkNotNull(threadPool);
+      Preconditions.checkArgument(maxActiveJoblets > 0);
+      Preconditions.checkNotNull(jobletFactory);
+      Preconditions.checkNotNull(jobletCallbacks);
+
+      return new ThreadedJobletExecutor<>(threadPool, maxActiveJoblets, jobletFactory, jobletCallbacks);
+    }
   }
 
   private static class ProcessControllerRunner implements Runnable {
