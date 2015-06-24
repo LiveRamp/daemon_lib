@@ -36,7 +36,7 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
           Joblet joblet = jobletFactory.create(config);
           joblet.run();
         } catch (DaemonException e) {
-          LOG.error("Failed to create joblet for config {}", config, e);
+          LOG.error("Failed to run joblet for config {}", config, e);
         } finally {
           try {
             jobletCallbacks.after(config);

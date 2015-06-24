@@ -3,6 +3,7 @@ package com.liveramp.daemon_lib.executors;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.Assert;
 import org.junit.After;
@@ -80,12 +81,22 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
   public void testLimit() throws Exception {
     IDConfig config = new IDConfig(1);
 
+    final AtomicBoolean stop = new AtomicBoolean(false);
+    when(factory.create(config)).thenReturn(new Joblet() {
+      @Override
+      public void run() throws DaemonException {
+        while (!stop.get()) {
+        }
+      }
+    });
+
     jobletExecutor.execute(config);
     Assert.assertTrue(jobletExecutor.canExecuteAnother());
 
     jobletExecutor.execute(config);
     Assert.assertFalse(jobletExecutor.canExecuteAnother());
 
+    stop.set(true);
     pool.shutdown();
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
