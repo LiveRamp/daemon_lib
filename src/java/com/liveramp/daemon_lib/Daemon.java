@@ -35,11 +35,15 @@ public class Daemon<T extends JobletConfig> {
     LOG.info("Starting daemon ({})", identifier);
     running = true;
 
-    while (running) {
-      processNext();
-      doSleep();
+    try {
+      while (running) {
+        processNext();
+        doSleep();
+      }
+    } catch (Exception e) {
+      alertsHandler.sendAlert("Fatal error occurred in daemon (" + identifier + "). Shutting down.", e, AlertRecipients.engineering(AlertSeverity.ERROR));
+      throw e;
     }
-
     LOG.info("Exiting daemon ({})", identifier);
   }
 
