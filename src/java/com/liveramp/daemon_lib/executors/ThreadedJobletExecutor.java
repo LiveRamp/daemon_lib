@@ -1,5 +1,6 @@
 package com.liveramp.daemon_lib.executors;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.slf4j.Logger;
@@ -18,16 +19,22 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
   private final int maxActiveThreads;
   private final JobletFactory<T> jobletFactory;
   private final JobletCallbacks<T> jobletCallbacks;
+  private final ConcurrentLinkedQueue<Exception> uncheckedExceptionsFromTasks;
 
   public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, int maxActiveThreads, JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) {
     this.threadPool = threadPool;
     this.maxActiveThreads = maxActiveThreads;
     this.jobletFactory = jobletFactory;
     this.jobletCallbacks = jobletCallbacks;
+    this.uncheckedExceptionsFromTasks = new ConcurrentLinkedQueue<>();
   }
 
   @Override
   public void execute(final T config) throws DaemonException {
+    if (!uncheckedExceptionsFromTasks.isEmpty()) {
+      throw new RuntimeException(uncheckedExceptionsFromTasks.poll());
+    }
+
     jobletCallbacks.before(config);
     threadPool.submit(new Runnable() {
       @Override
@@ -37,11 +44,17 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
           joblet.run();
         } catch (DaemonException e) {
           LOG.error("Failed to run joblet for config {}", config, e);
+        } catch (Exception e) {
+          LOG.error("Fatal error for config {}", config, e);
+          uncheckedExceptionsFromTasks.add(e);
         } finally {
           try {
             jobletCallbacks.after(config);
           } catch (DaemonException e) {
             LOG.error("Failed to call after for config {}", config, e);
+          } catch (Exception e) {
+            LOG.error("Fatal error in call after config {}", config, e);
+            uncheckedExceptionsFromTasks.add(e);
           }
         }
       }
