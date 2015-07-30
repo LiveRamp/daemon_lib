@@ -35,6 +35,9 @@ public class FsHelper {
     FileInputStream input = new FileInputStream(path);
     byte[] bytes = new byte[1024];
     int read = input.read(bytes);
+    if (read < 0) {
+      throw new IOException("Could not read metadata from " + path);
+    }
     input.close();
     return Arrays.copyOf(bytes, read);
   }
