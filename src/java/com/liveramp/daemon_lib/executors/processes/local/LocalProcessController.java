@@ -46,7 +46,7 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
     LOG.info("Registering process {}.", pid);
     ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadata);
     File tmpFile = fsHelper.getPidTmpPath(process.getPid());
-    if (!tmpFile.mkdirs()) {
+    if (!tmpFile.getParentFile().mkdirs()) {
       throw new ProcessControllerException(String.format("Unable to create parent directory '%s' for %d pid", tmpFile.getParent(), process.getPid()));
     }
     try {
