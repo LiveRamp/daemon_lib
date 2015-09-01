@@ -23,12 +23,16 @@ public class Daemon<T extends JobletConfig> {
   private boolean running;
 
   public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, int sleepingSeconds) {
-    this.identifier = identifier;
+    this.identifier = clean(identifier);
     this.configProducer = configProducer;
     this.executor = executor;
     this.alertsHandler = alertsHandler;
     this.sleepingSeconds = sleepingSeconds;
     this.running = false;
+  }
+
+  private static String clean(String identifier) {
+    return identifier.replaceAll("\\s", "-");
   }
 
   public final void start() {
