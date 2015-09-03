@@ -53,7 +53,6 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     pool.shutdown();
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
-    verify(callbacks, times(1)).before(config);
     verify(factory.create(config), times(1)).run();
     verify(callbacks, times(1)).after(config);
   }
@@ -74,7 +73,6 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     pool.shutdown();
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
-    verify(callbacks, times(1)).before(config);
     verify(callbacks, times(1)).after(config);
   }
 

@@ -58,7 +58,6 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     executor.execute(config);
 
     Mockito.verify(processController, times(1)).registerProcess(eq(PID), any(JobletConfigMetadata.class)); // TODO(asarkar): shouldn't actually be testing this - its an implementation detail
-    Mockito.verify(jobletCallbacks).before(config);
   }
 
   @Test
