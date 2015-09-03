@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.io.FileUtils;
 
 import com.liveramp.daemon_lib.JobletCallbacks;
@@ -49,7 +50,9 @@ public class JobletExecutors {
           new JobletConfigMetadata.Serializer()
       );
 
-      Executors.newSingleThreadExecutor().submit(new ProcessControllerRunner(processController));
+      Executors.newSingleThreadExecutor(
+          new ThreadFactoryBuilder().setDaemon(true).setNameFormat("process-controller").build()
+      ).submit(new ProcessControllerRunner(processController));
 
       return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production(), envVariables);
     }
