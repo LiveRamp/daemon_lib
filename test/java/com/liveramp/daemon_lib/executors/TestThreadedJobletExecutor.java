@@ -15,6 +15,7 @@ import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.built_in.IDConfig;
+import com.liveramp.daemon_lib.utils.AfterJobletCallback;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -35,7 +36,7 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     pool = (ThreadPoolExecutor)Executors.newFixedThreadPool(3);
     factory = mock(JobletFactory.class, RETURNS_DEEP_STUBS);
     callbacks = mock(JobletCallbacks.class);
-    jobletExecutor = new ThreadedJobletExecutor<>(pool, 2, factory, callbacks);
+    jobletExecutor = new ThreadedJobletExecutor<>(pool, 2, factory, AfterJobletCallback.wrap(callbacks));
   }
 
   @After

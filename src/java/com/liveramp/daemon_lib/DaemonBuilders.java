@@ -5,7 +5,9 @@ import java.io.IOException;
 
 import com.google.common.collect.Maps;
 
+import com.liveramp.daemon_lib.built_in.NoOpDaemonLock;
 import com.liveramp.daemon_lib.executors.JobletExecutors;
+import com.liveramp.daemon_lib.utils.BeforeJobletCallback;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class DaemonBuilders {
@@ -15,6 +17,8 @@ public class DaemonBuilders {
         identifier,
         JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactoryClass, jobletCallbacks, Maps.<String, String>newHashMap()),
         jobletConfigProducer,
+        BeforeJobletCallback.wrap(jobletCallbacks),
+        new NoOpDaemonLock(),
         alertsHandler);
   }
 
@@ -23,6 +27,8 @@ public class DaemonBuilders {
         identifier,
         JobletExecutors.Blocking.get(jobletFactoryClass, jobletCallbacks),
         jobletConfigProducer,
+        BeforeJobletCallback.wrap(jobletCallbacks),
+        new NoOpDaemonLock(),
         alertsHandler);
   }
 }

@@ -16,6 +16,7 @@ import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
 import com.liveramp.daemon_lib.executors.processes.local.LocalProcessController;
 import com.liveramp.daemon_lib.executors.processes.local.PsPidGetter;
+import com.liveramp.daemon_lib.utils.AfterJobletCallback;
 import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
@@ -26,7 +27,7 @@ public class JobletExecutors {
   public static class Blocking {
     public static <T extends JobletConfig> BlockingJobletExecutor<T> get(Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
-      return new BlockingJobletExecutor<>(jobletFactoryClass.newInstance(), jobletCallbacks);
+      return new BlockingJobletExecutor<>(jobletFactoryClass.newInstance(), AfterJobletCallback.wrap(jobletCallbacks));
     }
   }
 
@@ -43,7 +44,7 @@ public class JobletExecutors {
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
           new FsHelper(pidDir.getPath()),
-          new JobletProcessHandler<>(jobletCallbacks, configStore),
+          new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), configStore),
           new PsPidGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
@@ -51,7 +52,7 @@ public class JobletExecutors {
 
       Executors.newSingleThreadExecutor().submit(new ProcessControllerRunner(processController));
 
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production(), envVariables);
+      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStore, processController, ForkedJobletRunner.production(), envVariables);
     }
 
   }
@@ -63,7 +64,7 @@ public class JobletExecutors {
       Preconditions.checkNotNull(jobletFactory);
       Preconditions.checkNotNull(jobletCallbacks);
 
-      return new ThreadedJobletExecutor<>(threadPool, maxActiveJoblets, jobletFactory, jobletCallbacks);
+      return new ThreadedJobletExecutor<>(threadPool, maxActiveJoblets, jobletFactory, AfterJobletCallback.wrap(jobletCallbacks));
     }
   }
 

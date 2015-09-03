@@ -1,5 +1,6 @@
 package com.liveramp.daemon_lib.executors;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -7,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.Joblet;
-import com.liveramp.daemon_lib.JobletCallbacks;
+import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.utils.DaemonException;
@@ -18,14 +19,14 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
   private final ThreadPoolExecutor threadPool;
   private final int maxActiveThreads;
   private final JobletFactory<T> jobletFactory;
-  private final JobletCallbacks<T> jobletCallbacks;
+  private final List<JobletCallback<T>> postExecutionCallbacks;
   private final ConcurrentLinkedQueue<Exception> uncheckedExceptionsFromTasks;
 
-  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, int maxActiveThreads, JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) {
+  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, int maxActiveThreads, JobletFactory<T> jobletFactory, List<JobletCallback<T>> postExecutionCallbacks) {
     this.threadPool = threadPool;
     this.maxActiveThreads = maxActiveThreads;
     this.jobletFactory = jobletFactory;
-    this.jobletCallbacks = jobletCallbacks;
+    this.postExecutionCallbacks = postExecutionCallbacks;
     this.uncheckedExceptionsFromTasks = new ConcurrentLinkedQueue<>();
   }
 
@@ -35,7 +36,6 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
       throw new RuntimeException(uncheckedExceptionsFromTasks.poll());
     }
 
-    jobletCallbacks.before(config);
     threadPool.submit(new Runnable() {
       @Override
       public void run() {
@@ -49,7 +49,9 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
           uncheckedExceptionsFromTasks.add(e);
         } finally {
           try {
-            jobletCallbacks.after(config);
+            for (JobletCallback<T> callback : postExecutionCallbacks) {
+              callback.callback(config);
+            }
           } catch (DaemonException e) {
             LOG.error("Failed to call after for config {}", config, e);
           } catch (Exception e) {

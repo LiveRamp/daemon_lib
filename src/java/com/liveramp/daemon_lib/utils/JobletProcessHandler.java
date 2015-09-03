@@ -1,16 +1,18 @@
 package com.liveramp.daemon_lib.utils;
 
-import com.liveramp.daemon_lib.JobletCallbacks;
+import java.util.List;
+
+import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 import com.liveramp.daemon_lib.executors.processes.local.ProcessHandler;
 
 public class JobletProcessHandler<T extends JobletConfig> implements ProcessHandler<JobletConfigMetadata> {
   private final JobletConfigStorage<T> configStorage;
-  private final JobletCallbacks<T> callbacks;
+  private final List<JobletCallback<T>> postExecutionCallbacks;
 
-  public JobletProcessHandler(JobletCallbacks<T> callbacks, JobletConfigStorage<T> configStorage) {
-    this.callbacks = callbacks;
+  public JobletProcessHandler(List<JobletCallback<T>> postExecutionCallbacks, JobletConfigStorage<T> configStorage) {
+    this.postExecutionCallbacks = postExecutionCallbacks;
     this.configStorage = configStorage;
   }
 
@@ -19,7 +21,9 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
     try {
       JobletConfigMetadata metadata = watchedProcess.getMetadata();
       T jobletConfig = configStorage.loadConfig(metadata.getIdentifier());
-      callbacks.after(jobletConfig);
+      for (JobletCallback<T> callback : postExecutionCallbacks) {
+        callback.callback(jobletConfig);
+      }
     } catch (Exception e) {
       throw new DaemonException(e);
     }
