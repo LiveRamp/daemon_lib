@@ -2,4 +2,5 @@
 
 JOBJAR=`find . -name "*.job.jar" | head -1`
 
+mkdir -p log/forked-joblet-runner
 hadoop jar $JOBJAR com.liveramp.daemon_lib.utils.ForkedJobletRunner $@ >> log/forked-joblet-runner.out 2>&1
