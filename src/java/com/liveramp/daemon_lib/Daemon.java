@@ -21,11 +21,11 @@ public class Daemon<T extends JobletConfig> {
   private final int sleepingSeconds;
 
   private boolean running;
-  private final JobletCallback<T> beforeExecutionCallback;
+  private final JobletCallback<T> preExecutionCallback;
   private DaemonLock lock;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> beforeExecutionCallback, AlertsHandler alertsHandler, int sleepingSeconds, DaemonLock lock) {
-    this.beforeExecutionCallback = beforeExecutionCallback;
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, AlertsHandler alertsHandler, int sleepingSeconds, DaemonLock lock) {
+    this.preExecutionCallback = preExecutionCallback;
     this.lock = lock;
     this.identifier = clean(identifier);
     this.configProducer = configProducer;
@@ -69,7 +69,7 @@ public class Daemon<T extends JobletConfig> {
       if (jobletConfig != null) {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
-          beforeExecutionCallback.callback(jobletConfig);
+          preExecutionCallback.callback(jobletConfig);
           executor.execute(jobletConfig);
         } catch (Exception e) {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
