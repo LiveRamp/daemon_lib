@@ -1,6 +1,5 @@
 package com.liveramp.daemon_lib;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -22,11 +21,11 @@ public class Daemon<T extends JobletConfig> {
   private final int sleepingSeconds;
 
   private boolean running;
-  private final List<JobletCallback<T>> beforeExecutionCallbacks;
+  private final JobletCallback<T> beforeExecutionCallback;
   private DaemonLock lock;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, List<JobletCallback<T>> beforeExecutionCallbacks, AlertsHandler alertsHandler, int sleepingSeconds, DaemonLock lock) {
-    this.beforeExecutionCallbacks = beforeExecutionCallbacks;
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> beforeExecutionCallback, AlertsHandler alertsHandler, int sleepingSeconds, DaemonLock lock) {
+    this.beforeExecutionCallback = beforeExecutionCallback;
     this.lock = lock;
     this.identifier = clean(identifier);
     this.configProducer = configProducer;
@@ -70,9 +69,7 @@ public class Daemon<T extends JobletConfig> {
       if (jobletConfig != null) {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
-          for (JobletCallback<T> callback : beforeExecutionCallbacks) {
-            callback.callback(jobletConfig);
-          }
+          beforeExecutionCallback.callback(jobletConfig);
           executor.execute(jobletConfig);
         } catch (Exception e) {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));

@@ -1,6 +1,5 @@
 package com.liveramp.daemon_lib;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -27,7 +26,7 @@ public class TestDaemon extends DaemonLibTestCase {
     this.executor = mock(JobletExecutor.class);
     this.config = mock(JobletConfig.class);
     this.configProducer = mock(JobletConfigProducer.class);
-    this.daemon = new Daemon("identifier", executor, configProducer, Lists.<JobletCallback>newArrayList(), mock(AlertsHandler.class), 10, new NoOpDaemonLock());
+    this.daemon = new Daemon("identifier", executor, configProducer, new JobletCallback.None<>(), mock(AlertsHandler.class), 10, new NoOpDaemonLock());
   }
 
   @Test

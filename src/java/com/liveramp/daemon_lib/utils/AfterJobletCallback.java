@@ -21,7 +21,7 @@ public class AfterJobletCallback<T extends JobletConfig> implements JobletCallba
     callbacks.after(config);
   }
 
-  public static <T extends JobletConfig> List<JobletCallback<T>> wrap(JobletCallbacks<T> callbacks) {
-    return Lists.<JobletCallback<T>>newArrayList(new AfterJobletCallback<T>(callbacks));
+  public static <T extends JobletConfig> JobletCallback<T> wrap(JobletCallbacks<T> callbacks) {
+    return new AfterJobletCallback<T>(callbacks);
   }
 }

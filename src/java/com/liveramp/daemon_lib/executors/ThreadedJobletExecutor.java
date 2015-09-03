@@ -1,6 +1,5 @@
 package com.liveramp.daemon_lib.executors;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -19,14 +18,14 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
   private final ThreadPoolExecutor threadPool;
   private final int maxActiveThreads;
   private final JobletFactory<T> jobletFactory;
-  private final List<JobletCallback<T>> postExecutionCallbacks;
+  private final JobletCallback<T> postExecutionCallback;
   private final ConcurrentLinkedQueue<Exception> uncheckedExceptionsFromTasks;
 
-  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, int maxActiveThreads, JobletFactory<T> jobletFactory, List<JobletCallback<T>> postExecutionCallbacks) {
+  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, int maxActiveThreads, JobletFactory<T> jobletFactory, JobletCallback<T> postExecutionCallback) {
     this.threadPool = threadPool;
     this.maxActiveThreads = maxActiveThreads;
     this.jobletFactory = jobletFactory;
-    this.postExecutionCallbacks = postExecutionCallbacks;
+    this.postExecutionCallback = postExecutionCallback;
     this.uncheckedExceptionsFromTasks = new ConcurrentLinkedQueue<>();
   }
 
@@ -49,9 +48,7 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
           uncheckedExceptionsFromTasks.add(e);
         } finally {
           try {
-            for (JobletCallback<T> callback : postExecutionCallbacks) {
-              callback.callback(config);
-            }
+            postExecutionCallback.callback(config);
           } catch (DaemonException e) {
             LOG.error("Failed to call after for config {}", config, e);
           } catch (Exception e) {

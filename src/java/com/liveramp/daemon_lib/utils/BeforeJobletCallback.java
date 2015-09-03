@@ -1,9 +1,5 @@
 package com.liveramp.daemon_lib.utils;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
-
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
@@ -21,7 +17,7 @@ public class BeforeJobletCallback<T extends JobletConfig> implements JobletCallb
     callbacks.before(config);
   }
 
-  public static <T extends JobletConfig> List<JobletCallback<T>> wrap(JobletCallbacks<T> callbacks) {
-    return Lists.<JobletCallback<T>>newArrayList(new BeforeJobletCallback<T>(callbacks));
+  public static <T extends JobletConfig> JobletCallback<T> wrap(JobletCallbacks<T> callbacks) {
+    return new BeforeJobletCallback<T>(callbacks);
   }
 }

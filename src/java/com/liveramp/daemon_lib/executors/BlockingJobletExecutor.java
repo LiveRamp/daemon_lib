@@ -1,8 +1,5 @@
 package com.liveramp.daemon_lib.executors;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
@@ -11,15 +8,15 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 
 public class BlockingJobletExecutor<T extends JobletConfig> implements JobletExecutor<T> {
   private final JobletFactory<T> jobletFactory;
-  private final List<JobletCallback<T>> jobletCallbacks;
+  private final JobletCallback<T> postexecutionCallback;
 
-  public BlockingJobletExecutor(JobletFactory<T> jobletFactory, List<JobletCallback<T>> postExecutionCallbacks) {
+  public BlockingJobletExecutor(JobletFactory<T> jobletFactory, JobletCallback<T> postExecutionCallback) {
     this.jobletFactory = jobletFactory;
-    this.jobletCallbacks = postExecutionCallbacks;
+    this.postexecutionCallback = postExecutionCallback;
   }
 
   public BlockingJobletExecutor(JobletFactory<T> jobletFactory) {
-    this(jobletFactory, new ArrayList<JobletCallback<T>>());
+    this(jobletFactory, new JobletCallback.None<T>());
   }
 
   @Override
@@ -28,9 +25,7 @@ public class BlockingJobletExecutor<T extends JobletConfig> implements JobletExe
     try {
       joblet.run();
     } finally {
-      for (JobletCallback<T> jobletCallback : jobletCallbacks) {
-        jobletCallback.callback(jobletConfig);
-      }
+      postexecutionCallback.callback(jobletConfig);
     }
   }
 
