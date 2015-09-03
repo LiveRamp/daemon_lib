@@ -70,6 +70,7 @@ public class Daemon<T extends JobletConfig> {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
           preExecutionCallback.callback(jobletConfig);
+          lock.unlock();
           executor.execute(jobletConfig);
         } catch (Exception e) {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
