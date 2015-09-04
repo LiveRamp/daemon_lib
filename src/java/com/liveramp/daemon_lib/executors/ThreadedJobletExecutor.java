@@ -1,5 +1,6 @@
 package com.liveramp.daemon_lib.executors;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.slf4j.Logger;
@@ -26,22 +27,20 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
 
   @Override
   public void execute(final T config) throws DaemonException {
-    threadPool.submit(new Runnable() {
+    jobletCallbacks.before(config);
+
+    threadPool.submit(new Callable<Void>() {
       @Override
-      public void run() {
+      public Void call() throws Exception {
         try {
-          try {
-            jobletCallbacks.before(config);
-            Joblet joblet = jobletFactory.create(config);
-            joblet.run();
-          } finally {
-            jobletCallbacks.after(config);
-          }
-        } catch (DaemonException e) {
-          LOG.error("Failed to call for config {}", config, e);
+          Joblet joblet = jobletFactory.create(config);
+          joblet.run();
         } catch (Exception e) {
-          LOG.error("Fatal error for config {}", config, e); // how should we handle that case?
+          LOG.error("Failed to call for config {}", config, e);
+        } finally {
+          jobletCallbacks.after(config);
         }
+        return null;
       }
     });
   }
