@@ -15,7 +15,7 @@ import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.JobletExecutors;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
-public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuilder<T, ForkingDaemonBuilder> {
+public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuilder<T, ForkingDaemonBuilder<T>> {
 
   private final String workingDir;
   private int maxProcesses;

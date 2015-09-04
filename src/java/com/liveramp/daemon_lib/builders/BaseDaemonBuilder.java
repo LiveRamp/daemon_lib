@@ -12,7 +12,7 @@ import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
-public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDaemonBuilder> {
+public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDaemonBuilder<T, K>> {
   protected final String identifier;
   private final Class<? extends JobletFactory<T>> jobletFactoryClass;
   private final JobletConfigProducer<T> configProducer;
