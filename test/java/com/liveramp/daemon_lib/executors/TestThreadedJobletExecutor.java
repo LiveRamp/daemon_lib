@@ -1,6 +1,5 @@
 package com.liveramp.daemon_lib.executors;
 
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -10,8 +9,6 @@ import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.liveramp.daemon_lib.DaemonLibTestCase;
 import com.liveramp.daemon_lib.Joblet;
@@ -21,7 +18,6 @@ import com.liveramp.daemon_lib.built_in.IDConfig;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -85,15 +81,6 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
   public void testLimit() throws Exception {
     IDConfig config = new IDConfig(1);
 
-    final CyclicBarrier barrier = new CyclicBarrier(2);
-    doAnswer(new Answer<Void>() {
-      @Override
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        barrier.await();
-        return null;
-      }
-    }).when(callbacks).before(config);
-
     final AtomicBoolean stop = new AtomicBoolean(false);
     when(factory.create(config)).thenReturn(new Joblet() {
       @Override
@@ -105,12 +92,9 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
 
     Assert.assertTrue(jobletExecutor.canExecuteAnother());
     jobletExecutor.execute(config);
-    barrier.await();
     Assert.assertTrue(jobletExecutor.canExecuteAnother());
 
-    barrier.reset();
     jobletExecutor.execute(config);
-    barrier.await();
     Assert.assertFalse(jobletExecutor.canExecuteAnother());
 
     stop.set(true);
