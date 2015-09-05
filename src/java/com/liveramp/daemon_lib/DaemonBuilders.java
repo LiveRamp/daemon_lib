@@ -18,10 +18,10 @@ public class DaemonBuilders {
     );
   }
 
-  public static <T extends JobletConfig> BlockingDaemonBuilder<T> blocking(String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws InstantiationException, IllegalAccessException {
+  public static <T extends JobletConfig> BlockingDaemonBuilder<T> blocking(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws InstantiationException, IllegalAccessException {
     return new BlockingDaemonBuilder<>(
         identifier,
-        jobletFactoryClass,
+        jobletFactory,
         jobletConfigProducer,
         jobletCallbacks,
         alertsHandler);

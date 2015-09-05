@@ -39,6 +39,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   @NotNull protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
-    return new Daemon<T>(identifier, getExecutor(jobletCallbacks), configProducer, alertsHandler, sleepingSeconds);
+    return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, alertsHandler, sleepingSeconds);
   }
 }

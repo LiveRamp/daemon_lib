@@ -25,13 +25,9 @@ import com.liveramp.daemon_lib.utils.JobletProcessHandler;
 public class JobletExecutors {
 
   public static class Blocking {
-    public static <T extends JobletConfig> BlockingJobletExecutor<T> get(Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
-      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
-      return new BlockingJobletExecutor<>(jobletFactoryClass.newInstance(), jobletCallbacks);
-    }
 
     public static <T extends JobletConfig> BlockingJobletExecutor<T> get(JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
-      return new BlockingJobletExecutor<T>(jobletFactory, jobletCallbacks);
+      return new BlockingJobletExecutor<>(jobletFactory, jobletCallbacks);
     }
   }
 

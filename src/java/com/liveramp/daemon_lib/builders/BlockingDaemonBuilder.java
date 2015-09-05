@@ -13,16 +13,17 @@ import com.liveramp.daemon_lib.executors.JobletExecutors;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class BlockingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuilder<T, BlockingDaemonBuilder<T>> {
-  private final Class<? extends JobletFactory<T>> jobletFactoryClass;
 
-  public BlockingDaemonBuilder(String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, JobletCallbacks<T> jobletCallbacks, AlertsHandler alertsHandler) {
+  private final JobletFactory<T> jobletFactory;
+
+  public BlockingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer, JobletCallbacks<T> jobletCallbacks, AlertsHandler alertsHandler) {
     super(identifier, configProducer, jobletCallbacks, alertsHandler);
-    this.jobletFactoryClass = jobletFactoryClass;
+    this.jobletFactory = jobletFactory;
   }
 
   @NotNull
   @Override
   protected JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
-    return JobletExecutors.Blocking.get(jobletFactoryClass, jobletCallbacks);
+    return JobletExecutors.Blocking.get(jobletFactory, jobletCallbacks);
   }
 }
