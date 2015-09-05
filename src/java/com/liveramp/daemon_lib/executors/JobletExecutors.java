@@ -29,6 +29,10 @@ public class JobletExecutors {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
       return new BlockingJobletExecutor<>(jobletFactoryClass.newInstance(), jobletCallbacks);
     }
+
+    public static <T extends JobletConfig> BlockingJobletExecutor<T> get(JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
+      return new BlockingJobletExecutor<T>(jobletFactory, jobletCallbacks);
+    }
   }
 
   public static class Forked {
