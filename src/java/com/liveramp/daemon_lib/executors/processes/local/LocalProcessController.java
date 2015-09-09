@@ -27,7 +27,6 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
   private final ProcessMetadata.Serializer<T> metadataSerializer;
   private boolean stop;
   private boolean inValidState = false;
-  private boolean running = false;
 
   private volatile List<ProcessDefinition<T>> currentProcesses;
 
@@ -79,9 +78,6 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
 
   @Override
   public List<ProcessDefinition<T>> getProcesses() throws Exception {
-    if (!running) {
-      watchProcesses();
-    }
     blockUntilValidOrTimeout();
     return currentProcesses;
   }
@@ -90,35 +86,30 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
   public void run() {
     while (!stop) {
       try {
-        watchProcesses();
+        try {
+          List<ProcessDefinition<T>> watchedProcesses = getWatchedProcesses(fsHelper);
+          Map<Integer, PidGetter.PidData> runningPids = pidGetter.getPids();
+          Iterator<ProcessDefinition<T>> iterator = watchedProcesses.iterator();
+          while (iterator.hasNext()) {
+            ProcessDefinition<T> watchedProcess = iterator.next();
+            if (!runningPids.containsKey(watchedProcess.getPid())) {
+              LOG.info("Deregister process {}.", watchedProcess.getPid());
+              File watchedFile = fsHelper.getPidPath(watchedProcess.getPid());
+              processHandler.onRemove(watchedProcess); // TODO(asarkar) handle DaemonException
+              watchedFile.delete();
+              iterator.remove();
+            }
+          }
+          currentProcesses = watchedProcesses;
+          inValidState = true;
+        } catch (Exception e) {
+          inValidState = false;
+          throw e;
+        }
       } catch (Exception e) {
         LOG.warn("Exception while watching processes.", e);
       }
       doSleep(pollDelay);
-    }
-  }
-
-  private synchronized void watchProcesses() throws Exception {
-    try {
-      List<ProcessDefinition<T>> watchedProcesses = getWatchedProcesses(fsHelper);
-      Map<Integer, PidGetter.PidData> runningPids = pidGetter.getPids();
-      Iterator<ProcessDefinition<T>> iterator = watchedProcesses.iterator();
-      while (iterator.hasNext()) {
-        ProcessDefinition<T> watchedProcess = iterator.next();
-        if (!runningPids.containsKey(watchedProcess.getPid())) {
-          LOG.info("Deregister process {}.", watchedProcess.getPid());
-          File watchedFile = fsHelper.getPidPath(watchedProcess.getPid());
-          processHandler.onRemove(watchedProcess); // TODO(asarkar) handle DaemonException
-          watchedFile.delete();
-          iterator.remove();
-        }
-      }
-      currentProcesses = watchedProcesses;
-      inValidState = true;
-      running = true;
-    } catch (Exception e) {
-      inValidState = false;
-      throw e;
     }
   }
 
