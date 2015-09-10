@@ -23,16 +23,19 @@ public class Daemon<T extends JobletConfig> {
     private int executionSlotWaitSeconds = DEFAULT_EXECUTION_SLOT_WAIT_SECONDS;
     private int nextConfigWaitSeconds = DEFAULT_NEXT_CONFIG_WAIT_SECONDS;
 
+    // How long the daemon should wait before retrying when there is not config available.
     public Options setConfigWaitSeconds(int sleepingSeconds) {
       this.configWaitSeconds = sleepingSeconds;
       return this;
     }
 
+    // How long the daemon should wait before retrying when the max number of running joblets is reached.
     public Options setExecutionSlotWaitSeconds(int sleepingSeconds) {
       this.executionSlotWaitSeconds = sleepingSeconds;
       return this;
     }
 
+    // How long the daemon should wait before fetching the next config.
     public Options setNextConfigWaitSeconds(int sleepingSeconds) {
       this.nextConfigWaitSeconds = sleepingSeconds;
       return this;
