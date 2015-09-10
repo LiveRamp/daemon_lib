@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.liveramp.daemon_lib.builders.BlockingDaemonBuilder;
 import com.liveramp.daemon_lib.builders.ForkingDaemonBuilder;
+import com.liveramp.daemon_lib.builders.ThreadingDaemonBuilder;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class DaemonBuilders {
@@ -25,5 +26,15 @@ public class DaemonBuilders {
         jobletConfigProducer,
         jobletCallbacks,
         alertsHandler);
+  }
+
+  public static <T extends JobletConfig> ThreadingDaemonBuilder<T> threaded(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
+    return new ThreadingDaemonBuilder<>(
+        identifier,
+        jobletFactory,
+        jobletConfigProducer,
+        jobletCallbacks,
+        alertsHandler
+    );
   }
 }
