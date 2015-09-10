@@ -24,7 +24,7 @@ public class Daemon<T extends JobletConfig> {
     private int nextConfigWaitSeconds = DEFAULT_NEXT_CONFIG_WAIT_SECONDS;
 
     /**
-     * @param sleepingSeconds How long the daemon should wait before retrying when there is not config available
+     * @param sleepingSeconds How long the daemon should wait before retrying when there is no config available
      * @return options for fluent usage
      */
     public Options setConfigWaitSeconds(int sleepingSeconds) {
