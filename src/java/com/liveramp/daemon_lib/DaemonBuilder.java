@@ -3,12 +3,13 @@ package com.liveramp.daemon_lib;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
+@Deprecated
 public class DaemonBuilder<T extends JobletConfig> {
   private final String identifier;
   private final JobletExecutor<T> executor;
   private final JobletConfigProducer<T> configProducer;
   private final AlertsHandler alertsHandler;
-  private int sleepingSeconds;
+  private final Daemon.Options options;
 
   private static final int DEFAULT_SLEEPING_SECONDS = 10;
 
@@ -18,16 +19,19 @@ public class DaemonBuilder<T extends JobletConfig> {
     this.configProducer = configProducer;
     this.alertsHandler = alertsHandler;
 
-    this.sleepingSeconds = DEFAULT_SLEEPING_SECONDS;
+    this.options = new Daemon.Options();
+
+    // backward compatibility will remove when I replace usages of setSleepingSeconds
+    options.setMainLoopSleepingSeconds(DEFAULT_SLEEPING_SECONDS);
   }
 
   public DaemonBuilder<T> setSleepingSeconds(int sleepingSeconds) {
-    this.sleepingSeconds = sleepingSeconds;
+    options.setMainLoopSleepingSeconds(sleepingSeconds);
 
     return this;
   }
 
   public Daemon<T> build() {
-    return new Daemon<T>(identifier, executor, configProducer, alertsHandler, sleepingSeconds);
+    return new Daemon<T>(identifier, executor, configProducer, alertsHandler, options);
   }
 }

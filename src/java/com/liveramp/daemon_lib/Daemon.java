@@ -14,20 +14,47 @@ import com.liveramp.java_support.alerts_handler.recipients.AlertSeverity;
 public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
 
+  private static final int DEFAULT_CONFIG_SLEEPING_SECONDS = 1;
+  private static final int DEFAULT_EXECUTION_SLOT_SLEEPING_SECONDS = 1;
+  private static final int DEFAULT_MAIN_LOOP_SLEEPING_SECONDS = 0;
+
+  public static class Options {
+    private int configSleepingSeconds = DEFAULT_CONFIG_SLEEPING_SECONDS;
+    private int executionSlotSleepingSeconds = DEFAULT_EXECUTION_SLOT_SLEEPING_SECONDS;
+    private int mainLoopSleepingSeconds = DEFAULT_MAIN_LOOP_SLEEPING_SECONDS;
+
+    public Options setConfigSleepingSeconds(int sleepingSeconds) {
+      this.configSleepingSeconds = sleepingSeconds;
+      return this;
+    }
+
+    public Options setExecutionSlotSleepingSeconds(int sleepingSeconds) {
+      this.executionSlotSleepingSeconds = sleepingSeconds;
+      return this;
+    }
+
+    public Options setMainLoopSleepingSeconds(int sleepingSeconds) {
+      this.mainLoopSleepingSeconds = sleepingSeconds;
+      return this;
+    }
+  }
+
   private final String identifier;
   private final JobletExecutor<T> executor;
   private final AlertsHandler alertsHandler;
   private final JobletConfigProducer<T> configProducer;
-  private final int sleepingSeconds;
+
+  private final Options options;
 
   private boolean running;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, int sleepingSeconds) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, Options options) {
     this.identifier = clean(identifier);
     this.configProducer = configProducer;
     this.executor = executor;
     this.alertsHandler = alertsHandler;
-    this.sleepingSeconds = sleepingSeconds;
+    this.options = options;
+
     this.running = false;
   }
 
@@ -42,7 +69,7 @@ public class Daemon<T extends JobletConfig> {
     try {
       while (running) {
         processNext();
-        doSleep();
+        silentSleep(options.mainLoopSleepingSeconds);
       }
     } catch (Exception e) {
       alertsHandler.sendAlert("Fatal error occurred in daemon (" + identifier + "). Shutting down.", e, AlertRecipients.engineering(AlertSeverity.ERROR));
@@ -69,7 +96,11 @@ public class Daemon<T extends JobletConfig> {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
         }
         return true;
+      } else {
+        silentSleep(options.configSleepingSeconds);
       }
+    } else {
+      silentSleep(options.executionSlotSleepingSeconds);
     }
 
     return false;
@@ -83,10 +114,10 @@ public class Daemon<T extends JobletConfig> {
     return identifier;
   }
 
-  private void doSleep() {
+  private void silentSleep(int seconds) {
     try {
-      if (sleepingSeconds > 0) {
-        Thread.sleep(TimeUnit.SECONDS.toMillis(sleepingSeconds));
+      if (seconds > 0) {
+        TimeUnit.SECONDS.sleep(seconds);
       }
     } catch (InterruptedException e) {
       LOG.error("Daemon interrupted: ", e);
