@@ -60,8 +60,13 @@ public class JobletExecutors {
   }
 
   public static class Threaded {
+    @Deprecated
     public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(int maxActiveJoblets, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
-      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
+      return get(maxActiveJoblets, jobletFactoryClass.newInstance(), jobletCallbacks);
+    }
+
+    public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(int maxActiveJoblets, JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
+      Preconditions.checkNotNull(jobletFactory);
       Preconditions.checkArgument(maxActiveJoblets > 0);
 
       ThreadPoolExecutor threadPool = (ThreadPoolExecutor)Executors.newFixedThreadPool(
@@ -69,7 +74,7 @@ public class JobletExecutors {
           new ThreadFactoryBuilder().setNameFormat("joblet-executor-%d").build()
       );
 
-      return new ThreadedJobletExecutor<>(threadPool, jobletFactoryClass.newInstance(), jobletCallbacks);
+      return new ThreadedJobletExecutor<>(threadPool, jobletFactory, jobletCallbacks);
     }
   }
 
