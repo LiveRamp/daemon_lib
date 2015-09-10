@@ -39,19 +39,19 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   }
 
   @SuppressWarnings("unchecked")
-  public K setConfigSleepingSeconds(int sleepingSeconds) {
+  public K setConfigWaitSeconds(int sleepingSeconds) {
     options.setConfigWaitSeconds(sleepingSeconds);
     return (K)this;
   }
 
   @SuppressWarnings("unchecked")
-  public K setExecutionSlotSleepingSeconds(int sleepingSeconds) {
+  public K setExecutionSlotWaitSeconds(int sleepingSeconds) {
     options.setExecutionSlotWaitSeconds(sleepingSeconds);
     return (K)this;
   }
 
   @SuppressWarnings("unchecked")
-  public K setMainLoopSleepingSeconds(int sleepingSeconds) {
+  public K setNextConfigWaitSeconds(int sleepingSeconds) {
     options.setNextConfigWaitSeconds(sleepingSeconds);
     return (K)this;
   }
