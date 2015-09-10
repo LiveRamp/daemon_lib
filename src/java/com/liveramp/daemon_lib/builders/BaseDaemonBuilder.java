@@ -16,9 +16,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   private final JobletConfigProducer<T> configProducer;
   private final JobletCallbacks<T> jobletCallbacks;
   private final AlertsHandler alertsHandler;
-  private int sleepingSeconds;
-
-  private static final int DEFAULT_SLEEPING_SECONDS = 10;
+  private final Daemon.Options options;
 
   public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, JobletCallbacks<T> jobletCallbacks, AlertsHandler alertsHandler) {
     this.identifier = identifier;
@@ -26,19 +24,42 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     this.jobletCallbacks = jobletCallbacks;
     this.alertsHandler = alertsHandler;
 
-    this.sleepingSeconds = DEFAULT_SLEEPING_SECONDS;
+    this.options = new Daemon.Options();
+
+    // backward compatibility will remove when I replace usages of setSleepingSeconds
+    this.options.setNextConfigWaitSeconds(10);
   }
 
+  @Deprecated
   @SuppressWarnings("unchecked")
   public K setSleepingSeconds(int sleepingSeconds) {
-    this.sleepingSeconds = sleepingSeconds;
+    options.setNextConfigWaitSeconds(sleepingSeconds);
 
     return (K)this;
   }
 
-  @NotNull protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
+  @SuppressWarnings("unchecked")
+  public K setConfigSleepingSeconds(int sleepingSeconds) {
+    options.setConfigWaitSeconds(sleepingSeconds);
+    return (K)this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public K setExecutionSlotSleepingSeconds(int sleepingSeconds) {
+    options.setExecutionSlotWaitSeconds(sleepingSeconds);
+    return (K)this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public K setMainLoopSleepingSeconds(int sleepingSeconds) {
+    options.setNextConfigWaitSeconds(sleepingSeconds);
+    return (K)this;
+  }
+
+  @NotNull
+  protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
-    return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, alertsHandler, sleepingSeconds);
+    return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, alertsHandler, options);
   }
 }

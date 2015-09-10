@@ -14,20 +14,59 @@ import com.liveramp.java_support.alerts_handler.recipients.AlertSeverity;
 public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
 
+  private static final int DEFAULT_CONFIG_WAIT_SECONDS = 1;
+  private static final int DEFAULT_EXECUTION_SLOT_WAIT_SECONDS = 1;
+  private static final int DEFAULT_NEXT_CONFIG_WAIT_SECONDS = 0;
+
+  public static class Options {
+    private int configWaitSeconds = DEFAULT_CONFIG_WAIT_SECONDS;
+    private int executionSlotWaitSeconds = DEFAULT_EXECUTION_SLOT_WAIT_SECONDS;
+    private int nextConfigWaitSeconds = DEFAULT_NEXT_CONFIG_WAIT_SECONDS;
+
+    /**
+     * @param sleepingSeconds How long the daemon should wait before retrying when there is no config available
+     * @return options for fluent usage
+     */
+    public Options setConfigWaitSeconds(int sleepingSeconds) {
+      this.configWaitSeconds = sleepingSeconds;
+      return this;
+    }
+
+    /**
+     * @param sleepingSeconds How long the daemon should wait before retrying when the max number of running joblets is reached.
+     * @return options for fluent usage
+     */
+    public Options setExecutionSlotWaitSeconds(int sleepingSeconds) {
+      this.executionSlotWaitSeconds = sleepingSeconds;
+      return this;
+    }
+
+    /**
+     * @param sleepingSeconds How long the daemon should wait before fetching the next config.
+     * @return options for fluent usage
+     */
+    public Options setNextConfigWaitSeconds(int sleepingSeconds) {
+      this.nextConfigWaitSeconds = sleepingSeconds;
+      return this;
+    }
+  }
+
   private final String identifier;
   private final JobletExecutor<T> executor;
   private final AlertsHandler alertsHandler;
   private final JobletConfigProducer<T> configProducer;
-  private final int sleepingSeconds;
+
+  private final Options options;
 
   private boolean running;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, int sleepingSeconds) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, Options options) {
     this.identifier = clean(identifier);
     this.configProducer = configProducer;
     this.executor = executor;
     this.alertsHandler = alertsHandler;
-    this.sleepingSeconds = sleepingSeconds;
+    this.options = options;
+
     this.running = false;
   }
 
@@ -42,7 +81,7 @@ public class Daemon<T extends JobletConfig> {
     try {
       while (running) {
         processNext();
-        doSleep();
+        silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
       alertsHandler.sendAlert("Fatal error occurred in daemon (" + identifier + "). Shutting down.", e, AlertRecipients.engineering(AlertSeverity.ERROR));
@@ -69,7 +108,11 @@ public class Daemon<T extends JobletConfig> {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
         }
         return true;
+      } else {
+        silentSleep(options.configWaitSeconds);
       }
+    } else {
+      silentSleep(options.executionSlotWaitSeconds);
     }
 
     return false;
@@ -83,10 +126,10 @@ public class Daemon<T extends JobletConfig> {
     return identifier;
   }
 
-  private void doSleep() {
+  private void silentSleep(int seconds) {
     try {
-      if (sleepingSeconds > 0) {
-        Thread.sleep(TimeUnit.SECONDS.toMillis(sleepingSeconds));
+      if (seconds > 0) {
+        TimeUnit.SECONDS.sleep(seconds);
       }
     } catch (InterruptedException e) {
       LOG.error("Daemon interrupted: ", e);
