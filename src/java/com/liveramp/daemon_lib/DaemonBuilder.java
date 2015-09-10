@@ -22,11 +22,11 @@ public class DaemonBuilder<T extends JobletConfig> {
     this.options = new Daemon.Options();
 
     // backward compatibility will remove when I replace usages of setSleepingSeconds
-    options.setMainLoopSleepingSeconds(DEFAULT_SLEEPING_SECONDS);
+    options.setNextConfigWaitSeconds(DEFAULT_SLEEPING_SECONDS);
   }
 
   public DaemonBuilder<T> setSleepingSeconds(int sleepingSeconds) {
-    options.setMainLoopSleepingSeconds(sleepingSeconds);
+    options.setNextConfigWaitSeconds(sleepingSeconds);
 
     return this;
   }

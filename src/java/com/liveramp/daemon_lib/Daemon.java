@@ -14,27 +14,27 @@ import com.liveramp.java_support.alerts_handler.recipients.AlertSeverity;
 public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
 
-  private static final int DEFAULT_CONFIG_SLEEPING_SECONDS = 1;
-  private static final int DEFAULT_EXECUTION_SLOT_SLEEPING_SECONDS = 1;
-  private static final int DEFAULT_MAIN_LOOP_SLEEPING_SECONDS = 0;
+  private static final int DEFAULT_CONFIG_WAIT_SECONDS = 1;
+  private static final int DEFAULT_EXECUTION_SLOT_WAIT_SECONDS = 1;
+  private static final int DEFAULT_NEXT_CONFIG_WAIT_SECONDS = 0;
 
   public static class Options {
-    private int configSleepingSeconds = DEFAULT_CONFIG_SLEEPING_SECONDS;
-    private int executionSlotSleepingSeconds = DEFAULT_EXECUTION_SLOT_SLEEPING_SECONDS;
-    private int mainLoopSleepingSeconds = DEFAULT_MAIN_LOOP_SLEEPING_SECONDS;
+    private int configWaitSeconds = DEFAULT_CONFIG_WAIT_SECONDS;
+    private int executionSlotWaitSeconds = DEFAULT_EXECUTION_SLOT_WAIT_SECONDS;
+    private int nextConfigWaitSeconds = DEFAULT_NEXT_CONFIG_WAIT_SECONDS;
 
-    public Options setConfigSleepingSeconds(int sleepingSeconds) {
-      this.configSleepingSeconds = sleepingSeconds;
+    public Options setConfigWaitSeconds(int sleepingSeconds) {
+      this.configWaitSeconds = sleepingSeconds;
       return this;
     }
 
-    public Options setExecutionSlotSleepingSeconds(int sleepingSeconds) {
-      this.executionSlotSleepingSeconds = sleepingSeconds;
+    public Options setExecutionSlotWaitSeconds(int sleepingSeconds) {
+      this.executionSlotWaitSeconds = sleepingSeconds;
       return this;
     }
 
-    public Options setMainLoopSleepingSeconds(int sleepingSeconds) {
-      this.mainLoopSleepingSeconds = sleepingSeconds;
+    public Options setNextConfigWaitSeconds(int sleepingSeconds) {
+      this.nextConfigWaitSeconds = sleepingSeconds;
       return this;
     }
   }
@@ -69,7 +69,7 @@ public class Daemon<T extends JobletConfig> {
     try {
       while (running) {
         processNext();
-        silentSleep(options.mainLoopSleepingSeconds);
+        silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
       alertsHandler.sendAlert("Fatal error occurred in daemon (" + identifier + "). Shutting down.", e, AlertRecipients.engineering(AlertSeverity.ERROR));
@@ -97,10 +97,10 @@ public class Daemon<T extends JobletConfig> {
         }
         return true;
       } else {
-        silentSleep(options.configSleepingSeconds);
+        silentSleep(options.configWaitSeconds);
       }
     } else {
-      silentSleep(options.executionSlotSleepingSeconds);
+      silentSleep(options.executionSlotWaitSeconds);
     }
 
     return false;

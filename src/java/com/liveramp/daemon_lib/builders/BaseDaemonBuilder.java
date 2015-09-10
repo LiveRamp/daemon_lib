@@ -27,32 +27,32 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     this.options = new Daemon.Options();
 
     // backward compatibility will remove when I replace usages of setSleepingSeconds
-    this.options.setMainLoopSleepingSeconds(10);
+    this.options.setNextConfigWaitSeconds(10);
   }
 
   @Deprecated
   @SuppressWarnings("unchecked")
   public K setSleepingSeconds(int sleepingSeconds) {
-    options.setMainLoopSleepingSeconds(sleepingSeconds);
+    options.setNextConfigWaitSeconds(sleepingSeconds);
 
     return (K)this;
   }
 
   @SuppressWarnings("unchecked")
   public K setConfigSleepingSeconds(int sleepingSeconds) {
-    options.setConfigSleepingSeconds(sleepingSeconds);
+    options.setConfigWaitSeconds(sleepingSeconds);
     return (K)this;
   }
 
   @SuppressWarnings("unchecked")
   public K setExecutionSlotSleepingSeconds(int sleepingSeconds) {
-    options.setExecutionSlotSleepingSeconds(sleepingSeconds);
+    options.setExecutionSlotWaitSeconds(sleepingSeconds);
     return (K)this;
   }
 
   @SuppressWarnings("unchecked")
   public K setMainLoopSleepingSeconds(int sleepingSeconds) {
-    options.setMainLoopSleepingSeconds(sleepingSeconds);
+    options.setNextConfigWaitSeconds(sleepingSeconds);
     return (K)this;
   }
 
