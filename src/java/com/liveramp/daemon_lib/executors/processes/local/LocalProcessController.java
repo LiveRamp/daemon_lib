@@ -76,6 +76,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
     public void run() {
       try {
         List<ProcessDefinition<T>> watchedProcesses = getWatchedProcesses(fsHelper, true);
+        LOG.info("Watched Processes {}", watchedProcesses);
         Map<Integer, PidGetter.PidData> runningPids = pidGetter.getPids();
         Iterator<ProcessDefinition<T>> iterator = watchedProcesses.iterator();
         while (iterator.hasNext()) {
