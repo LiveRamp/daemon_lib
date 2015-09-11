@@ -6,7 +6,6 @@ import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
-import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
@@ -45,10 +44,6 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
 
   @Override
   public boolean canExecuteAnother() {
-    try {
-      return processController.getProcesses().size() < maxProcesses;
-    } catch (ProcessControllerException e) {
-      return false;
-    }
+    return processController.getProcesses().size() < maxProcesses;
   }
 }
