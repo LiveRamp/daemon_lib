@@ -14,8 +14,8 @@ import com.liveramp.java_support.alerts_handler.recipients.AlertSeverity;
 public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
 
-  private static final int DEFAULT_CONFIG_WAIT_SECONDS = 1;
-  private static final int DEFAULT_EXECUTION_SLOT_WAIT_SECONDS = 1;
+  private static final int DEFAULT_CONFIG_WAIT_SECONDS = 0;
+  private static final int DEFAULT_EXECUTION_SLOT_WAIT_SECONDS = 0;
   private static final int DEFAULT_NEXT_CONFIG_WAIT_SECONDS = 0;
 
   public static class Options {

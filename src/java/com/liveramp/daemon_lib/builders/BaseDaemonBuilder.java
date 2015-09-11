@@ -25,9 +25,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     this.alertsHandler = alertsHandler;
 
     this.options = new Daemon.Options();
-
-    // backward compatibility will remove when I replace usages of setSleepingSeconds
-    this.options.setNextConfigWaitSeconds(10);
   }
 
   /**
