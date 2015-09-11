@@ -31,33 +31,32 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   }
 
   @Deprecated
-  @SuppressWarnings("unchecked")
   public K setSleepingSeconds(int sleepingSeconds) {
     options.setNextConfigWaitSeconds(sleepingSeconds);
-
-    return (K)this;
+    return self();
   }
 
-  @SuppressWarnings("unchecked")
   public K setConfigWaitSeconds(int sleepingSeconds) {
     options.setConfigWaitSeconds(sleepingSeconds);
-    return (K)this;
+    return self();
   }
 
-  @SuppressWarnings("unchecked")
   public K setExecutionSlotWaitSeconds(int sleepingSeconds) {
     options.setExecutionSlotWaitSeconds(sleepingSeconds);
-    return (K)this;
+    return self();
+  }
+
+  public K setNextConfigWaitSeconds(int sleepingSeconds) {
+    options.setNextConfigWaitSeconds(sleepingSeconds);
+    return self();
   }
 
   @SuppressWarnings("unchecked")
-  public K setNextConfigWaitSeconds(int sleepingSeconds) {
-    options.setNextConfigWaitSeconds(sleepingSeconds);
-    return (K)this;
+  private K self() {
+    return (K) this;
   }
 
-  @NotNull
-  protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
+  @NotNull protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
     return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, alertsHandler, options);
