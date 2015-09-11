@@ -36,16 +36,25 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     return self();
   }
 
+  /**
+   * See {@link com.liveramp.daemon_lib.Daemon.Options#setConfigWaitSeconds(int)}
+   */
   public K setConfigWaitSeconds(int sleepingSeconds) {
     options.setConfigWaitSeconds(sleepingSeconds);
     return self();
   }
 
+  /**
+   * See {@link com.liveramp.daemon_lib.Daemon.Options#setExecutionSlotWaitSeconds(int)}
+   */
   public K setExecutionSlotWaitSeconds(int sleepingSeconds) {
     options.setExecutionSlotWaitSeconds(sleepingSeconds);
     return self();
   }
 
+  /**
+   * See {@link com.liveramp.daemon_lib.Daemon.Options#setNextConfigWaitSeconds(int)}
+   */
   public K setNextConfigWaitSeconds(int sleepingSeconds) {
     options.setNextConfigWaitSeconds(sleepingSeconds);
     return self();
