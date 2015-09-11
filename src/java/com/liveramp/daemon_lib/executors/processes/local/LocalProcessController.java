@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -27,14 +28,14 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
   private final PidGetter pidGetter;
   private final ProcessMetadata.Serializer<T> metadataSerializer;
 
-  private List<ProcessDefinition<T>> currentProcesses;
+  private AtomicReference<List<ProcessDefinition<T>>> currentProcesses;
 
   public LocalProcessController(FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
     this.fsHelper = fsHelper;
     this.processHandler = processHandler;
     this.pidGetter = pidGetter;
     this.metadataSerializer = metadataSerializer;
-    this.currentProcesses = null;
+    this.currentProcesses = new AtomicReference<>(null);
 
     Executors.newScheduledThreadPool(
         1,
@@ -107,8 +108,8 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
           }
         }
       }
-      currentProcesses = pids;
+      currentProcesses.set(pids);
     }
-    return currentProcesses;
+    return currentProcesses.get();
   }
 }
