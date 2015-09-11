@@ -30,12 +30,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     this.options.setNextConfigWaitSeconds(10);
   }
 
-  @Deprecated
-  public K setSleepingSeconds(int sleepingSeconds) {
-    options.setNextConfigWaitSeconds(sleepingSeconds);
-    return self();
-  }
-
   /**
    * See {@link com.liveramp.daemon_lib.Daemon.Options#setConfigWaitSeconds(int)}
    */
@@ -62,10 +56,11 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
 
   @SuppressWarnings("unchecked")
   private K self() {
-    return (K) this;
+    return (K)this;
   }
 
-  @NotNull protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
+  @NotNull
+  protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
     return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, alertsHandler, options);
