@@ -50,10 +50,6 @@ public class JobletExecutors {
           new JobletConfigMetadata.Serializer()
       );
 
-      Executors.newSingleThreadExecutor(
-          new ThreadFactoryBuilder().setDaemon(true).setNameFormat("process-controller").build()
-      ).submit(new ProcessControllerRunner(processController));
-
       return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production(), envVariables);
     }
 
@@ -75,19 +71,6 @@ public class JobletExecutors {
       );
 
       return new ThreadedJobletExecutor<>(threadPool, jobletFactory, jobletCallbacks);
-    }
-  }
-
-  private static class ProcessControllerRunner implements Runnable {
-    private final LocalProcessController<JobletConfigMetadata> controller;
-
-    private ProcessControllerRunner(LocalProcessController<JobletConfigMetadata> controller) {
-      this.controller = controller;
-    }
-
-    @Override
-    public void run() {
-      controller.start();
     }
   }
 

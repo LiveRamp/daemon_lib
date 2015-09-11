@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,29 +19,27 @@ import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 
 
-public class LocalProcessController<T extends ProcessMetadata> extends Thread implements ProcessController<T> {
+public class LocalProcessController<T extends ProcessMetadata> implements ProcessController<T> {
   private static Logger LOG = LoggerFactory.getLogger(LocalProcessController.class);
 
   private final FsHelper fsHelper;
   private final ProcessHandler<T> processHandler;
   private final PidGetter pidGetter;
-  private final int pollDelay;
   private final ProcessMetadata.Serializer<T> metadataSerializer;
-  private boolean stop;
 
-  private volatile List<ProcessDefinition<T>> currentProcesses;
+  private List<ProcessDefinition<T>> currentProcesses;
 
   public LocalProcessController(FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
-    super(LocalProcessController.class.getSimpleName());
     this.fsHelper = fsHelper;
     this.processHandler = processHandler;
     this.pidGetter = pidGetter;
-    this.pollDelay = pollDelay;
     this.metadataSerializer = metadataSerializer;
-    this.stop = false;
-    this.currentProcesses = Lists.newLinkedList();
+    this.currentProcesses = null;
 
-    setDaemon(true);
+    Executors.newScheduledThreadPool(
+        1,
+        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("process watcher").build()
+    ).scheduleAtFixedRate(new ProcessesWatcher(), 0, pollDelay, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -61,15 +62,19 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
   }
 
   @Override
-  public List<ProcessDefinition<T>> getProcesses() {
-    return currentProcesses;
+  public List<ProcessDefinition<T>> getProcesses() throws ProcessControllerException {
+    try {
+      return getWatchedProcesses(fsHelper, false);
+    } catch (IOException e) {
+      throw new ProcessControllerException(e);
+    }
   }
 
-  @Override
-  public void run() {
-    while (!stop) {
+  private class ProcessesWatcher implements Runnable {
+    @Override
+    public void run() {
       try {
-        List<ProcessDefinition<T>> watchedProcesses = getWatchedProcesses(fsHelper);
+        List<ProcessDefinition<T>> watchedProcesses = getWatchedProcesses(fsHelper, true);
         Map<Integer, PidGetter.PidData> runningPids = pidGetter.getPids();
         Iterator<ProcessDefinition<T>> iterator = watchedProcesses.iterator();
         while (iterator.hasNext()) {
@@ -82,36 +87,28 @@ public class LocalProcessController<T extends ProcessMetadata> extends Thread im
             iterator.remove();
           }
         }
-        currentProcesses = watchedProcesses;
       } catch (Exception e) {
         LOG.warn("Exception while watching processes.", e);
       }
-      doSleep(pollDelay);
     }
   }
 
-  private void doSleep(long pollDelay) {
-    try {
-      Thread.sleep(pollDelay);
-    } catch (InterruptedException e) {
-      LOG.error("Error", e);
-    }
-  }
-
-  private List<ProcessDefinition<T>> getWatchedProcesses(FsHelper fsHelper) throws IOException {
-    List<ProcessDefinition<T>> pids = Lists.newLinkedList();
-    String[] fileList = fsHelper.getBasePath().list();
-    if (fileList != null) {
-      for (String s : fileList) {
-        if (s.matches("\\d+")) {
-          int pid = Integer.parseInt(s);
-          File pidPath = fsHelper.getPidPath(pid);
-          ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadataSerializer.fromBytes(fsHelper.readMetadata(pidPath)));
-          pids.add(process);
+  private synchronized List<ProcessDefinition<T>> getWatchedProcesses(FsHelper fsHelper, boolean refresh) throws IOException {
+    if (currentProcesses == null || refresh) {
+      List<ProcessDefinition<T>> pids = Lists.newLinkedList();
+      String[] fileList = fsHelper.getBasePath().list();
+      if (fileList != null) {
+        for (String s : fileList) {
+          if (s.matches("\\d+")) {
+            int pid = Integer.parseInt(s);
+            File pidPath = fsHelper.getPidPath(pid);
+            ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadataSerializer.fromBytes(fsHelper.readMetadata(pidPath)));
+            pids.add(process);
+          }
         }
       }
+      currentProcesses = pids;
     }
-
-    return pids;
+    return currentProcesses;
   }
 }
