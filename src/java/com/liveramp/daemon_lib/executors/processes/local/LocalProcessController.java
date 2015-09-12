@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -28,14 +27,14 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
   private final PidGetter pidGetter;
   private final ProcessMetadata.Serializer<T> metadataSerializer;
 
-  private AtomicReference<List<ProcessDefinition<T>>> currentProcesses;
+  private volatile List<ProcessDefinition<T>> currentProcesses;
 
   public LocalProcessController(FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
     this.fsHelper = fsHelper;
     this.processHandler = processHandler;
     this.pidGetter = pidGetter;
     this.metadataSerializer = metadataSerializer;
-    this.currentProcesses = new AtomicReference<>(null);
+    this.currentProcesses = null;
 
     Executors.newScheduledThreadPool(
         1,
@@ -65,7 +64,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
   @Override
   public List<ProcessDefinition<T>> getProcesses() throws ProcessControllerException {
     try {
-      return getWatchedProcesses(fsHelper, false);
+      return getWatchedProcesses(fsHelper);
     } catch (IOException e) {
       throw new ProcessControllerException(e);
     }
@@ -75,7 +74,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
     @Override
     public void run() {
       try {
-        List<ProcessDefinition<T>> watchedProcesses = getWatchedProcesses(fsHelper, true);
+        List<ProcessDefinition<T>> watchedProcesses = getWatchedProcesses(fsHelper);
         LOG.info("Watched Processes {}", watchedProcesses);
         Map<Integer, PidGetter.PidData> runningPids = pidGetter.getPids();
         Iterator<ProcessDefinition<T>> iterator = watchedProcesses.iterator();
@@ -95,22 +94,20 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
     }
   }
 
-  private synchronized List<ProcessDefinition<T>> getWatchedProcesses(FsHelper fsHelper, boolean refresh) throws IOException {
-    if (currentProcesses == null || refresh) {
-      List<ProcessDefinition<T>> pids = Lists.newLinkedList();
-      String[] fileList = fsHelper.getBasePath().list();
-      if (fileList != null) {
-        for (String s : fileList) {
-          if (s.matches("\\d+")) {
-            int pid = Integer.parseInt(s);
-            File pidPath = fsHelper.getPidPath(pid);
-            ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadataSerializer.fromBytes(fsHelper.readMetadata(pidPath)));
-            pids.add(process);
-          }
+  private synchronized List<ProcessDefinition<T>> getWatchedProcesses(FsHelper fsHelper) throws IOException {
+    List<ProcessDefinition<T>> pids = Lists.newLinkedList();
+    String[] fileList = fsHelper.getBasePath().list();
+    if (fileList != null) {
+      for (String s : fileList) {
+        if (s.matches("\\d+")) {
+          int pid = Integer.parseInt(s);
+          File pidPath = fsHelper.getPidPath(pid);
+          ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadataSerializer.fromBytes(fsHelper.readMetadata(pidPath)));
+          pids.add(process);
         }
       }
-      currentProcesses.set(pids);
     }
-    return currentProcesses.get();
+    currentProcesses = pids;
+    return currentProcesses;
   }
 }
