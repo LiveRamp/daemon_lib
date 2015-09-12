@@ -15,10 +15,6 @@ public class BlockingJobletExecutor<T extends JobletConfig> implements JobletExe
     this.jobletCallbacks = jobletCallbacks;
   }
 
-  public BlockingJobletExecutor(JobletFactory<T> jobletFactory) {
-    this(jobletFactory, new JobletCallbacks.None<T>());
-  }
-
   @Override
   public void execute(T jobletConfig) throws DaemonException {
     jobletCallbacks.before(jobletConfig);
@@ -33,5 +29,10 @@ public class BlockingJobletExecutor<T extends JobletConfig> implements JobletExe
   @Override
   public boolean canExecuteAnother() {
     return true;
+  }
+
+  @Override
+  public void shutdown() {
+
   }
 }

@@ -51,4 +51,9 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
       return false;
     }
   }
+
+  @Override
+  public void shutdown() {
+
+  }
 }

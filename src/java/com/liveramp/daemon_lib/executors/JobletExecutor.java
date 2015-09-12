@@ -7,4 +7,6 @@ public interface JobletExecutor<T extends JobletConfig> {
   void execute(T config) throws DaemonException;
 
   boolean canExecuteAnother();
+
+  void shutdown();
 }

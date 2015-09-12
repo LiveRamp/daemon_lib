@@ -120,6 +120,7 @@ public class Daemon<T extends JobletConfig> {
 
   public final void stop() {
     running = false;
+    executor.shutdown();
   }
 
   public String getIdentifier() {

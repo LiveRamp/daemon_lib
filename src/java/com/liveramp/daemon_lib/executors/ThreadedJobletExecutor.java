@@ -49,4 +49,9 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
   public boolean canExecuteAnother() {
     return threadPool.getActiveCount() < threadPool.getMaximumPoolSize();
   }
+
+  @Override
+  public void shutdown() {
+    threadPool.shutdown();
+  }
 }
