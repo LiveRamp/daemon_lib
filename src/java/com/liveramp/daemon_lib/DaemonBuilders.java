@@ -1,34 +1,40 @@
 package com.liveramp.daemon_lib;
 
-import java.io.File;
 import java.io.IOException;
 
-import com.google.common.collect.Maps;
-
-import com.liveramp.daemon_lib.built_in.NoOpDaemonLock;
-import com.liveramp.daemon_lib.executors.JobletExecutors;
-import com.liveramp.daemon_lib.utils.BeforeJobletCallback;
+import com.liveramp.daemon_lib.builders.BlockingDaemonBuilder;
+import com.liveramp.daemon_lib.builders.ForkingDaemonBuilder;
+import com.liveramp.daemon_lib.builders.ThreadingDaemonBuilder;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class DaemonBuilders {
-  public static <T extends JobletConfig> DaemonBuilder<T> forked(String workingDir, String identifier, int maxProcess, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
-    final String tmpPath = new File(workingDir, identifier).getPath();
-    return new DaemonBuilder<>(
+  public static <T extends JobletConfig> ForkingDaemonBuilder<T> forked(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
+    return new ForkingDaemonBuilder<>(
+        workingDir,
         identifier,
-        JobletExecutors.Forked.get(tmpPath, maxProcess, jobletFactoryClass, jobletCallbacks, Maps.<String, String>newHashMap()),
+        jobletFactoryClass,
         jobletConfigProducer,
-        BeforeJobletCallback.wrap(jobletCallbacks),
-        new NoOpDaemonLock(),
+        jobletCallbacks,
+        alertsHandler
+    );
+  }
+
+  public static <T extends JobletConfig> BlockingDaemonBuilder<T> blocking(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws InstantiationException, IllegalAccessException {
+    return new BlockingDaemonBuilder<>(
+        identifier,
+        jobletFactory,
+        jobletConfigProducer,
+        jobletCallbacks,
         alertsHandler);
   }
 
-  public static <T extends JobletConfig> DaemonBuilder<T> blocking(String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws InstantiationException, IllegalAccessException {
-    return new DaemonBuilder<>(
+  public static <T extends JobletConfig> ThreadingDaemonBuilder<T> threaded(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
+    return new ThreadingDaemonBuilder<>(
         identifier,
-        JobletExecutors.Blocking.get(jobletFactoryClass, jobletCallbacks),
+        jobletFactory,
         jobletConfigProducer,
-        BeforeJobletCallback.wrap(jobletCallbacks),
-        new NoOpDaemonLock(),
-        alertsHandler);
+        jobletCallbacks,
+        alertsHandler
+    );
   }
 }

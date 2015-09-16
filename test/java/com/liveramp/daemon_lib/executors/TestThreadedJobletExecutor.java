@@ -33,10 +33,10 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
 
   @Before
   public void setUp() throws Exception {
-    pool = (ThreadPoolExecutor)Executors.newFixedThreadPool(3);
+    pool = (ThreadPoolExecutor)Executors.newFixedThreadPool(2);
     factory = mock(JobletFactory.class, RETURNS_DEEP_STUBS);
     callbacks = mock(JobletCallbacks.class);
-    jobletExecutor = new ThreadedJobletExecutor<>(pool, 2, factory, AfterJobletCallback.wrap(callbacks));
+    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, AfterJobletCallback.wrap(callbacks));
   }
 
   @After
@@ -89,6 +89,7 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
       }
     });
 
+    Assert.assertTrue(jobletExecutor.canExecuteAnother());
     jobletExecutor.execute(config);
     Assert.assertTrue(jobletExecutor.canExecuteAnother());
 
@@ -101,4 +102,5 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
 
     Assert.assertTrue(jobletExecutor.canExecuteAnother());
   }
+
 }

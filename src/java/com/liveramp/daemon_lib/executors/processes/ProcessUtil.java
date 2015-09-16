@@ -1,17 +1,11 @@
 package com.liveramp.daemon_lib.executors.processes;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ProcessUtil {
-  private static Logger LOG = LoggerFactory.getLogger(ProcessUtil.class);
 
   public static int run(ProcessBuilder processBuiler) throws IOException {
     Process process = processBuiler.start();
@@ -36,32 +30,4 @@ public class ProcessUtil {
     }
   }
 
-  /**
-   * Runs a command that is expected to echo the PID the consumer should be interested in. Assumes that the command
-   * is non-blocking and echos the PID of some child process. This is useful when executing a shell script wrapper
-   * but interested in the PID of the process it starts.
-   *
-   * @param command
-   * @return
-   * @throws java.io.IOException
-   */
-  public static int runPidEchoingCommand(String... command) throws IOException {
-    LOG.info("Run \"" + Arrays.toString(command) + "\" in " + System.getProperty("user.dir"));
-
-    Process process = new ProcessBuilder(command).start();
-
-    try {
-      process.waitFor();
-
-      process.getOutputStream().close();
-      process.getErrorStream().close();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-      int pid = Integer.parseInt(reader.readLine());
-      reader.close();
-
-      return pid;
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.Daemon;
-import com.liveramp.daemon_lib.Daemons;
+import com.liveramp.daemon_lib.DaemonBuilders;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
@@ -80,7 +80,7 @@ public class DemoDaemon {
   public static void main(String[] args) throws Exception {
     LoggingHelper.setLoggingProperties("demo-daemon");
 
-    Daemon daemon = Daemons.forked("/tmp/daemons", "demo", 4, Factory.class, new Producer(), AlertsHandlers.distribution(DemoDaemon.class), new Callbacks());
+    Daemon daemon = DaemonBuilders.forked("/tmp/daemons", "demo", Factory.class, new Producer(), AlertsHandlers.distribution(DemoDaemon.class), new Callbacks()).setMaxProcesses(4).build();
     DaemonRunner.run(daemon);
   }
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.io.FileUtils;
 
 import com.liveramp.daemon_lib.JobletCallbacks;
@@ -25,9 +26,9 @@ import com.liveramp.daemon_lib.utils.JobletProcessHandler;
 public class JobletExecutors {
 
   public static class Blocking {
-    public static <T extends JobletConfig> BlockingJobletExecutor<T> get(Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
-      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
-      return new BlockingJobletExecutor<>(jobletFactoryClass.newInstance(), AfterJobletCallback.wrap(jobletCallbacks));
+
+    public static <T extends JobletConfig> BlockingJobletExecutor<T> get(JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
+      return new BlockingJobletExecutor<>(jobletFactory, AfterJobletCallback.wrap(jobletCallbacks));
     }
   }
 
@@ -50,34 +51,27 @@ public class JobletExecutors {
           new JobletConfigMetadata.Serializer()
       );
 
-      Executors.newSingleThreadExecutor().submit(new ProcessControllerRunner(processController));
-
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStore, processController, ForkedJobletRunner.production(), envVariables);
+      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass,  configStore, processController, ForkedJobletRunner.production(), envVariables);
     }
 
   }
 
   public static class Threaded {
-    public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(ThreadPoolExecutor threadPool, int maxActiveJoblets, JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) {
-      Preconditions.checkNotNull(threadPool);
-      Preconditions.checkArgument(maxActiveJoblets > 0);
+    @Deprecated
+    public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(int maxActiveJoblets, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
+      return get(maxActiveJoblets, jobletFactoryClass.newInstance(), jobletCallbacks);
+    }
+
+    public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(int maxActiveJoblets, JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
       Preconditions.checkNotNull(jobletFactory);
-      Preconditions.checkNotNull(jobletCallbacks);
+      Preconditions.checkArgument(maxActiveJoblets > 0);
 
-      return new ThreadedJobletExecutor<>(threadPool, maxActiveJoblets, jobletFactory, AfterJobletCallback.wrap(jobletCallbacks));
-    }
-  }
+      ThreadPoolExecutor threadPool = (ThreadPoolExecutor)Executors.newFixedThreadPool(
+          maxActiveJoblets,
+          new ThreadFactoryBuilder().setNameFormat("joblet-executor-%d").build()
+      );
 
-  private static class ProcessControllerRunner implements Runnable {
-    private final LocalProcessController<JobletConfigMetadata> controller;
-
-    private ProcessControllerRunner(LocalProcessController<JobletConfigMetadata> controller) {
-      this.controller = controller;
-    }
-
-    @Override
-    public void run() {
-      controller.start();
+      return new ThreadedJobletExecutor<>(threadPool, jobletFactory, AfterJobletCallback.wrap(jobletCallbacks));
     }
   }
 
