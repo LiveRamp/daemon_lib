@@ -109,10 +109,18 @@ public class Daemon<T extends JobletConfig> {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
           preExecutionCallback.callback(jobletConfig);
+        } catch (DaemonException e) {
+          alertsHandler.sendAlert("Error executing callbacks for daemon (" + identifier + ")",
+              jobletConfig.toString()+"\n"+preExecutionCallback.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
+          return false;
+        } finally {
           lock.unlock();
+        }
+        try {
           executor.execute(jobletConfig);
         } catch (Exception e) {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
+          return false;
         }
         return true;
       } else {

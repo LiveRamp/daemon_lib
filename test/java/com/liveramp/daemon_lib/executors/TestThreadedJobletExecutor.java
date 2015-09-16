@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.liveramp.daemon_lib.DaemonLibTestCase;
 import com.liveramp.daemon_lib.Joblet;
-import com.liveramp.daemon_lib.JobletCallbacks;
+import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.built_in.IDConfig;
 import com.liveramp.daemon_lib.utils.AfterJobletCallback;
@@ -28,15 +28,15 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
 
   private ThreadPoolExecutor pool;
   private JobletFactory<IDConfig> factory;
-  private JobletCallbacks<IDConfig> callbacks;
+  private JobletCallback<IDConfig> callback;
   private ThreadedJobletExecutor<IDConfig> jobletExecutor;
 
   @Before
   public void setUp() throws Exception {
     pool = (ThreadPoolExecutor)Executors.newFixedThreadPool(2);
     factory = mock(JobletFactory.class, RETURNS_DEEP_STUBS);
-    callbacks = mock(JobletCallbacks.class);
-    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, AfterJobletCallback.wrap(callbacks));
+    callback = mock(AfterJobletCallback.class);
+    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, callback);
   }
 
   @After
@@ -54,7 +54,7 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
     verify(factory.create(config), times(1)).run();
-    verify(callbacks, times(1)).after(config);
+    verify(callback, times(1)).callback(config);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     pool.shutdown();
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
-    verify(callbacks, times(1)).after(config);
+    verify(callback, times(1)).callback(config);
   }
 
   @Test
