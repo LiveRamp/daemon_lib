@@ -5,12 +5,12 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 
 public class NoOpDaemonLock implements DaemonLock {
   @Override
-  public void lock() throws DaemonException {
+  public void lock()  {
 
   }
 
   @Override
-  public void unlock() throws DaemonException {
+  public void unlock() {
 
   }
 }
