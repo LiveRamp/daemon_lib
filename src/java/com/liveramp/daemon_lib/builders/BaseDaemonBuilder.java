@@ -8,7 +8,9 @@ import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
+import com.liveramp.daemon_lib.built_in.NoOpDaemonLock;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
+import com.liveramp.daemon_lib.utils.BeforeJobletCallback;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDaemonBuilder<T, K>> {
@@ -60,6 +62,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
-    return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, alertsHandler, options);
+    return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, BeforeJobletCallback.wrap(jobletCallbacks), new NoOpDaemonLock(), alertsHandler, options);
   }
 }

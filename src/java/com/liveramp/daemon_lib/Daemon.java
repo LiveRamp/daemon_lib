@@ -59,13 +59,17 @@ public class Daemon<T extends JobletConfig> {
   private final Options options;
 
   private boolean running;
+  private final JobletCallback<T> preExecutionCallback;
+  private DaemonLock lock;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler, Options options) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, AlertsHandler alertsHandler, Options options) {
+    this.preExecutionCallback = preExecutionCallback;
     this.identifier = clean(identifier);
     this.configProducer = configProducer;
     this.executor = executor;
     this.alertsHandler = alertsHandler;
     this.options = options;
+    this.lock = lock;
 
     this.running = false;
   }
@@ -94,6 +98,7 @@ public class Daemon<T extends JobletConfig> {
     if (executor.canExecuteAnother()) {
       T jobletConfig;
       try {
+        lock.lock();
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
         alertsHandler.sendAlert("Error getting next config for daemon (" + identifier + ")", e, AlertRecipients.engineering(AlertSeverity.ERROR));
@@ -103,9 +108,19 @@ public class Daemon<T extends JobletConfig> {
       if (jobletConfig != null) {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
+          preExecutionCallback.callback(jobletConfig);
+        } catch (DaemonException e) {
+          alertsHandler.sendAlert("Error executing callbacks for daemon (" + identifier + ")",
+              jobletConfig.toString()+"\n"+preExecutionCallback.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
+          return false;
+        } finally {
+          lock.unlock();
+        }
+        try {
           executor.execute(jobletConfig);
         } catch (Exception e) {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
+          return false;
         }
         return true;
       } else {

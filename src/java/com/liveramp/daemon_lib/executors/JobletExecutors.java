@@ -17,6 +17,7 @@ import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
 import com.liveramp.daemon_lib.executors.processes.local.LocalProcessController;
 import com.liveramp.daemon_lib.executors.processes.local.PsPidGetter;
+import com.liveramp.daemon_lib.utils.AfterJobletCallback;
 import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
@@ -27,7 +28,7 @@ public class JobletExecutors {
   public static class Blocking {
 
     public static <T extends JobletConfig> BlockingJobletExecutor<T> get(JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, InstantiationException {
-      return new BlockingJobletExecutor<>(jobletFactory, jobletCallbacks);
+      return new BlockingJobletExecutor<>(jobletFactory, AfterJobletCallback.wrap(jobletCallbacks));
     }
   }
 
@@ -44,13 +45,13 @@ public class JobletExecutors {
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
           new FsHelper(pidDir.getPath()),
-          new JobletProcessHandler<>(jobletCallbacks, configStore),
+          new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), configStore),
           new PsPidGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
       );
 
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, jobletCallbacks, configStore, processController, ForkedJobletRunner.production(), envVariables);
+      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass,  configStore, processController, ForkedJobletRunner.production(), envVariables);
     }
 
   }
@@ -70,7 +71,7 @@ public class JobletExecutors {
           new ThreadFactoryBuilder().setNameFormat("joblet-executor-%d").build()
       );
 
-      return new ThreadedJobletExecutor<>(threadPool, jobletFactory, jobletCallbacks);
+      return new ThreadedJobletExecutor<>(threadPool, jobletFactory, AfterJobletCallback.wrap(jobletCallbacks));
     }
   }
 

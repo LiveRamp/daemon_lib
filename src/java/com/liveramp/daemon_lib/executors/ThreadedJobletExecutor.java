@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.Joblet;
-import com.liveramp.daemon_lib.JobletCallbacks;
+import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.utils.DaemonException;
@@ -17,18 +17,16 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
 
   private final ThreadPoolExecutor threadPool;
   private final JobletFactory<T> jobletFactory;
-  private final JobletCallbacks<T> jobletCallbacks;
+  private final JobletCallback<T> postExecutionCallback;
 
-  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallbacks<T> jobletCallbacks) {
+  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallback<T> postExecutionCallback) {
     this.threadPool = threadPool;
     this.jobletFactory = jobletFactory;
-    this.jobletCallbacks = jobletCallbacks;
+    this.postExecutionCallback = postExecutionCallback;
   }
 
   @Override
   public void execute(final T config) throws DaemonException {
-    jobletCallbacks.before(config);
-
     threadPool.submit(new Callable<Void>() {
       @Override
       public Void call() throws Exception {
@@ -38,7 +36,7 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
         } catch (Exception e) {
           LOG.error("Failed to call for config {}", config, e);
         } finally {
-          jobletCallbacks.after(config);
+          postExecutionCallback.callback(config);
         }
         return null;
       }

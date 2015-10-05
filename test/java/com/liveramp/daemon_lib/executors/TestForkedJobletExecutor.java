@@ -45,7 +45,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     this.processController = Mockito.mock(ProcessController.class);
     this.jobletRunner = Mockito.mock(ForkedJobletRunner.class);
     this.jobletCallbacks = Mockito.mock(JobletCallbacks.class);
-    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, jobletCallbacks, configStorage, processController, jobletRunner, Maps.<String, String>newHashMap());
+    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner, Maps.<String, String>newHashMap());
 
     this.config = Mockito.mock(JobletConfig.class);
   }
@@ -58,7 +58,6 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     executor.execute(config);
 
     Mockito.verify(processController, times(1)).registerProcess(eq(PID), any(JobletConfigMetadata.class)); // TODO(asarkar): shouldn't actually be testing this - its an implementation detail
-    Mockito.verify(jobletCallbacks).before(config);
   }
 
   @Test
