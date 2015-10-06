@@ -9,7 +9,7 @@
 
   <parent>
     <groupId>com.liveramp</groupId>
-    <artifactId>daemon_lib</artifactId>
+    <artifactId>daemon_lib_parent</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
@@ -21,8 +21,8 @@
       <version>2.5.0</version>
     </dependency>
     <dependency>
-      <groupId>com.liveramp.daemon_lib</groupId>
-      <artifactId>daemon_lib_core</artifactId>
+      <groupId>com.liveramp</groupId>
+      <artifactId>daemon_lib</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
 
