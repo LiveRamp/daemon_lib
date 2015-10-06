@@ -11,12 +11,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.io.FileUtils;
 
+import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
 import com.liveramp.daemon_lib.executors.processes.local.LocalProcessController;
 import com.liveramp.daemon_lib.executors.processes.local.PsPidGetter;
+import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
+import com.liveramp.daemon_lib.tracking.JobletStatusManager;
 import com.liveramp.daemon_lib.utils.AfterJobletCallback;
 import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
@@ -43,15 +46,16 @@ public class JobletExecutors {
       FileUtils.forceMkdir(pidDir);
 
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
+      JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
           new FsHelper(pidDir.getPath()),
-          new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), configStore),
+          new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), new JobletCallback.None<T>(), new JobletCallback.None<T>(), configStore, jobletStatusManager),
           new PsPidGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
       );
 
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass,  configStore, processController, ForkedJobletRunner.production(), envVariables);
+      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStore, processController, ForkedJobletRunner.production(), envVariables, tmpPath);
     }
 
   }
