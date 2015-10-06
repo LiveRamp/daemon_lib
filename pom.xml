@@ -6,29 +6,24 @@
   <!--TODO replace with your project name-->
   <artifactId>daemon_lib</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>daemon_lib_core</module>
+    <module>daemon_lib_zk</module>
+  </modules>
 
   <parent>
     <groupId>com.liveramp</groupId>
-    <!--TODO if your project depends on hadoop, replace with "pom-hadoop-common"-->
     <artifactId>pom-ant-structure</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <!--TODO if your project needs rldb set up for builds. remove this block and uncomment the db_schemas dependency below-->
   <properties>
     <skip.db.init>true</skip.db.init>
   </properties>
 
   <dependencies>
-    <!--TODO add project dependencies here-->
-
-    <!--TODO if your project will need a database setup for builds, uncomment this-->
-    <!--<dependency>-->
-    <!--<groupId>com.liveramp</groupId>-->
-    <!--<artifactId>db_schemas</artifactId>-->
-    <!--<version>1.0-SNAPSHOT</version>-->
-    <!--</dependency>-->
-
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>

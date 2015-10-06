@@ -103,6 +103,8 @@ public class Daemon<T extends JobletConfig> {
       } catch (DaemonException e) {
         alertsHandler.sendAlert("Error getting next config for daemon (" + identifier + ")", e, AlertRecipients.engineering(AlertSeverity.ERROR));
         return false;
+      }finally {
+        lock.unlock();
       }
 
       if (jobletConfig != null) {
