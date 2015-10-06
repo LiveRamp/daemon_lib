@@ -49,7 +49,7 @@ public class JobletExecutors {
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
           new FsHelper(pidDir.getPath()),
-          new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), new JobletCallback.None<T>(), new JobletCallback.None<T>(), configStore, jobletStatusManager),
+          new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), new JobletCallback.Dummy<T>("Success"), new JobletCallback.Dummy<T>("Failure"), configStore, jobletStatusManager),
           new PsPidGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
