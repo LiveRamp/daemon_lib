@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!--TODO replace with your project name-->
-  <artifactId>daemon_lib</artifactId>
+  <artifactId>daemon_lib_parent</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
-    <module>daemon_lib_core</module>
+    <module>daemon_lib</module>
     <module>daemon_lib_zk</module>
   </modules>
 
