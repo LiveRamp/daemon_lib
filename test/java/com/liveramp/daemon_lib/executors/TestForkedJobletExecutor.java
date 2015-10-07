@@ -29,6 +29,8 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   private static final String MOCK_IDENTIFIER = "mock_id";
   private static final int PID = 1;
   private static final int MAX_PROCESSES = 1;
+  // TODO(asarkar): add generic test root functionality to DaemonLibTestCase
+  private static final String TEST_ROOT = "/tmp/tests/TestForkedJobletExecutor";
 
   private JobletConfigStorage configStorage;
   private ProcessController processController;
@@ -45,7 +47,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     this.processController = Mockito.mock(ProcessController.class);
     this.jobletRunner = Mockito.mock(ForkedJobletRunner.class);
     this.jobletCallbacks = Mockito.mock(JobletCallbacks.class);
-    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner, Maps.<String, String>newHashMap());
+    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner, Maps.<String, String>newHashMap(), TEST_ROOT);
 
     this.config = Mockito.mock(JobletConfig.class);
   }
@@ -53,7 +55,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   @Test
   public void execute() throws IOException, ProcessControllerException, DaemonException {
     Mockito.when(configStorage.storeConfig(config)).thenReturn(MOCK_IDENTIFIER);
-    Mockito.when(jobletRunner.run(MockJobletFactory.class, configStorage, MOCK_IDENTIFIER, Maps.<String, String>newHashMap())).thenReturn(PID);
+    Mockito.when(jobletRunner.run(MockJobletFactory.class, configStorage, MOCK_IDENTIFIER, Maps.<String, String>newHashMap(), TEST_ROOT)).thenReturn(PID);
 
     executor.execute(config);
 

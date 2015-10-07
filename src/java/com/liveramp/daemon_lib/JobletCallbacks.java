@@ -2,6 +2,7 @@ package com.liveramp.daemon_lib;
 
 import com.liveramp.daemon_lib.utils.DaemonException;
 
+@Deprecated
 public interface JobletCallbacks<T extends JobletConfig> {
   void before(T config) throws DaemonException;
 
