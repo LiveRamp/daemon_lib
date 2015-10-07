@@ -38,7 +38,7 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks, Map<String, String> envVariables) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
 
       File pidDir = new File(tmpPath, "pids");
@@ -49,7 +49,7 @@ public class JobletExecutors {
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
           new FsHelper(pidDir.getPath()),
-          new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), new JobletCallback.None<T>(), new JobletCallback.None<T>(), configStore, jobletStatusManager),
+          new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), successCallback, failureCallback, configStore, jobletStatusManager),
           new PsPidGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
