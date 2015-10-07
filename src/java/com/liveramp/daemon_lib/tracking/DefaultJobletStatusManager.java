@@ -1,51 +1,69 @@
 package com.liveramp.daemon_lib.tracking;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
+import java.io.PrintWriter;
 
 import org.apache.commons.io.FileUtils;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
+import org.apache.commons.io.IOUtils;
+
+import com.liveramp.commons.Accessors;
 
 public class DefaultJobletStatusManager implements JobletStatusManager {
-  private final Map<Object, Object> jobStatuses;
-  private final DB db;
+  private final File workingDir;
 
   public DefaultJobletStatusManager(String workingDirectory) throws IOException {
-    File file = new File(workingDirectory, "job_statuses");
-    FileUtils.forceMkdir(file.getParentFile());
-    db = DBMaker
-        .newFileDB(file)
-        .make();
-
-    jobStatuses = db.getHashMap("job_statuses");
+    workingDir = new File(workingDirectory, "job_statuses");
+    FileUtils.forceMkdir(workingDir);
   }
 
   @Override
   public void start(String identifier) {
-    jobStatuses.put(identifier, JobletStatus.IN_PROGRESS.name());
-    db.commit();
+    updateStatus(identifier, JobletStatus.IN_PROGRESS);
   }
 
   @Override
   public void complete(String identifier) {
-    jobStatuses.put(identifier, JobletStatus.DONE.name());
-    db.commit();
+    updateStatus(identifier, JobletStatus.DONE);
   }
 
   @Override
   public JobletStatus getStatus(String identifier) {
-    return JobletStatus.valueOf((String)jobStatuses.get(identifier));
+    File data = getFile(identifier);
+    try {
+      return JobletStatus.valueOf(Accessors.first(IOUtils.readLines(FileUtils.openInputStream(data))));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public boolean exists(String identifier) {
-    return jobStatuses.containsKey(identifier);
+    return getFile(identifier).exists();
   }
 
   @Override
   public void remove(String identifier) {
-    jobStatuses.remove(identifier);
+    try {
+      FileUtils.forceDelete(getFile(identifier));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void updateStatus(String identifier, JobletStatus status) {
+    File data = getFile(identifier);
+    data.delete();
+    try (PrintWriter out = new PrintWriter(data)) {
+      out.write(status.name());
+    } catch (FileNotFoundException e) {
+      // This should never happen
+      throw new RuntimeException(e);
+    }
+  }
+
+  private File getFile(String identifier) {
+    return new File(workingDir, identifier);
   }
 }
