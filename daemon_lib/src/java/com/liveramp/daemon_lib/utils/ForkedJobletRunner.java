@@ -15,6 +15,7 @@ import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessUtil;
+import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.java_support.logging.LoggingHelper;
 
 public class ForkedJobletRunner {
@@ -27,10 +28,10 @@ public class ForkedJobletRunner {
     return new ForkedJobletRunner();
   }
 
-  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables) throws IOException {
+  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException {
     prepareScript();
 
-    ProcessBuilder processBuilder = new ProcessBuilder(JOBLET_RUNNER_SCRIPT, quote(jobletFactoryClass.getName()), configStore.getPath(), cofigIdentifier);
+    ProcessBuilder processBuilder = new ProcessBuilder(JOBLET_RUNNER_SCRIPT, quote(jobletFactoryClass.getName()), configStore.getPath(), workingDir, cofigIdentifier);
     processBuilder.environment().putAll(envVariables);
     int pid = ProcessUtil.run(processBuilder);
 
@@ -72,12 +73,16 @@ public class ForkedJobletRunner {
 
     String jobletFactoryClassName = unquote(args[0]);
     String configStorePath = args[1];
-    String id = args[2];
+    String daemonWorkingDir = args[2];
+    String id = args[3];
 
     JobletFactory factory = (JobletFactory)Class.forName(jobletFactoryClassName).newInstance();
     JobletConfig config = JobletConfigStorage.production(configStorePath).loadConfig(id);
+    DefaultJobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(daemonWorkingDir);
 
     Joblet joblet = factory.create(config);
+    jobletStatusManager.start(id);
     joblet.run();
+    jobletStatusManager.complete(id);
   }
 }

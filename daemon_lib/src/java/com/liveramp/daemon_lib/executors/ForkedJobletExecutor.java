@@ -18,21 +18,23 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
   private final int maxProcesses;
   private final Class<? extends JobletFactory<? extends T>> jobletFactoryClass;
   private final Map<String, String> envVariables;
+  private final String workingDir;
 
-  public ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ForkedJobletRunner jobletRunner, Map<String, String> envVariables) {
+  public ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ForkedJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir) {
     this.maxProcesses = maxProcesses;
     this.jobletFactoryClass = jobletFactoryClass;
     this.configStorage = configStorage;
     this.processController = processController;
     this.jobletRunner = jobletRunner;
     this.envVariables = envVariables;
+    this.workingDir = workingDir;
   }
 
   @Override
   public void execute(T config) throws DaemonException {
     try {
       String identifier = configStorage.storeConfig(config);
-      int pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier, envVariables);
+      int pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier, envVariables, workingDir);
       processController.registerProcess(pid, new JobletConfigMetadata(identifier));
     } catch (Exception e) {
       throw new DaemonException(e);

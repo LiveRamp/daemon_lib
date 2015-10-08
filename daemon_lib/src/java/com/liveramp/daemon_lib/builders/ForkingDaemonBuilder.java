@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 
+import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
@@ -20,7 +21,9 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   private final String workingDir;
   private final Class<? extends JobletFactory<T>> jobletFactoryClass;
   private int maxProcesses;
-  private Map<String,String> envVariables;
+  private Map<String, String> envVariables;
+  private JobletCallback<T> successCallback;
+  private JobletCallback<T> failureCallback;
 
   private static final int DEFAULT_MAX_PROCESSES = 1;
   private static final Map<String, String> DEFAULT_ENV_VARS = Maps.newHashMap();
@@ -33,6 +36,8 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
 
     maxProcesses = DEFAULT_MAX_PROCESSES;
     envVariables = DEFAULT_ENV_VARS;
+    successCallback = new JobletCallback.None<>();
+    failureCallback = new JobletCallback.None<>();
   }
 
   public ForkingDaemonBuilder<T> setMaxProcesses(int maxProcesses) {
@@ -45,11 +50,21 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
     return this;
   }
 
+  public ForkingDaemonBuilder<T> setSuccessCallback(JobletCallback<T> callback) {
+    this.successCallback = callback;
+    return this;
+  }
+
+  public ForkingDaemonBuilder<T> setFailureCallback(JobletCallback<T> callback) {
+    this.failureCallback = callback;
+    return this;
+  }
+
   @NotNull
   @Override
   protected JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
     final String tmpPath = new File(workingDir, identifier).getPath();
-    return JobletExecutors.Forked.get(tmpPath, maxProcesses, jobletFactoryClass, jobletCallbacks, envVariables);
+    return JobletExecutors.Forked.get(tmpPath, maxProcesses, jobletFactoryClass, jobletCallbacks, envVariables, successCallback, failureCallback);
   }
 
 }
