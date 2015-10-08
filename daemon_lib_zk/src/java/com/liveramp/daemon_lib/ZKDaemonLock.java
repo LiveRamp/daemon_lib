@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.java_support.constants.ZkConstants;
 
+@SuppressWarnings("PMD.BlacklistedMethods") //I really do need to set the actual log4j logger
 public class ZKDaemonLock implements DaemonLock {
 
   private static final String ZK_DAEMON_LOCK_BASE_PATH = "/daemon_lib_zk/zk_daemon_locks/";
