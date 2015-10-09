@@ -15,6 +15,10 @@ public class BlockingJobletExecutor<T extends JobletConfig> implements JobletExe
     this.postexecutionCallback = postExecutionCallback;
   }
 
+  public BlockingJobletExecutor(JobletFactory<T> jobletFactory) {
+    this(jobletFactory, new JobletCallback.None<T>());
+  }
+
   @Override
   public void execute(T jobletConfig) throws DaemonException {
     Joblet joblet = jobletFactory.create(jobletConfig);
