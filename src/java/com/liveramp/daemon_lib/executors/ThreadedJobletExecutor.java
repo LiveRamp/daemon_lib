@@ -18,11 +18,15 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
   private final ThreadPoolExecutor threadPool;
   private final JobletFactory<T> jobletFactory;
   private final JobletCallback<T> postExecutionCallback;
+  private final JobletCallback<T> successCallback;
+  private final JobletCallback<T> failureCallback;
 
-  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallback<T> postExecutionCallback) {
+  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallback<T> postExecutionCallback, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) {
     this.threadPool = threadPool;
     this.jobletFactory = jobletFactory;
     this.postExecutionCallback = postExecutionCallback;
+    this.successCallback = successCallback;
+    this.failureCallback = failureCallback;
   }
 
   @Override
@@ -33,8 +37,10 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
         try {
           Joblet joblet = jobletFactory.create(config);
           joblet.run();
+          successCallback.callback(config);
         } catch (Exception e) {
           LOG.error("Failed to call for config {}", config, e);
+          failureCallback.callback(config);
         } finally {
           postExecutionCallback.callback(config);
         }

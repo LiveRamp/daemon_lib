@@ -30,13 +30,17 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
   private JobletFactory<IDConfig> factory;
   private JobletCallback<IDConfig> callback;
   private ThreadedJobletExecutor<IDConfig> jobletExecutor;
+  private JobletCallback<IDConfig> successCallback;
+  private JobletCallback<IDConfig> failureCallback;
 
   @Before
   public void setUp() throws Exception {
     pool = (ThreadPoolExecutor)Executors.newFixedThreadPool(2);
     factory = mock(JobletFactory.class, RETURNS_DEEP_STUBS);
     callback = mock(AfterJobletCallback.class);
-    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, callback);
+    successCallback = mock(JobletCallback.class);
+    failureCallback = mock(JobletCallback.class);
+    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, callback, successCallback, failureCallback);
   }
 
   @After
@@ -54,7 +58,10 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
     verify(factory.create(config), times(1)).run();
+    verify(successCallback, times(1)).callback(config);
     verify(callback, times(1)).callback(config);
+
+    verify(failureCallback, times(0)).callback(config);
   }
 
   @Test
@@ -74,6 +81,9 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
     verify(callback, times(1)).callback(config);
+    verify(failureCallback, times(1)).callback(config);
+
+    verify(successCallback, times(0)).callback(config);
   }
 
   @Test
