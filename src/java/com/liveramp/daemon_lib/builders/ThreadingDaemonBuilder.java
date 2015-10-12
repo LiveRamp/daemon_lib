@@ -16,8 +16,8 @@ import com.liveramp.java_support.alerts_handler.AlertsHandler;
 public class ThreadingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuilder<T, ThreadingDaemonBuilder<T>> {
 
   private final JobletFactory<T> jobletFactory;
-  private JobletCallback<T> successCallbacks;
-  private JobletCallback<T> failureCallbacks;
+  private JobletCallback<T> successCallback;
+  private JobletCallback<T> failureCallback;
   private int maxThreads;
 
   private static final int DEFAULT_MAX_THREADS = 1;
@@ -29,8 +29,8 @@ public class ThreadingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBu
 
     this.maxThreads = DEFAULT_MAX_THREADS;
 
-    this.successCallbacks = new JobletCallback.None<>();
-    this.failureCallbacks = new JobletCallback.None<>();
+    this.successCallback = new JobletCallback.None<>();
+    this.failureCallback = new JobletCallback.None<>();
   }
 
   public ThreadingDaemonBuilder<T> setMaxThreads(int maxThreads) {
@@ -38,19 +38,19 @@ public class ThreadingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBu
     return this;
   }
 
-  public ThreadingDaemonBuilder<T> setSuccessCallbacks(JobletCallback<T> successCallbacks) {
-    this.successCallbacks = successCallbacks;
+  public ThreadingDaemonBuilder<T> setSuccessCallback(JobletCallback<T> successCallback) {
+    this.successCallback = successCallback;
     return this;
   }
 
-  public ThreadingDaemonBuilder<T> setFailureCallbacks(JobletCallback<T> failureCallbacks) {
-    this.failureCallbacks = failureCallbacks;
+  public ThreadingDaemonBuilder<T> setFailureCallback(JobletCallback<T> failureCallback) {
+    this.failureCallback = failureCallback;
     return this;
   }
 
   @NotNull
   @Override
   protected JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
-    return JobletExecutors.Threaded.get(maxThreads, jobletFactory, jobletCallbacks, successCallbacks, failureCallbacks);
+    return JobletExecutors.Threaded.get(maxThreads, jobletFactory, jobletCallbacks, successCallback, failureCallback);
   }
 }
