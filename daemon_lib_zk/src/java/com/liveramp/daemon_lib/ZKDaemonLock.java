@@ -6,26 +6,15 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.curator.retry.RetryNTimes;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.java_support.constants.ZkConstants;
 
-@SuppressWarnings("PMD.BlacklistedMethods") //I really do need to set the actual log4j logger
 public class ZKDaemonLock implements DaemonLock {
 
   private static final String ZK_DAEMON_LOCK_BASE_PATH = "/daemon_lib_zk/zk_daemon_locks/";
 
   public DaemonLock production(String daemonId) {
-
-    //Curator logs a TON. This should prevent us from having overflowing logs
-    Logger logger = Logger.getLogger("org.apache.curator");
-    logger.setLevel(Level.ERROR);
-    logger = Logger.getLogger("org.apache.zookeeper");
-    logger.setLevel(Level.ERROR);
-
-
 
     CuratorFramework productionFramework = CuratorFrameworkFactory.newClient(ZkConstants.LIVERAMP_ZK_CONNECT_STRING,
         (int)TimeUnit.SECONDS.toMillis(30), (int)TimeUnit.SECONDS.toMillis(5), new RetryNTimes(3, 100));
