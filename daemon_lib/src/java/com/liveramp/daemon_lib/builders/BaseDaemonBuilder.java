@@ -21,14 +21,14 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   private final JobletCallbacks<T> jobletCallbacks;
   private final AlertsHandler alertsHandler;
   private final Daemon.Options options;
-  private JobletCallback<T> postConfigCallback;
+  private JobletCallback<T> onNewConfigCallback;
 
   public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, JobletCallbacks<T> jobletCallbacks, AlertsHandler alertsHandler) {
     this.identifier = identifier;
     this.configProducer = configProducer;
     this.jobletCallbacks = jobletCallbacks;
     this.alertsHandler = alertsHandler;
-    this.postConfigCallback = new JobletCallback.None<>();
+    this.onNewConfigCallback = new JobletCallback.None<>();
 
     this.options = new Daemon.Options();
   }
@@ -57,8 +57,8 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     return self();
   }
 
-  public K setPostConfigCallback(JobletCallback<T> callback) {
-    this.postConfigCallback = callback;
+  public K setOnNewConfigCallback(JobletCallback<T> callback) {
+    this.onNewConfigCallback = callback;
     return self();
   }
 
@@ -71,6 +71,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   protected abstract JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
-    return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, JobletCallbackUtil.compose(BeforeJobletCallback.wrap(jobletCallbacks), postConfigCallback), new NoOpDaemonLock(), alertsHandler, options);
+    return new Daemon<>(identifier, getExecutor(jobletCallbacks), configProducer, JobletCallbackUtil.compose(BeforeJobletCallback.wrap(jobletCallbacks), onNewConfigCallback), new NoOpDaemonLock(), alertsHandler, options);
   }
 }
