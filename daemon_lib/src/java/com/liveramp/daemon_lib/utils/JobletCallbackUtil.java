@@ -5,11 +5,12 @@ import com.liveramp.daemon_lib.JobletConfig;
 
 public class JobletCallbackUtil {
 
-  public <T extends JobletConfig> JobletCallback<T> compose(JobletCallback<T>... callbacks) {
+  @SafeVarargs
+  public static <T extends JobletConfig> JobletCallback<T> compose(JobletCallback<T>... callbacks) {
     return new ComposeJobletCallback<>(callbacks);
   }
 
-  class ComposeJobletCallback<T extends JobletConfig> implements JobletCallback<T> {
+  static class ComposeJobletCallback<T extends JobletConfig> implements JobletCallback<T> {
 
     private final JobletCallback<T>[] callbacks;
 
