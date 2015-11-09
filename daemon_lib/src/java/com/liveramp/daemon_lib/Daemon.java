@@ -17,11 +17,13 @@ public class Daemon<T extends JobletConfig> {
   private static final int DEFAULT_CONFIG_WAIT_SECONDS = 0;
   private static final int DEFAULT_EXECUTION_SLOT_WAIT_SECONDS = 0;
   private static final int DEFAULT_NEXT_CONFIG_WAIT_SECONDS = 0;
+  private static final int DEFAULT_FAILURE_WAIT_SECONDS = 0;
 
   public static class Options {
     private int configWaitSeconds = DEFAULT_CONFIG_WAIT_SECONDS;
     private int executionSlotWaitSeconds = DEFAULT_EXECUTION_SLOT_WAIT_SECONDS;
     private int nextConfigWaitSeconds = DEFAULT_NEXT_CONFIG_WAIT_SECONDS;
+    private int failureWaitSeconds = DEFAULT_FAILURE_WAIT_SECONDS;
 
     /**
      * @param sleepingSeconds How long the daemon should wait before retrying when there is no config available
@@ -47,6 +49,15 @@ public class Daemon<T extends JobletConfig> {
      */
     public Options setNextConfigWaitSeconds(int sleepingSeconds) {
       this.nextConfigWaitSeconds = sleepingSeconds;
+      return this;
+    }
+
+    /**
+     * @param sleepingSeconds How long the daemon should wait before retrying when it did not successfully execute a config.
+     * @return options for fluent usage
+     */
+    public Options setFailureWaitSeconds(int sleepingSeconds) {
+      this.failureWaitSeconds = sleepingSeconds;
       return this;
     }
   }
@@ -84,7 +95,9 @@ public class Daemon<T extends JobletConfig> {
 
     try {
       while (running) {
-        processNext();
+        if (!processNext()) {
+          silentSleep(options.failureWaitSeconds);
+        }
         silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
@@ -103,7 +116,7 @@ public class Daemon<T extends JobletConfig> {
       } catch (DaemonException e) {
         alertsHandler.sendAlert("Error getting next config for daemon (" + identifier + ")", e, AlertRecipients.engineering(AlertSeverity.ERROR));
         return false;
-      }finally {
+      } finally {
         lock.unlock();
       }
 
@@ -113,7 +126,7 @@ public class Daemon<T extends JobletConfig> {
           preExecutionCallback.callback(jobletConfig);
         } catch (DaemonException e) {
           alertsHandler.sendAlert("Error executing callbacks for daemon (" + identifier + ")",
-              jobletConfig.toString()+"\n"+preExecutionCallback.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
+              jobletConfig.toString() + "\n" + preExecutionCallback.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
           return false;
         } finally {
           lock.unlock();
