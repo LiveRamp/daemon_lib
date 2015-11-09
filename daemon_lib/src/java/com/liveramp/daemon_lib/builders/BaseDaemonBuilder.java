@@ -57,6 +57,14 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     return self();
   }
 
+  /**
+   * See {@link com.liveramp.daemon_lib.Daemon.Options#setFailureWaitSeconds(int)}
+   */
+  public K setFailureWaitSeconds(int sleepingSeconds) {
+    options.setFailureWaitSeconds(sleepingSeconds);
+    return self();
+  }
+
   public K setOnNewConfigCallback(JobletCallback<T> callback) {
     this.onNewConfigCallback = callback;
     return self();
