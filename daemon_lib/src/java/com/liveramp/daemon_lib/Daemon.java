@@ -128,8 +128,6 @@ public class Daemon<T extends JobletConfig> {
           alertsHandler.sendAlert("Error executing callbacks for daemon (" + identifier + ")",
               jobletConfig.toString() + "\n" + preExecutionCallback.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
           return false;
-        } finally {
-          lock.unlock();
         }
         try {
           executor.execute(jobletConfig);
