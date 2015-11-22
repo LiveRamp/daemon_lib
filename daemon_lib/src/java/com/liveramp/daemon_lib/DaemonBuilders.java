@@ -11,9 +11,9 @@ public class DaemonBuilders {
   /**
    * @deprecated Use {@link this#forked(String, String, Class, JobletConfigProducer, AlertsHandler)} and then set
    * callbacks using:
-   *  * {@link ForkingDaemonBuilder#setOnNewConfigCallback(JobletCallback)}
-   *  * {@link ForkingDaemonBuilder#setFailureCallback(JobletCallback)}
-   *  * {@link ForkingDaemonBuilder#setSuccessCallback(JobletCallback)}
+   * * {@link ForkingDaemonBuilder#setOnNewConfigCallback(JobletCallback)}
+   * * {@link ForkingDaemonBuilder#setFailureCallback(JobletCallback)}
+   * * {@link ForkingDaemonBuilder#setSuccessCallback(JobletCallback)}
    */
   @Deprecated
   public static <T extends JobletConfig> ForkingDaemonBuilder<T> forked(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
