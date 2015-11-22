@@ -38,13 +38,12 @@ public class DaemonBuilders {
     );
   }
 
-
-  public static <T extends JobletConfig> BlockingDaemonBuilder<T> blocking(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws InstantiationException, IllegalAccessException {
+  public static <T extends JobletConfig> BlockingDaemonBuilder<T> blocking(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler) throws InstantiationException, IllegalAccessException {
     return new BlockingDaemonBuilder<>(
         identifier,
         jobletFactory,
         jobletConfigProducer,
-        jobletCallbacks,
+        new JobletCallbacks.None<T>(),
         alertsHandler);
   }
 
