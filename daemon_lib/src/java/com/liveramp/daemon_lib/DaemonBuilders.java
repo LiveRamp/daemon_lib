@@ -8,24 +8,6 @@ import com.liveramp.daemon_lib.builders.ThreadingDaemonBuilder;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class DaemonBuilders {
-  /**
-   * @deprecated Use {@link this#forked(String, String, Class, JobletConfigProducer, AlertsHandler)} and then set
-   * callbacks using:
-   * * {@link ForkingDaemonBuilder#setOnNewConfigCallback(JobletCallback)}
-   * * {@link ForkingDaemonBuilder#setFailureCallback(JobletCallback)}
-   * * {@link ForkingDaemonBuilder#setSuccessCallback(JobletCallback)}
-   */
-  @Deprecated
-  public static <T extends JobletConfig> ForkingDaemonBuilder<T> forked(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler, JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
-    return new ForkingDaemonBuilder<>(
-        workingDir,
-        identifier,
-        jobletFactoryClass,
-        jobletConfigProducer,
-        jobletCallbacks,
-        alertsHandler
-    );
-  }
 
   public static <T extends JobletConfig> ForkingDaemonBuilder<T> forked(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler) throws IllegalAccessException, IOException, InstantiationException {
     return new ForkingDaemonBuilder<>(

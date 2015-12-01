@@ -4,12 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.Daemon;
+import com.liveramp.daemon_lib.DaemonBuilders;
 import com.liveramp.daemon_lib.Joblet;
-import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.builders.ForkingDaemonBuilder;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.DaemonRunner;
 import com.liveramp.java_support.alerts_handler.AlertsHandlers;
@@ -65,30 +64,18 @@ public class DemoDaemon {
     }
   }
 
-  private static class Callbacks implements JobletCallbacks<Config> {
-    @Override
-    public void before(Config config) throws DaemonException {
-      System.out.println("Called before callback for config: " + config.id);
-    }
-
-    @Override
-    public void after(Config config) throws DaemonException {
-      System.out.println("Called after callback for config: " + config.id);
-    }
-  }
-
   public static void main(String[] args) throws Exception {
     LoggingHelper.setLoggingProperties("demo-daemon");
 
-    Daemon daemon = new ForkingDaemonBuilder<>(
+    Daemon daemon = DaemonBuilders.forked(
         "/tmp/daemons",
         "demo",
         Factory.class,
         new Producer(),
-        new Callbacks(),
         AlertsHandlers.distribution(DemoDaemon.class)
     ).setMaxProcesses(4).build();
 
+    LOG.info("Starting daemon");
     DaemonRunner.run(daemon);
   }
 }
