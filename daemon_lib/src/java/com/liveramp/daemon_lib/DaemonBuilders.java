@@ -15,7 +15,6 @@ public class DaemonBuilders {
         identifier,
         jobletFactoryClass,
         jobletConfigProducer,
-        new JobletCallbacks.None<T>(),
         alertsHandler
     );
   }

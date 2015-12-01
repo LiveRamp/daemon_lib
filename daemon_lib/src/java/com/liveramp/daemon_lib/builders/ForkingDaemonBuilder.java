@@ -29,8 +29,8 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   private static final Map<String, String> DEFAULT_ENV_VARS = Maps.newHashMap();
 
 
-  public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, JobletCallbacks<T> jobletCallbacks, AlertsHandler alertsHandler) {
-    super(identifier, configProducer, jobletCallbacks, alertsHandler);
+  public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
+    super(identifier, configProducer, new JobletCallbacks.None<T>(), alertsHandler);
     this.workingDir = workingDir;
     this.jobletFactoryClass = jobletFactoryClass;
 
