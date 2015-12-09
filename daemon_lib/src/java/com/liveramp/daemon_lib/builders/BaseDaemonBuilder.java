@@ -19,7 +19,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   protected final String identifier;
   private final JobletConfigProducer<T> configProducer;
   private final JobletCallbacks<T> jobletCallbacks;
-  private final AlertsHandler alertsHandler;
+  protected final AlertsHandler alertsHandler;
   private final Daemon.Options options;
   private JobletCallback<T> onNewConfigCallback;
 

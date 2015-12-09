@@ -26,6 +26,7 @@ import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 import com.liveramp.daemon_lib.utils.JobletProcessHandler;
+import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class JobletExecutors {
 
@@ -39,7 +40,7 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(AlertsHandler alertsHandler, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallbacks<T> jobletCallbacks, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
 
       File pidDir = new File(tmpPath, "pids");
@@ -49,6 +50,7 @@ public class JobletExecutors {
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
+          alertsHandler,
           new FsHelper(pidDir.getPath()),
           new JobletProcessHandler<>(AfterJobletCallback.wrap(jobletCallbacks), successCallback, failureCallback, configStore, jobletStatusManager),
           new PsPidGetter(),
