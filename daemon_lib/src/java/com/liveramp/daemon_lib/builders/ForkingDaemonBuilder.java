@@ -64,7 +64,7 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   @Override
   protected JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
     final String tmpPath = new File(workingDir, identifier).getPath();
-    return JobletExecutors.Forked.get(tmpPath, maxProcesses, jobletFactoryClass, jobletCallbacks, envVariables, successCallback, failureCallback);
+    return JobletExecutors.Forked.get(alertsHandler, tmpPath, maxProcesses, jobletFactoryClass, jobletCallbacks, envVariables, successCallback, failureCallback);
   }
 
 }

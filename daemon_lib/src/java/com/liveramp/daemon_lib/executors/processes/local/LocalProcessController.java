@@ -17,11 +17,16 @@ import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
+import com.liveramp.daemon_lib.utils.DaemonException;
+import com.liveramp.java_support.alerts_handler.AlertsHandler;
+import com.liveramp.java_support.alerts_handler.recipients.AlertRecipients;
+import com.liveramp.java_support.alerts_handler.recipients.AlertSeverity;
 
 
 public class LocalProcessController<T extends ProcessMetadata> implements ProcessController<T> {
   private static Logger LOG = LoggerFactory.getLogger(LocalProcessController.class);
 
+  private final AlertsHandler alertsHandler;
   private final FsHelper fsHelper;
   private final ProcessHandler<T> processHandler;
   private final PidGetter pidGetter;
@@ -29,7 +34,8 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
 
   private volatile List<ProcessDefinition<T>> currentProcesses;
 
-  public LocalProcessController(FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+  public LocalProcessController(AlertsHandler alertsHandler, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+    this.alertsHandler = alertsHandler;
     this.fsHelper = fsHelper;
     this.processHandler = processHandler;
     this.pidGetter = pidGetter;
@@ -82,7 +88,15 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
           if (!runningPids.containsKey(watchedProcess.getPid())) {
             LOG.info("Deregister process {}.", watchedProcess.getPid());
             File watchedFile = fsHelper.getPidPath(watchedProcess.getPid());
-            processHandler.onRemove(watchedProcess); // TODO(asarkar) handle DaemonException
+            try {
+              processHandler.onRemove(watchedProcess);
+            } catch (DaemonException e) {
+              LOG.error("Exception while handling process termination.", e);
+              alertsHandler.sendAlert(
+                  "Error handling joblet termination in daemon for joblet with pid " + watchedProcess.getPid(),
+                  String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), e),
+                  AlertRecipients.engineering(AlertSeverity.ERROR));
+            }
             watchedFile.delete();
             iterator.remove();
           }
