@@ -37,4 +37,14 @@ public class DaemonBuilders {
         alertsHandler
     );
   }
+
+  public static <T extends JobletConfig> ThreadingDaemonBuilder<T> threaded(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, AlertsHandler alertsHandler) throws IllegalAccessException, IOException, InstantiationException {
+    return new ThreadingDaemonBuilder<>(
+        identifier,
+        jobletFactory,
+        jobletConfigProducer,
+        new JobletCallbacks.None<T>(),
+        alertsHandler
+    );
+  }
 }
