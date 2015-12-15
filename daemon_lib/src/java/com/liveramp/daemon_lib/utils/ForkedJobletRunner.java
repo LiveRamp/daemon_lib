@@ -82,7 +82,12 @@ public class ForkedJobletRunner {
 
     Joblet joblet = factory.create(config);
     jobletStatusManager.start(id);
-    joblet.run();
+    try {
+      joblet.run();
+    } catch (Throwable e) {
+      LOG.error("Error while running joblet", e);
+      throw e;
+    }
     jobletStatusManager.complete(id);
   }
 }
