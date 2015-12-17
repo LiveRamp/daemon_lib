@@ -8,7 +8,6 @@ import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 
 import com.liveramp.daemon_lib.JobletCallback;
-import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
@@ -30,7 +29,7 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
 
 
   public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
-    super(identifier, configProducer, new JobletCallbacks.None<T>(), alertsHandler);
+    super(identifier, configProducer, alertsHandler);
     this.workingDir = workingDir;
     this.jobletFactoryClass = jobletFactoryClass;
 
@@ -62,9 +61,9 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
 
   @NotNull
   @Override
-  protected JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
+  protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
     final String tmpPath = new File(workingDir, identifier).getPath();
-    return JobletExecutors.Forked.get(alertsHandler, tmpPath, maxProcesses, jobletFactoryClass, jobletCallbacks, envVariables, successCallback, failureCallback);
+    return JobletExecutors.Forked.get(alertsHandler, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback);
   }
 
 }
