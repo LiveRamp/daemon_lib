@@ -23,10 +23,10 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
   @Override
   public void onRemove(ProcessDefinition<JobletConfigMetadata> watchedProcess) throws DaemonException {
     try {
-      JobletConfigMetadata metadata = watchedProcess.getMetadata();
-      T jobletConfig = configStorage.loadConfig(metadata.getIdentifier());
-      if (jobletStatusManager.exists(metadata.getIdentifier())) {
-        JobletStatus status = jobletStatusManager.getStatus(metadata.getIdentifier());
+      final String identifier = watchedProcess.getMetadata().getIdentifier();
+      T jobletConfig = configStorage.loadConfig(identifier);
+      if (jobletStatusManager.exists(identifier)) {
+        JobletStatus status = jobletStatusManager.getStatus(identifier);
         switch (status) {
           case DONE:
             successCallback.callback(jobletConfig);
@@ -36,7 +36,8 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
             break;
         }
 
-        jobletStatusManager.remove(metadata.getIdentifier());
+        jobletStatusManager.remove(identifier);
+        configStorage.deleteConfig(identifier);
       }
     } catch (Exception e) {
       throw new DaemonException(e);
