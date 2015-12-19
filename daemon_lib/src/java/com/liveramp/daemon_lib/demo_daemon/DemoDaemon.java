@@ -1,5 +1,6 @@
 package com.liveramp.daemon_lib.demo_daemon;
 
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.DaemonRunner;
-import com.liveramp.java_support.alerts_handler.AlertsHandlers;
+import com.liveramp.java_support.alerts_handler.AlertsHandler;
 import com.liveramp.java_support.logging.LoggingHelper;
 
 public class DemoDaemon {
@@ -72,8 +73,11 @@ public class DemoDaemon {
         "demo",
         Factory.class,
         new Producer(),
-        AlertsHandlers.distribution(DemoDaemon.class)
-    ).setMaxProcesses(4).build();
+        Mockito.mock(AlertsHandler.class)
+    ).setMaxProcesses(4)
+        .setConfigWaitSeconds(1)
+        .setNextConfigWaitSeconds(1)
+        .build();
 
     LOG.info("Starting daemon");
     DaemonRunner.run(daemon);
