@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 import com.liveramp.daemon_lib.JobletCallback;
-import com.liveramp.daemon_lib.JobletCallbacks;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
@@ -21,8 +20,8 @@ public class BlockingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBui
   private JobletCallback<T> successCallback;
   private JobletCallback<T> failureCallback;
 
-  public BlockingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer, JobletCallbacks<T> jobletCallbacks, AlertsHandler alertsHandler) {
-    super(identifier, configProducer, jobletCallbacks, alertsHandler);
+  public BlockingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
+    super(identifier, configProducer, alertsHandler);
     this.jobletFactory = jobletFactory;
 
     this.successCallback = new JobletCallback.None<>();
@@ -41,7 +40,7 @@ public class BlockingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBui
 
   @NotNull
   @Override
-  protected JobletExecutor<T> getExecutor(JobletCallbacks<T> jobletCallbacks) throws IllegalAccessException, IOException, InstantiationException {
-    return JobletExecutors.Blocking.get(jobletFactory, jobletCallbacks, successCallback, failureCallback);
+  protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
+    return JobletExecutors.Blocking.get(jobletFactory, successCallback, failureCallback);
   }
 }

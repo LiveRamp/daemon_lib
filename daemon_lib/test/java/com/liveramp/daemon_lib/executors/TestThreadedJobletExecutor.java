@@ -15,7 +15,6 @@ import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.built_in.IDConfig;
-import com.liveramp.daemon_lib.utils.AfterJobletCallback;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -28,7 +27,6 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
 
   private ThreadPoolExecutor pool;
   private JobletFactory<IDConfig> factory;
-  private JobletCallback<IDConfig> callback;
   private ThreadedJobletExecutor<IDConfig> jobletExecutor;
   private JobletCallback<IDConfig> successCallback;
   private JobletCallback<IDConfig> failureCallback;
@@ -37,10 +35,9 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
   public void setUp() throws Exception {
     pool = (ThreadPoolExecutor)Executors.newFixedThreadPool(2);
     factory = mock(JobletFactory.class, RETURNS_DEEP_STUBS);
-    callback = mock(AfterJobletCallback.class);
     successCallback = mock(JobletCallback.class);
     failureCallback = mock(JobletCallback.class);
-    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, callback, successCallback, failureCallback);
+    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, successCallback, failureCallback);
   }
 
   @After
@@ -59,7 +56,6 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
 
     verify(factory.create(config), times(1)).run();
     verify(successCallback, times(1)).callback(config);
-    verify(callback, times(1)).callback(config);
 
     verify(failureCallback, times(0)).callback(config);
   }
@@ -80,7 +76,6 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     pool.shutdown();
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
-    verify(callback, times(1)).callback(config);
     verify(failureCallback, times(1)).callback(config);
 
     verify(successCallback, times(0)).callback(config);

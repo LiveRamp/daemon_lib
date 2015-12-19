@@ -11,11 +11,9 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
   private final JobletCallback<T> successCallback;
   private final JobletCallback<T> failureCallback;
   private final JobletConfigStorage<T> configStorage;
-  private final JobletCallback<T> postExecutionCallback;
   private final JobletStatusManager jobletStatusManager;
 
-  public JobletProcessHandler(JobletCallback<T> postExecutionCallback, JobletCallback<T> successCallback, JobletCallback<T> failureCallback, JobletConfigStorage<T> configStorage, JobletStatusManager jobletStatusManager) {
-    this.postExecutionCallback = postExecutionCallback;
+  public JobletProcessHandler(JobletCallback<T> successCallback, JobletCallback<T> failureCallback, JobletConfigStorage<T> configStorage, JobletStatusManager jobletStatusManager) {
     this.successCallback = successCallback;
     this.failureCallback = failureCallback;
     this.configStorage = configStorage;
@@ -25,11 +23,10 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
   @Override
   public void onRemove(ProcessDefinition<JobletConfigMetadata> watchedProcess) throws DaemonException {
     try {
-      JobletConfigMetadata metadata = watchedProcess.getMetadata();
-      T jobletConfig = configStorage.loadConfig(metadata.getIdentifier());
-      postExecutionCallback.callback(jobletConfig);
-      if (jobletStatusManager.exists(metadata.getIdentifier())) {
-        JobletStatus status = jobletStatusManager.getStatus(metadata.getIdentifier());
+      final String identifier = watchedProcess.getMetadata().getIdentifier();
+      T jobletConfig = configStorage.loadConfig(identifier);
+      if (jobletStatusManager.exists(identifier)) {
+        JobletStatus status = jobletStatusManager.getStatus(identifier);
         switch (status) {
           case DONE:
             successCallback.callback(jobletConfig);
@@ -39,7 +36,8 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
             break;
         }
 
-        jobletStatusManager.remove(metadata.getIdentifier());
+        jobletStatusManager.remove(identifier);
+        configStorage.deleteConfig(identifier);
       }
     } catch (Exception e) {
       throw new DaemonException(e);
