@@ -4,23 +4,23 @@ import java.util.Map;
 
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 
 public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecutor<T> {
   private final JobletConfigStorage<T> configStorage;
   private final ProcessController<JobletConfigMetadata> processController;
-  private final ForkedJobletRunner jobletRunner;
+  private final ProcessJobletRunner jobletRunner;
   private final int maxProcesses;
   private final Class<? extends JobletFactory<? extends T>> jobletFactoryClass;
   private final Map<String, String> envVariables;
   private final String workingDir;
 
-  public ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ForkedJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir) {
+  public ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir) {
     this.maxProcesses = maxProcesses;
     this.jobletFactoryClass = jobletFactoryClass;
     this.configStorage = configStorage;

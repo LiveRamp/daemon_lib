@@ -14,11 +14,12 @@ import org.slf4j.LoggerFactory;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.ProcessUtil;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.java_support.logging.LoggingHelper;
 
-public class ForkedJobletRunner {
+public class ForkedJobletRunner implements ProcessJobletRunner {
   private static final Logger LOG = LoggerFactory.getLogger(ForkedJobletRunner.class);
 
   private static final String JOBLET_RUNNER_SCRIPT = "bin/joblet_runner.sh";
@@ -28,6 +29,7 @@ public class ForkedJobletRunner {
     return new ForkedJobletRunner();
   }
 
+  @Override
   public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException {
     prepareScript();
 
