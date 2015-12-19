@@ -4,4 +4,8 @@ public class ProcessJobletRunners {
   public static ProcessJobletRunner production() {
     return new ForkedJobletRunner();
   }
+
+  public static ProcessJobletRunner experimental() {
+    return new DefaultProcessJobletRunner();
+  }
 }

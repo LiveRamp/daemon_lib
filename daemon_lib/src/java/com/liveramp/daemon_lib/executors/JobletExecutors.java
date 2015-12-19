@@ -58,7 +58,7 @@ public class JobletExecutors {
           new JobletConfigMetadata.Serializer()
       );
 
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStore, processController, ProcessJobletRunners.production(), envVariables, tmpPath);
+      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStore, processController, ProcessJobletRunners.experimental(), envVariables, tmpPath);
     }
 
   }
