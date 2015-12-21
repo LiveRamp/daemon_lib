@@ -143,7 +143,7 @@ public class Daemon<T extends JobletConfig> {
       silentSleep(options.executionSlotWaitSeconds);
     }
 
-    return false;
+    return true;
   }
 
   public final void stop() {
