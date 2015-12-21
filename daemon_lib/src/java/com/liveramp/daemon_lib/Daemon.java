@@ -135,7 +135,6 @@ public class Daemon<T extends JobletConfig> {
           alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
           return false;
         }
-        return true;
       } else {
         silentSleep(options.configWaitSeconds);
       }
@@ -143,7 +142,7 @@ public class Daemon<T extends JobletConfig> {
       silentSleep(options.executionSlotWaitSeconds);
     }
 
-    return false;
+    return true;
   }
 
   public final void stop() {
