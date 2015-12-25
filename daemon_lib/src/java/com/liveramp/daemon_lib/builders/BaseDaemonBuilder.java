@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 import com.liveramp.daemon_lib.Daemon;
+import com.liveramp.daemon_lib.DaemonLock;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
@@ -18,12 +19,14 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   protected final AlertsHandler alertsHandler;
   private final Daemon.Options options;
   private JobletCallback<T> onNewConfigCallback;
+  private DaemonLock lock;
 
   public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
     this.identifier = identifier;
     this.configProducer = configProducer;
     this.alertsHandler = alertsHandler;
     this.onNewConfigCallback = new JobletCallback.None<>();
+    this.lock = new NoOpDaemonLock();
 
     this.options = new Daemon.Options();
   }
@@ -60,8 +63,20 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     return self();
   }
 
+  /**
+   * The callback that should be immediately after a new config is produced.
+   */
   public K setOnNewConfigCallback(JobletCallback<T> callback) {
     this.onNewConfigCallback = callback;
+    return self();
+  }
+
+  /**
+   * The synchronization mechanism that ensures only one {@link Daemon}
+   * instance produces a configuration at a time.
+   */
+  public K setDaemonConfigProductionLock(DaemonLock lock) {
+    this.lock = lock;
     return self();
   }
 
@@ -74,6 +89,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   protected abstract JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
-    return new Daemon<>(identifier, getExecutor(), configProducer, onNewConfigCallback, new NoOpDaemonLock(), alertsHandler, options);
+    return new Daemon<>(identifier, getExecutor(), configProducer, onNewConfigCallback, lock, alertsHandler, options);
   }
 }
