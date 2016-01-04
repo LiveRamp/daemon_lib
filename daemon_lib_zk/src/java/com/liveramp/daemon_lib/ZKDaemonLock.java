@@ -14,7 +14,7 @@ public class ZKDaemonLock implements DaemonLock {
 
   private static final String ZK_DAEMON_LOCK_BASE_PATH = "/daemon_lib_zk/zk_daemon_locks/";
 
-  public DaemonLock production(String daemonId) {
+  public static DaemonLock production(String daemonId) {
 
     CuratorFramework productionFramework = CuratorFrameworkFactory.newClient(ZkConstants.LIVERAMP_ZK_CONNECT_STRING,
         (int)TimeUnit.SECONDS.toMillis(30), (int)TimeUnit.SECONDS.toMillis(5), new RetryNTimes(3, 100));
@@ -38,11 +38,9 @@ public class ZKDaemonLock implements DaemonLock {
   }
 
 
-  private final CuratorFramework framework;
   private final InterProcessMutex lock;
 
   public ZKDaemonLock(CuratorFramework framework, String lockPath) {
-    this.framework = framework;
     this.lock = new InterProcessMutex(framework, lockPath);
   }
 
