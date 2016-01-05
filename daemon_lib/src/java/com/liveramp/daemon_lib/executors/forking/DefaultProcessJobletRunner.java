@@ -1,8 +1,13 @@
 package com.liveramp.daemon_lib.executors.forking;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 
 import com.liveramp.daemon_lib.JobletConfig;
@@ -18,7 +23,7 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
   @Override
   public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException {
     String separator = System.getProperty("file.separator");
-    String classpath = System.getProperty("java.class.path");
+    String classpath = getClasspath();
     String path = System.getProperty("java.home")
         + separator + "bin" + separator + "java";
     ProcessBuilder processBuilder =
@@ -37,5 +42,20 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
     int pid = ProcessUtil.run(processBuilder);
 
     return pid;
+  }
+
+  private String getClasspath() {
+    ClassLoader cl = ClassLoader.getSystemClassLoader();
+    URL[] urls = ((URLClassLoader)cl).getURLs();
+    List<String> paths = new ArrayList<>();
+    for (URL url : urls) {
+      paths.add(url.getFile());
+    }
+
+    return Joiner.on(":").join(paths);
+  }
+
+  public static void main(String[] args) {
+    System.out.println(new DefaultProcessJobletRunner().getClasspath());
   }
 }
