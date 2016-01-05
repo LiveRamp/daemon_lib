@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessUtil;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
+import com.liveramp.java_support.util.JarUtils;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -44,18 +46,21 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
     return pid;
   }
 
-  private String getClasspath() {
+  private String getClasspath() throws ClassNotFoundException {
     ClassLoader cl = ClassLoader.getSystemClassLoader();
-    URL[] urls = ((URLClassLoader)cl).getURLs();
+    List<URL> urls = Arrays.asList(((URLClassLoader)cl).getURLs());
+    urls.add(JarUtils.getMainJarURL());
+
     List<String> paths = new ArrayList<>();
     for (URL url : urls) {
-      paths.add(url.getFile());
+      paths.add(url.getPath());
     }
 
     return Joiner.on(":").join(paths);
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws ClassNotFoundException {
     System.out.println(new DefaultProcessJobletRunner().getClasspath());
   }
+
 }
