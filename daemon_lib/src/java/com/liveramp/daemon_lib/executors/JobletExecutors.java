@@ -38,7 +38,7 @@ public class JobletExecutors {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
     public static <T extends JobletConfig> ForkedJobletExecutor<T> get(AlertsHandler alertsHandler, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
-      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
+      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
       File configStoreDir = new File(tmpPath, "config_store");
