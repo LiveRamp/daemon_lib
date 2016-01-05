@@ -51,7 +51,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   }
 
   @Test
-  public void execute() throws IOException, ProcessControllerException, DaemonException {
+  public void execute() throws IOException, ProcessControllerException, DaemonException, ClassNotFoundException {
     Mockito.when(configStorage.storeConfig(config)).thenReturn(MOCK_IDENTIFIER);
     Mockito.when(jobletRunner.run(MockJobletFactory.class, configStorage, MOCK_IDENTIFIER, Maps.<String, String>newHashMap(), TEST_ROOT)).thenReturn(PID);
 

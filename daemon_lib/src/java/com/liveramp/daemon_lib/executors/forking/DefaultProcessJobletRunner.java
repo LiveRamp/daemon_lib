@@ -23,7 +23,7 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
   private static final Logger LOG = getLogger(DefaultProcessJobletRunner.class);
 
   @Override
-  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException {
+  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException, ClassNotFoundException {
     String separator = System.getProperty("file.separator");
     String classpath = getClasspath();
     String path = System.getProperty("java.home")
