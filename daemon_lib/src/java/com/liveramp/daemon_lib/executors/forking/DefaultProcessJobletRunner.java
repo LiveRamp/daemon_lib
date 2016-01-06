@@ -47,7 +47,7 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
   }
 
   private String getClasspath() throws ClassNotFoundException {
-    ClassLoader cl = ClassLoader.getSystemClassLoader();
+    ClassLoader cl = Thread.currentThread().getContextClassLoader();
     List<URL> urls = Lists.newArrayList(((URLClassLoader)cl).getURLs());
     urls.add(JarUtils.getMainJarURL());
 
