@@ -80,14 +80,14 @@ public class ForkedJobletRunner {
     JobletConfig config = JobletConfigStorage.production(configStorePath).loadConfig(id);
     DefaultJobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(daemonWorkingDir);
 
-    Joblet joblet = factory.create(config);
-    jobletStatusManager.start(id);
     try {
+      Joblet joblet = factory.create(config);
+      jobletStatusManager.start(id);
       joblet.run();
+      jobletStatusManager.complete(id);
     } catch (Throwable e) {
       LOG.error("Error while running joblet", e);
       throw e;
     }
-    jobletStatusManager.complete(id);
   }
 }
