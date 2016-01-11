@@ -24,7 +24,6 @@ public class DaemonBuilders {
         identifier,
         jobletFactory,
         jobletConfigProducer,
-        new JobletCallbacks.None<T>(),
         alertsHandler);
   }
 
@@ -33,7 +32,6 @@ public class DaemonBuilders {
         identifier,
         jobletFactory,
         jobletConfigProducer,
-        new JobletCallbacks.None<T>(),
         alertsHandler
     );
   }

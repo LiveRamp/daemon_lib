@@ -47,6 +47,13 @@ public class JobletConfigStorage<T extends JobletConfig> {
     }
   }
 
+  public void deleteConfig(String identifier) throws IOException {
+    final File file = getPath(identifier);
+    if (!file.delete()) {
+      throw new IOException(String.format("Failed to delete configuration for id %s at %s", identifier, file.getPath()));
+    }
+  }
+
   public String getPath() {
     return basePath;
   }
