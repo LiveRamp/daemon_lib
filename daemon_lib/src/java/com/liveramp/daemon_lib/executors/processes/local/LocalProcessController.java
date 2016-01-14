@@ -14,20 +14,18 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.liveramp.commons.alerts_handler.AlertsHandlerInterface;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
-import com.liveramp.java_support.alerts_handler.recipients.AlertRecipients;
-import com.liveramp.java_support.alerts_handler.recipients.AlertSeverity;
 
 
 public class LocalProcessController<T extends ProcessMetadata> implements ProcessController<T> {
   private static Logger LOG = LoggerFactory.getLogger(LocalProcessController.class);
 
-  private final AlertsHandler alertsHandler;
+  private final AlertsHandlerInterface alertsHandler;
   private final FsHelper fsHelper;
   private final ProcessHandler<T> processHandler;
   private final PidGetter pidGetter;
@@ -35,7 +33,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
 
   private volatile List<ProcessDefinition<T>> currentProcesses;
 
-  public LocalProcessController(AlertsHandler alertsHandler, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+  public LocalProcessController(AlertsHandlerInterface alertsHandler, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
     this.alertsHandler = alertsHandler;
     this.fsHelper = fsHelper;
     this.processHandler = processHandler;
@@ -95,8 +93,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
               LOG.error("Exception while handling process termination.", e);
               alertsHandler.sendAlert(
                   "Error handling joblet termination in daemon for joblet with pid " + watchedProcess.getPid(),
-                  String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e)),
-                  AlertRecipients.engineering(AlertSeverity.ERROR));
+                  String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e)));
             }
             watchedFile.delete();
             iterator.remove();

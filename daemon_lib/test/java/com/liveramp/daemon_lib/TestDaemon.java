@@ -4,10 +4,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.liveramp.commons.alerts_handler.AlertsHandlerDoNothing;
 import com.liveramp.daemon_lib.built_in.NoOpDaemonLock;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -26,7 +26,7 @@ public class TestDaemon extends DaemonLibTestCase {
     this.executor = mock(JobletExecutor.class);
     this.config = mock(JobletConfig.class);
     this.configProducer = mock(JobletConfigProducer.class);
-    this.daemon = new Daemon("identifier", executor, configProducer, new JobletCallback.None<>(),  new NoOpDaemonLock(), mock(AlertsHandler.class), new Daemon.Options());
+    this.daemon = new Daemon("identifier", executor, configProducer, new JobletCallback.None<>(),  new NoOpDaemonLock(), mock(AlertsHandlerDoNothing.class), new Daemon.Options());
   }
 
   @Test
