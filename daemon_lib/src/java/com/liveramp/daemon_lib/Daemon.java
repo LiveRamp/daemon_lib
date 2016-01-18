@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.liveramp.commons.alerts_handler.AlertsHandlerInterface;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
@@ -62,7 +61,7 @@ public class Daemon<T extends JobletConfig> {
 
   private final String identifier;
   private final JobletExecutor<T> executor;
-  private final AlertsHandlerInterface alertsHandler;
+  private final DaemonNotifier alertsHandler;
   private final JobletConfigProducer<T> configProducer;
 
   private final Options options;
@@ -71,7 +70,7 @@ public class Daemon<T extends JobletConfig> {
   private final JobletCallback<T> preExecutionCallback;
   private DaemonLock lock;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, AlertsHandlerInterface alertsHandler, Options options) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, DaemonNotifier alertsHandler, Options options) {
     this.preExecutionCallback = preExecutionCallback;
     this.identifier = clean(identifier);
     this.configProducer = configProducer;

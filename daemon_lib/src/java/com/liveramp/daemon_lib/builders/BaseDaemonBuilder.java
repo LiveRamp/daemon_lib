@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.liveramp.commons.alerts_handler.AlertsHandlerInterface;
+import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.DaemonLock;
 import com.liveramp.daemon_lib.JobletCallback;
@@ -16,12 +16,12 @@ import com.liveramp.daemon_lib.executors.JobletExecutor;
 public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDaemonBuilder<T, K>> {
   protected final String identifier;
   private final JobletConfigProducer<T> configProducer;
-  protected final AlertsHandlerInterface alertsHandler;
+  protected final DaemonNotifier alertsHandler;
   private final Daemon.Options options;
   private JobletCallback<T> onNewConfigCallback;
   private DaemonLock lock;
 
-  public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, AlertsHandlerInterface alertsHandler) {
+  public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, DaemonNotifier alertsHandler) {
     this.identifier = identifier;
     this.configProducer = configProducer;
     this.alertsHandler = alertsHandler;

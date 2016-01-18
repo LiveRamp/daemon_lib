@@ -14,7 +14,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.liveramp.commons.alerts_handler.AlertsHandlerInterface;
+import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
@@ -25,7 +25,7 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 public class LocalProcessController<T extends ProcessMetadata> implements ProcessController<T> {
   private static Logger LOG = LoggerFactory.getLogger(LocalProcessController.class);
 
-  private final AlertsHandlerInterface alertsHandler;
+  private final DaemonNotifier alertsHandler;
   private final FsHelper fsHelper;
   private final ProcessHandler<T> processHandler;
   private final PidGetter pidGetter;
@@ -33,7 +33,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
 
   private volatile List<ProcessDefinition<T>> currentProcesses;
 
-  public LocalProcessController(AlertsHandlerInterface alertsHandler, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+  public LocalProcessController(DaemonNotifier alertsHandler, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
     this.alertsHandler = alertsHandler;
     this.fsHelper = fsHelper;
     this.processHandler = processHandler;

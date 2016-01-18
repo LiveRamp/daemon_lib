@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.liveramp.commons.alerts_handler.AlertsHandlerInterface;
+import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
@@ -22,7 +22,7 @@ public class ThreadingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBu
   private static final int DEFAULT_MAX_THREADS = 1;
 
 
-  public ThreadingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer, AlertsHandlerInterface alertsHandler) {
+  public ThreadingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer, DaemonNotifier alertsHandler) {
     super(identifier, configProducer, alertsHandler);
     this.jobletFactory = jobletFactory;
 

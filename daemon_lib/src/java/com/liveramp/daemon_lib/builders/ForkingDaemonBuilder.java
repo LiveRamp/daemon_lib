@@ -7,7 +7,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 
-import com.liveramp.commons.alerts_handler.AlertsHandlerInterface;
+import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
@@ -28,7 +28,7 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   private static final Map<String, String> DEFAULT_ENV_VARS = Maps.newHashMap();
 
 
-  public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, AlertsHandlerInterface alertsHandler) {
+  public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, DaemonNotifier alertsHandler) {
     super(identifier, configProducer, alertsHandler);
     this.workingDir = workingDir;
     this.jobletFactoryClass = jobletFactoryClass;
