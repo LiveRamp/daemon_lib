@@ -28,8 +28,8 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   private static final Map<String, String> DEFAULT_ENV_VARS = Maps.newHashMap();
 
 
-  public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, DaemonNotifier alertsHandler) {
-    super(identifier, configProducer, alertsHandler);
+  public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, DaemonNotifier daemonNotifier) {
+    super(identifier, configProducer, daemonNotifier);
     this.workingDir = workingDir;
     this.jobletFactoryClass = jobletFactoryClass;
 
@@ -63,7 +63,7 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   @Override
   protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
     final String tmpPath = new File(workingDir, identifier).getPath();
-    return JobletExecutors.Forked.get(alertsHandler, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback);
+    return JobletExecutors.Forked.get(daemonNotifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback);
   }
 
 }

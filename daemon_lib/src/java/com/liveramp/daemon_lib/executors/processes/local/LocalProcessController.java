@@ -25,7 +25,7 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 public class LocalProcessController<T extends ProcessMetadata> implements ProcessController<T> {
   private static Logger LOG = LoggerFactory.getLogger(LocalProcessController.class);
 
-  private final DaemonNotifier alertsHandler;
+  private final DaemonNotifier daemonNotifier;
   private final FsHelper fsHelper;
   private final ProcessHandler<T> processHandler;
   private final PidGetter pidGetter;
@@ -33,8 +33,8 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
 
   private volatile List<ProcessDefinition<T>> currentProcesses;
 
-  public LocalProcessController(DaemonNotifier alertsHandler, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
-    this.alertsHandler = alertsHandler;
+  public LocalProcessController(DaemonNotifier daemonNotifier, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+    this.daemonNotifier = daemonNotifier;
     this.fsHelper = fsHelper;
     this.processHandler = processHandler;
     this.pidGetter = pidGetter;
@@ -91,7 +91,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
               processHandler.onRemove(watchedProcess);
             } catch (DaemonException e) {
               LOG.error("Exception while handling process termination.", e);
-              alertsHandler.sendAlert(
+              daemonNotifier.sendAlert(
                   "Error handling joblet termination in daemon for joblet with pid " + watchedProcess.getPid(),
                   String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e)));
             }
