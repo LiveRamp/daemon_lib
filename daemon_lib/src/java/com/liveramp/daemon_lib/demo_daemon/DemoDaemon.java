@@ -4,10 +4,9 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.liveramp.commons.alerts_handler.AlertsHandlerDoNothing;
-import com.liveramp.commons.alerts_handler.AlertsHandlerInterface;
 import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.DaemonBuilders;
+import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
@@ -74,7 +73,7 @@ public class DemoDaemon {
         "demo",
         Factory.class,
         new Producer(),
-        Mockito.mock(AlertsHandlerDoNothing.class)
+        Mockito.mock(DaemonNotifier.class)
     ).setMaxProcesses(4)
         .setConfigWaitSeconds(1)
         .setNextConfigWaitSeconds(1)
