@@ -13,7 +13,6 @@ import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.JobletExecutors;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuilder<T, ForkingDaemonBuilder<T>> {
 
@@ -26,18 +25,6 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
 
   private static final int DEFAULT_MAX_PROCESSES = 1;
   private static final Map<String, String> DEFAULT_ENV_VARS = Maps.newHashMap();
-
-
-  public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
-    super(identifier, configProducer, alertsHandler);
-    this.workingDir = workingDir;
-    this.jobletFactoryClass = jobletFactoryClass;
-
-    maxProcesses = DEFAULT_MAX_PROCESSES;
-    envVariables = DEFAULT_ENV_VARS;
-    successCallback = new JobletCallback.None<>();
-    failureCallback = new JobletCallback.None<>();
-  }
 
   public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer) {
     super(identifier, configProducer);

@@ -72,9 +72,9 @@ public class DemoDaemon {
         "/tmp/daemons",
         "demo",
         Factory.class,
-        new Producer(),
-        Mockito.mock(AlertsHandler.class)
-    ).setMaxProcesses(4)
+        new Producer()
+    )
+        .setMaxProcesses(4)
         .setConfigWaitSeconds(1)
         .setNextConfigWaitSeconds(1)
         .build();
