@@ -11,7 +11,7 @@ import com.liveramp.daemon_lib.DaemonLock;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
-import com.liveramp.daemon_lib.NoOpDaemonNotifier;
+import com.liveramp.daemon_lib.utils.NoOpDaemonNotifier;
 import com.liveramp.daemon_lib.built_in.NoOpDaemonLock;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;

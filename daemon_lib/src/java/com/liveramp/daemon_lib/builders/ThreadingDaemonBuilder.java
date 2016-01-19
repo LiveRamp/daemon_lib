@@ -42,7 +42,6 @@ public class ThreadingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBu
     this.failureCallback = new JobletCallback.None<>();
   }
 
-
   public ThreadingDaemonBuilder<T> setMaxThreads(int maxThreads) {
     this.maxThreads = maxThreads;
     return this;
