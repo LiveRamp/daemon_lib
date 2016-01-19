@@ -39,7 +39,7 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
 
     processBuilder.environment().putAll(envVariables);
 
-    LOG.info("Running command: {}", processBuilder.command());
+    LOG.info("Running command: {}", Joiner.on(' ').join(processBuilder.command()));
 
     int pid = ProcessUtil.run(processBuilder);
 
