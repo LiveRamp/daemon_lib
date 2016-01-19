@@ -11,6 +11,7 @@ import com.liveramp.daemon_lib.DaemonLock;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
+import com.liveramp.daemon_lib.NoOpDaemonNotifier;
 import com.liveramp.daemon_lib.built_in.NoOpDaemonLock;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.java_support.alerts_handler.AlertsHandler;
@@ -26,11 +27,15 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
     this.identifier = identifier;
     this.configProducer = configProducer;
-    this.notifier = new AlertsHandlerNotifier(alertsHandler);
     this.onNewConfigCallback = new JobletCallback.None<>();
     this.lock = new NoOpDaemonLock();
 
     this.options = new Daemon.Options();
+    this.notifier = alertsHandler == null ? new NoOpDaemonNotifier() : new AlertsHandlerNotifier(alertsHandler);
+  }
+
+  public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer) {
+    this(identifier, configProducer, null);
   }
 
   public K setNotifier(DaemonNotifier notifier) {
