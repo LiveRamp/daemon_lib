@@ -59,9 +59,9 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
     ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
     List<URL> urls = Lists.newArrayList(((URLClassLoader)cl).getURLs());
-
+    urls.add(JarUtils.getMainJarURL());
+    
     List<String> paths = new ArrayList<>();
-    paths.add(JarUtils.getMainJarURL().getPath());
     for (URL url : urls) {
       paths.add(url.getPath());
     }
