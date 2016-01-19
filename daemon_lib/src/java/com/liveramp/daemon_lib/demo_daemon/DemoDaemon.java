@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.DaemonBuilders;
-import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;

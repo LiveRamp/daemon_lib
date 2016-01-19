@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
