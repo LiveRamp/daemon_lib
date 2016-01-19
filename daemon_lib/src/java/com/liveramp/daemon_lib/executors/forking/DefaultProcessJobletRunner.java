@@ -32,7 +32,7 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
         new ProcessBuilder(path, "-cp",
             classpath,
             ForkedJobletRunner.class.getName(),
-            jobletFactoryClass.getName(),
+            quote(jobletFactoryClass.getName()),
             configStore.getPath(),
             workingDir,
             cofigIdentifier);
@@ -44,6 +44,10 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
     int pid = ProcessUtil.run(processBuilder);
 
     return pid;
+  }
+
+  private static String quote(String s) {
+    return "'" + s + "'";
   }
 
   private String getClasspath() throws ClassNotFoundException {
