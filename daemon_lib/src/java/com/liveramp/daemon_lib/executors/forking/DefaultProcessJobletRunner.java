@@ -3,11 +3,11 @@ package com.liveramp.daemon_lib.executors.forking;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 
@@ -55,8 +55,8 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
 
     List<URL> urls = Lists.newArrayList(((URLClassLoader)cl).getURLs());
     urls.add(JarUtils.getMainJarURL());
-
-    List<String> paths = Lists.newArrayList(Splitter.on(':').split(System.getProperty("java.class.path")));
+    
+    List<String> paths = new ArrayList<>();
     for (URL url : urls) {
       paths.add(url.getPath());
     }
