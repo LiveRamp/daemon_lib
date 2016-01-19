@@ -1,5 +1,6 @@
 package com.liveramp.daemon_lib.executors.forking;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -38,6 +39,10 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
             cofigIdentifier);
 
     processBuilder.environment().putAll(envVariables);
+
+    File out = new File("log/process_runner.out");
+    processBuilder.redirectOutput(out);
+    processBuilder.redirectError(out);
 
     LOG.info("Running command: {}", Joiner.on(' ').join(processBuilder.command()));
 
