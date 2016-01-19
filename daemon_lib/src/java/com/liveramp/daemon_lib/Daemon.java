@@ -2,14 +2,12 @@ package com.liveramp.daemon_lib;
 
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
-import com.liveramp.java_support.alerts_handler.recipients.AlertRecipients;
-import com.liveramp.java_support.alerts_handler.recipients.AlertSeverity;
 
 public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
@@ -64,7 +62,7 @@ public class Daemon<T extends JobletConfig> {
 
   private final String identifier;
   private final JobletExecutor<T> executor;
-  private final AlertsHandler alertsHandler;
+  private final DaemonNotifier notifier;
   private final JobletConfigProducer<T> configProducer;
 
   private final Options options;
@@ -73,12 +71,12 @@ public class Daemon<T extends JobletConfig> {
   private final JobletCallback<T> preExecutionCallback;
   private DaemonLock lock;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, AlertsHandler alertsHandler, Options options) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options) {
     this.preExecutionCallback = preExecutionCallback;
     this.identifier = clean(identifier);
     this.configProducer = configProducer;
     this.executor = executor;
-    this.alertsHandler = alertsHandler;
+    this.notifier = notifier;
     this.options = options;
     this.lock = lock;
 
@@ -101,7 +99,7 @@ public class Daemon<T extends JobletConfig> {
         silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
-      alertsHandler.sendAlert("Fatal error occurred in daemon (" + identifier + "). Shutting down.", e, AlertRecipients.engineering(AlertSeverity.ERROR));
+      notifier.notify("Fatal error occurred in daemon (" + identifier + "). Shutting down.", Optional.<String>absent(), Optional.of(e));
       throw e;
     }
     LOG.info("Exiting daemon ({})", identifier);
@@ -114,7 +112,7 @@ public class Daemon<T extends JobletConfig> {
         lock.lock();
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
-        alertsHandler.sendAlert("Error getting next config for daemon (" + identifier + ")", e, AlertRecipients.engineering(AlertSeverity.ERROR));
+        notifier.notify("Error getting next config for daemon (" + identifier + ")", Optional.<String>absent(), Optional.of(e));
         return false;
       } finally {
         lock.unlock();
@@ -125,14 +123,17 @@ public class Daemon<T extends JobletConfig> {
         try {
           preExecutionCallback.callback(jobletConfig);
         } catch (DaemonException e) {
-          alertsHandler.sendAlert("Error executing callbacks for daemon (" + identifier + ")",
-              jobletConfig.toString() + "\n" + preExecutionCallback.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
+          notifier.notify("Error executing callbacks for daemon (" + identifier + ")",
+              Optional.of(jobletConfig.toString() + "\n" + preExecutionCallback.toString()),
+              Optional.of(e));
           return false;
         }
         try {
           executor.execute(jobletConfig);
         } catch (Exception e) {
-          alertsHandler.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e, AlertRecipients.engineering(AlertSeverity.ERROR));
+          notifier.notify("Error executing joblet config for daemon (" + identifier + ")",
+              Optional.of(jobletConfig.toString()),
+              Optional.of(e));
           return false;
         }
       } else {

@@ -8,26 +8,25 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
-import com.liveramp.java_support.alerts_handler.recipients.AlertRecipients;
-import com.liveramp.java_support.alerts_handler.recipients.AlertSeverity;
 
 
 public class LocalProcessController<T extends ProcessMetadata> implements ProcessController<T> {
   private static Logger LOG = LoggerFactory.getLogger(LocalProcessController.class);
 
-  private final AlertsHandler alertsHandler;
+  private final DaemonNotifier notifier;
   private final FsHelper fsHelper;
   private final ProcessHandler<T> processHandler;
   private final PidGetter pidGetter;
@@ -35,8 +34,8 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
 
   private volatile List<ProcessDefinition<T>> currentProcesses;
 
-  public LocalProcessController(AlertsHandler alertsHandler, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
-    this.alertsHandler = alertsHandler;
+  public LocalProcessController(DaemonNotifier notifier, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+    this.notifier = notifier;
     this.fsHelper = fsHelper;
     this.processHandler = processHandler;
     this.pidGetter = pidGetter;
@@ -93,10 +92,11 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
               processHandler.onRemove(watchedProcess);
             } catch (DaemonException e) {
               LOG.error("Exception while handling process termination.", e);
-              alertsHandler.sendAlert(
+              notifier.notify(
                   "Error handling joblet termination in daemon for joblet with pid " + watchedProcess.getPid(),
-                  String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e)),
-                  AlertRecipients.engineering(AlertSeverity.ERROR));
+                  Optional.of(String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e))),
+                  Optional.<Throwable>absent()
+              );
             }
             watchedFile.delete();
             iterator.remove();

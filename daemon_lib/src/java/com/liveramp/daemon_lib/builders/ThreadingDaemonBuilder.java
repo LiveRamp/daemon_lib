@@ -22,6 +22,16 @@ public class ThreadingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBu
   private static final int DEFAULT_MAX_THREADS = 1;
 
 
+  public ThreadingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer) {
+    super(identifier, configProducer);
+    this.jobletFactory = jobletFactory;
+
+    this.maxThreads = DEFAULT_MAX_THREADS;
+
+    this.successCallback = new JobletCallback.None<>();
+    this.failureCallback = new JobletCallback.None<>();
+  }
+
   public ThreadingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
     super(identifier, configProducer, alertsHandler);
     this.jobletFactory = jobletFactory;
