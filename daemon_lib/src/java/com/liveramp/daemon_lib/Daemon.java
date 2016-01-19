@@ -61,7 +61,7 @@ public class Daemon<T extends JobletConfig> {
 
   private final String identifier;
   private final JobletExecutor<T> executor;
-  private final DaemonNotifier daemonNotifier;
+  private final DaemonNotifier notifier;
   private final JobletConfigProducer<T> configProducer;
 
   private final Options options;
@@ -70,12 +70,12 @@ public class Daemon<T extends JobletConfig> {
   private final JobletCallback<T> preExecutionCallback;
   private DaemonLock lock;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, DaemonNotifier daemonNotifier, Options options) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options) {
     this.preExecutionCallback = preExecutionCallback;
     this.identifier = clean(identifier);
     this.configProducer = configProducer;
     this.executor = executor;
-    this.daemonNotifier = daemonNotifier;
+    this.notifier = notifier;
     this.options = options;
     this.lock = lock;
 
@@ -98,7 +98,7 @@ public class Daemon<T extends JobletConfig> {
         silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
-      daemonNotifier.sendAlert("Fatal error occurred in daemon (" + identifier + "). Shutting down.", e);
+      notifier.sendAlert("Fatal error occurred in daemon (" + identifier + "). Shutting down.", e);
       throw e;
     }
     LOG.info("Exiting daemon ({})", identifier);
@@ -111,7 +111,7 @@ public class Daemon<T extends JobletConfig> {
         lock.lock();
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
-        daemonNotifier.sendAlert("Error getting next config for daemon (" + identifier + ")", e);
+        notifier.sendAlert("Error getting next config for daemon (" + identifier + ")", e);
         return false;
       } finally {
         lock.unlock();
@@ -122,14 +122,14 @@ public class Daemon<T extends JobletConfig> {
         try {
           preExecutionCallback.callback(jobletConfig);
         } catch (DaemonException e) {
-          daemonNotifier.sendAlert("Error executing callbacks for daemon (" + identifier + ")",
+          notifier.sendAlert("Error executing callbacks for daemon (" + identifier + ")",
               jobletConfig.toString() + "\n" + preExecutionCallback.toString(), e);
           return false;
         }
         try {
           executor.execute(jobletConfig);
         } catch (Exception e) {
-          daemonNotifier.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e);
+          notifier.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e);
           return false;
         }
       } else {

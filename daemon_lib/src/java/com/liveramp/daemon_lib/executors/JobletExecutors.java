@@ -37,7 +37,7 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(DaemonNotifier daemonNotifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
@@ -47,7 +47,7 @@ public class JobletExecutors {
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
-          daemonNotifier,
+          notifier,
           new FsHelper(pidDir.getPath()),
           new JobletProcessHandler<>(successCallback, failureCallback, configStore, jobletStatusManager),
           new PsPidGetter(),

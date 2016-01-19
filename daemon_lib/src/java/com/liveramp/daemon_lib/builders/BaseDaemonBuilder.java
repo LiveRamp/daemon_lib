@@ -16,15 +16,15 @@ import com.liveramp.daemon_lib.executors.JobletExecutor;
 public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDaemonBuilder<T, K>> {
   protected final String identifier;
   private final JobletConfigProducer<T> configProducer;
-  protected final DaemonNotifier daemonNotifier;
+  protected final DaemonNotifier notifier;
   private final Daemon.Options options;
   private JobletCallback<T> onNewConfigCallback;
   private DaemonLock lock;
 
-  public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, DaemonNotifier daemonNotifier) {
+  public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, DaemonNotifier notifier) {
     this.identifier = identifier;
     this.configProducer = configProducer;
-    this.daemonNotifier = daemonNotifier;
+    this.notifier = notifier;
     this.onNewConfigCallback = new JobletCallback.None<>();
     this.lock = new NoOpDaemonLock();
 
@@ -89,6 +89,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   protected abstract JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
-    return new Daemon<>(identifier, getExecutor(), configProducer, onNewConfigCallback, lock, daemonNotifier, options);
+    return new Daemon<>(identifier, getExecutor(), configProducer, onNewConfigCallback, lock, notifier, options);
   }
 }

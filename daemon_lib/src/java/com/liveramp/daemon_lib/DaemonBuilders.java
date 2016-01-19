@@ -8,30 +8,30 @@ import com.liveramp.daemon_lib.builders.ThreadingDaemonBuilder;
 
 public class DaemonBuilders {
 
-  public static <T extends JobletConfig> ForkingDaemonBuilder<T> forked(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, DaemonNotifier daemonNotifier) throws IllegalAccessException, IOException, InstantiationException {
+  public static <T extends JobletConfig> ForkingDaemonBuilder<T> forked(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, DaemonNotifier notifier) throws IllegalAccessException, IOException, InstantiationException {
     return new ForkingDaemonBuilder<>(
         workingDir,
         identifier,
         jobletFactoryClass,
         jobletConfigProducer,
-        daemonNotifier
+        notifier
     );
   }
 
-  public static <T extends JobletConfig> BlockingDaemonBuilder<T> blocking(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, DaemonNotifier daemonNotifier) throws InstantiationException, IllegalAccessException {
+  public static <T extends JobletConfig> BlockingDaemonBuilder<T> blocking(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, DaemonNotifier notifier) throws InstantiationException, IllegalAccessException {
     return new BlockingDaemonBuilder<>(
         identifier,
         jobletFactory,
         jobletConfigProducer,
-        daemonNotifier);
+        notifier);
   }
 
-  public static <T extends JobletConfig> ThreadingDaemonBuilder<T> threaded(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, DaemonNotifier daemonNotifier) throws IllegalAccessException, IOException, InstantiationException {
+  public static <T extends JobletConfig> ThreadingDaemonBuilder<T> threaded(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> jobletConfigProducer, DaemonNotifier notifier) throws IllegalAccessException, IOException, InstantiationException {
     return new ThreadingDaemonBuilder<>(
         identifier,
         jobletFactory,
         jobletConfigProducer,
-        daemonNotifier
+        notifier
     );
   }
 }
