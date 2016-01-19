@@ -91,7 +91,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
               processHandler.onRemove(watchedProcess);
             } catch (DaemonException e) {
               LOG.error("Exception while handling process termination.", e);
-              notifier.sendAlert(
+              notifier.notify(
                   "Error handling joblet termination in daemon for joblet with pid " + watchedProcess.getPid(),
                   String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e)));
             }

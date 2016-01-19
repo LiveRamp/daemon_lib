@@ -2,6 +2,7 @@ package com.liveramp.daemon_lib;
 
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +99,7 @@ public class Daemon<T extends JobletConfig> {
         silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
-      notifier.sendAlert("Fatal error occurred in daemon (" + identifier + "). Shutting down.", e);
+      notifier.notify("Fatal error occurred in daemon (" + identifier + "). Shutting down.", Optional.<String>absent(), Optional.of(e));
       throw e;
     }
     LOG.info("Exiting daemon ({})", identifier);
@@ -111,7 +112,7 @@ public class Daemon<T extends JobletConfig> {
         lock.lock();
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
-        notifier.sendAlert("Error getting next config for daemon (" + identifier + ")", e);
+        notifier.notify("Error getting next config for daemon (" + identifier + ")", Optional.<String>absent(), Optional.of(e));
         return false;
       } finally {
         lock.unlock();
@@ -122,14 +123,17 @@ public class Daemon<T extends JobletConfig> {
         try {
           preExecutionCallback.callback(jobletConfig);
         } catch (DaemonException e) {
-          notifier.sendAlert("Error executing callbacks for daemon (" + identifier + ")",
-              jobletConfig.toString() + "\n" + preExecutionCallback.toString(), e);
+          notifier.notify("Error executing callbacks for daemon (" + identifier + ")",
+              Optional.of(jobletConfig.toString() + "\n" + preExecutionCallback.toString()),
+              Optional.of(e));
           return false;
         }
         try {
           executor.execute(jobletConfig);
         } catch (Exception e) {
-          notifier.sendAlert("Error executing joblet config for daemon (" + identifier + ")", jobletConfig.toString(), e);
+          notifier.notify("Error executing joblet config for daemon (" + identifier + ")",
+              Optional.of(jobletConfig.toString()),
+              Optional.of(e));
           return false;
         }
       } else {
