@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -93,7 +94,9 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
               LOG.error("Exception while handling process termination.", e);
               notifier.notify(
                   "Error handling joblet termination in daemon for joblet with pid " + watchedProcess.getPid(),
-                  String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e)));
+                  Optional.of(String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e))),
+                  Optional.<Throwable>absent()
+              );
             }
             watchedFile.delete();
             iterator.remove();

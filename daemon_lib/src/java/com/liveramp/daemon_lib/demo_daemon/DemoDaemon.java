@@ -13,6 +13,7 @@ import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.DaemonRunner;
+import com.liveramp.java_support.alerts_handler.AlertsHandler;
 import com.liveramp.java_support.logging.LoggingHelper;
 
 public class DemoDaemon {
@@ -73,7 +74,7 @@ public class DemoDaemon {
         "demo",
         Factory.class,
         new Producer(),
-        Mockito.mock(DaemonNotifier.class)
+        Mockito.mock(AlertsHandler.class)
     ).setMaxProcesses(4)
         .setConfigWaitSeconds(1)
         .setNextConfigWaitSeconds(1)
