@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.liveramp.daemon_lib.builders.BlockingDaemonBuilder;
 import com.liveramp.daemon_lib.builders.ForkingDaemonBuilder;
 import com.liveramp.daemon_lib.builders.ThreadingDaemonBuilder;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class DaemonBuilders {
 
