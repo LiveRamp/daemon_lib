@@ -113,9 +113,8 @@ public class Daemon<T extends JobletConfig> {
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
         notifier.notify("Error getting next config for daemon (" + identifier + ")", Optional.<String>absent(), Optional.of(e));
-        return false;
-      } finally {
         lock.unlock();
+        return false;
       }
 
       if (jobletConfig != null) {
@@ -127,6 +126,8 @@ public class Daemon<T extends JobletConfig> {
               Optional.of(jobletConfig.toString() + "\n" + preExecutionCallback.toString()),
               Optional.of(e));
           return false;
+        } finally {
+          lock.unlock();
         }
         try {
           executor.execute(jobletConfig);
