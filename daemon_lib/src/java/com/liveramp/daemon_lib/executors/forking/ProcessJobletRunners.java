@@ -6,6 +6,6 @@ public class ProcessJobletRunners {
   }
 
   public static ProcessJobletRunner experimental() {
-    return new DefaultProcessJobletRunner();
+    return new ClasspathTransferProcessJobletRunner();
   }
 }

@@ -20,8 +20,8 @@ import com.liveramp.java_support.util.JarUtils;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class DefaultProcessJobletRunner implements ProcessJobletRunner {
-  private static final Logger LOG = getLogger(DefaultProcessJobletRunner.class);
+public class ClasspathTransferProcessJobletRunner implements ProcessJobletRunner {
+  private static final Logger LOG = getLogger(ClasspathTransferProcessJobletRunner.class);
 
   @Override
   public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException, ClassNotFoundException {
@@ -70,7 +70,7 @@ public class DefaultProcessJobletRunner implements ProcessJobletRunner {
   }
 
   public static void main(String[] args) throws ClassNotFoundException {
-    System.out.println(new DefaultProcessJobletRunner().getClasspath());
+    System.out.println(new ClasspathTransferProcessJobletRunner().getClasspath());
   }
 
 }
