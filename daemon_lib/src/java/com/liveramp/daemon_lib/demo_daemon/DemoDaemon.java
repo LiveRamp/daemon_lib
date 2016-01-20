@@ -1,8 +1,5 @@
 package com.liveramp.daemon_lib.demo_daemon;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.DaemonBuilders;
 import com.liveramp.daemon_lib.Joblet;
