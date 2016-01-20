@@ -1,6 +1,5 @@
 package com.liveramp.daemon_lib.demo_daemon;
 
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +10,6 @@ import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import com.liveramp.daemon_lib.utils.DaemonRunner;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
 import com.liveramp.java_support.logging.LoggingHelper;
 
 public class DemoDaemon {
@@ -80,6 +77,6 @@ public class DemoDaemon {
         .build();
 
     LOG.info("Starting daemon");
-    DaemonRunner.run(daemon);
+    daemon.start();
   }
 }
