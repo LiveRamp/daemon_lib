@@ -10,7 +10,6 @@
 
   <modules>
     <module>daemon_lib</module>
-    <module>daemon_lib_zk</module>
   </modules>
 
   <parent>
