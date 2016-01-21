@@ -8,8 +8,6 @@ import java.util.Map;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
@@ -18,11 +16,8 @@ import com.liveramp.daemon_lib.executors.processes.ProcessUtil;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
-import com.liveramp.java_support.logging.LoggingHelper;
 
 public class ForkedJobletRunner implements ProcessJobletRunner {
-  private static final Logger LOG = LoggerFactory.getLogger(ForkedJobletRunner.class);
-
   private static final String JOBLET_RUNNER_SCRIPT = "bin/joblet_runner.sh";
   private static final String JOBLET_RUNNER_SCRIPT_SOURCE = "com/liveramp/daemon_lib/utils/joblet_runner.txt";
 
@@ -40,7 +35,6 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
   private static void prepareScript() throws IOException {
     File productionScript = new File(JOBLET_RUNNER_SCRIPT);
     if (!productionScript.exists()) {
-      LOG.info("joblet_runner script doesn't exist - creating it now");
       InputStream scriptResourceInput = ForkedJobletRunner.class.getClassLoader().getResourceAsStream(JOBLET_RUNNER_SCRIPT_SOURCE);
 
       FileUtils.forceMkdir(productionScript.getParentFile());
@@ -68,7 +62,6 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
   }
 
   public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, DaemonException {
-    LoggingHelper.setLoggingProperties("forked-joblet-runner/forked-joblet-runner");
 
     String jobletFactoryClassName = unquote(args[0]);
     String configStorePath = args[1];
@@ -79,9 +72,13 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
     JobletConfig config = JobletConfigStorage.production(configStorePath).loadConfig(id);
     DefaultJobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(daemonWorkingDir);
 
-    Joblet joblet = factory.create(config);
-    jobletStatusManager.start(id);
-    joblet.run();
-    jobletStatusManager.complete(id);
+    try {
+      Joblet joblet = factory.create(config);
+      jobletStatusManager.start(id);
+      joblet.run();
+      jobletStatusManager.complete(id);
+    } catch (Throwable e) {
+      throw e;
+    }
   }
 }

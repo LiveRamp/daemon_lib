@@ -1,5 +1,7 @@
 package com.liveramp.daemon_lib.utils;
 
+import java.io.IOException;
+
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
@@ -22,10 +24,17 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
 
   @Override
   public void onRemove(ProcessDefinition<JobletConfigMetadata> watchedProcess) throws DaemonException {
+    final String identifier = watchedProcess.getMetadata().getIdentifier();
+
+    final T jobletConfig;
     try {
-      final String identifier = watchedProcess.getMetadata().getIdentifier();
-      T jobletConfig = configStorage.loadConfig(identifier);
-      if (jobletStatusManager.exists(identifier)) {
+      jobletConfig = configStorage.loadConfig(identifier);
+    } catch (IOException | ClassNotFoundException e) {
+      throw new DaemonException(String.format("Error retrieving config with ID %s", identifier), e);
+    }
+
+    if (jobletStatusManager.exists(identifier)) {
+      try {
         JobletStatus status = jobletStatusManager.getStatus(identifier);
         switch (status) {
           case DONE:
@@ -38,9 +47,9 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
 
         jobletStatusManager.remove(identifier);
         configStorage.deleteConfig(identifier);
+      } catch (Exception e) {
+        throw new DaemonException(String.format("Error processing config %s", jobletConfig), e);
       }
-    } catch (Exception e) {
-      throw new DaemonException(e);
     }
   }
 }

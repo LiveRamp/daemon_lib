@@ -10,7 +10,6 @@ import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.JobletExecutors;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class BlockingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuilder<T, BlockingDaemonBuilder<T>> {
 
@@ -20,8 +19,8 @@ public class BlockingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBui
   private JobletCallback<T> successCallback;
   private JobletCallback<T> failureCallback;
 
-  public BlockingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
-    super(identifier, configProducer, alertsHandler);
+  public BlockingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer) {
+    super(identifier, configProducer);
     this.jobletFactory = jobletFactory;
 
     this.successCallback = new JobletCallback.None<>();

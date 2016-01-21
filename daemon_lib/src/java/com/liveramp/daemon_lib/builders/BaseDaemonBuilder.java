@@ -4,31 +4,37 @@ import java.io.IOException;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.DaemonLock;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
+import com.liveramp.daemon_lib.utils.NoOpDaemonNotifier;
 import com.liveramp.daemon_lib.built_in.NoOpDaemonLock;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDaemonBuilder<T, K>> {
   protected final String identifier;
   private final JobletConfigProducer<T> configProducer;
-  protected final AlertsHandler alertsHandler;
+  protected DaemonNotifier notifier;
   private final Daemon.Options options;
   private JobletCallback<T> onNewConfigCallback;
   private DaemonLock lock;
 
-  public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
+  public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer) {
     this.identifier = identifier;
     this.configProducer = configProducer;
-    this.alertsHandler = alertsHandler;
     this.onNewConfigCallback = new JobletCallback.None<>();
     this.lock = new NoOpDaemonLock();
 
     this.options = new Daemon.Options();
+    this.notifier = new NoOpDaemonNotifier();
+  }
+
+  public K setNotifier(DaemonNotifier notifier) {
+    this.notifier = notifier;
+    return self();
   }
 
   /**
@@ -89,6 +95,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   protected abstract JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException;
 
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
-    return new Daemon<>(identifier, getExecutor(), configProducer, onNewConfigCallback, lock, alertsHandler, options);
+    return new Daemon<>(identifier, getExecutor(), configProducer, onNewConfigCallback, lock, notifier, options);
   }
 }

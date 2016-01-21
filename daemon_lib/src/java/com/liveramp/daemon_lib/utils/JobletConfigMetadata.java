@@ -33,4 +33,13 @@ public class JobletConfigMetadata implements ProcessMetadata {
       return gson.fromJson(BytesUtils.bytesToString(bytes), JobletConfigMetadata.class);
     }
   }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "{ \"%s\": { \"identifier\": \"%s\"}}",
+        JobletConfigMetadata.class.getName(),
+        identifier
+    );
+  }
 }

@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.io.FileUtils;
 
+import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
@@ -23,7 +24,6 @@ import com.liveramp.daemon_lib.tracking.JobletStatusManager;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 import com.liveramp.daemon_lib.utils.JobletProcessHandler;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class JobletExecutors {
 
@@ -37,8 +37,8 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(AlertsHandler alertsHandler, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
-      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass));
+    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
+      Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
       File configStoreDir = new File(tmpPath, "config_store");
@@ -47,7 +47,7 @@ public class JobletExecutors {
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
-          alertsHandler,
+          notifier,
           new FsHelper(pidDir.getPath()),
           new JobletProcessHandler<>(successCallback, failureCallback, configStore, jobletStatusManager),
           new PsPidGetter(),

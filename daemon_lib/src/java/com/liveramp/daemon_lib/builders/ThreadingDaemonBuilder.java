@@ -10,7 +10,6 @@ import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.JobletExecutors;
-import com.liveramp.java_support.alerts_handler.AlertsHandler;
 
 public class ThreadingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuilder<T, ThreadingDaemonBuilder<T>> {
 
@@ -22,8 +21,8 @@ public class ThreadingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBu
   private static final int DEFAULT_MAX_THREADS = 1;
 
 
-  public ThreadingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer, AlertsHandler alertsHandler) {
-    super(identifier, configProducer, alertsHandler);
+  public ThreadingDaemonBuilder(String identifier, JobletFactory<T> jobletFactory, JobletConfigProducer<T> configProducer) {
+    super(identifier, configProducer);
     this.jobletFactory = jobletFactory;
 
     this.maxThreads = DEFAULT_MAX_THREADS;
