@@ -37,7 +37,7 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner {
 
     processBuilder.environment().putAll(envVariables);
 
-    LOG.info("Running command: {}", Joiner.on(' ').join(processBuilder.command()));
+    LOG.debug("Running command: {}", Joiner.on(' ').join(processBuilder.command()));
 
     int pid = ProcessUtil.run(processBuilder);
 
