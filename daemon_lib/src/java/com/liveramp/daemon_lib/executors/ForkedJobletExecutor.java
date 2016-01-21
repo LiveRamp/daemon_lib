@@ -7,7 +7,6 @@ import java.util.Map;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
-import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunners;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.utils.DaemonException;
@@ -69,7 +68,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
     private Map<String, String> envVariables;
     private String workingDir;
 
-    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<JobletConfigMetadata> processController) {
+    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner) {
       this.workingDir = workingDir;
       this.jobletFactoryClass = jobletFactoryClass;
       this.configStorage = configStorage;
@@ -77,7 +76,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
 
       this.maxProcesses = DEFAULT_MAX_PROCESSES;
       this.envVariables = new HashMap<>();
-      this.jobletRunner = ProcessJobletRunners.production();
+      this.jobletRunner = jobletRunner;
     }
 
     public Builder<S> setMaxProcesses(int maxProcesses) {
