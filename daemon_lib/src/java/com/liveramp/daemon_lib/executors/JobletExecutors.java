@@ -15,7 +15,6 @@ import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunners;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
 import com.liveramp.daemon_lib.executors.processes.local.LocalProcessController;
 import com.liveramp.daemon_lib.executors.processes.local.PsPidGetter;
@@ -55,9 +54,11 @@ public class JobletExecutors {
           new JobletConfigMetadata.Serializer()
       );
 
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStore, processController, ProcessJobletRunners.experimental(), envVariables, tmpPath);
+      return new ForkedJobletExecutor.Builder<>(notifier, tmpPath, jobletFactoryClass, configStore, processController)
+          .setMaxProcesses(maxProcesses)
+          .putAllEnvVariables(envVariables)
+          .build();
     }
-
   }
 
   public static class Threaded {
