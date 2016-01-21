@@ -22,7 +22,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
   private final Map<String, String> envVariables;
   private final String workingDir;
 
-  protected ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir) {
+  ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir) {
     this.maxProcesses = maxProcesses;
     this.jobletFactoryClass = jobletFactoryClass;
     this.configStorage = configStorage;
