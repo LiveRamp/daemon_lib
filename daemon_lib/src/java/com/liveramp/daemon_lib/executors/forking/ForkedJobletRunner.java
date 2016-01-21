@@ -55,7 +55,7 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
     }
   }
 
-  private static String quote(String s) {
+  public static String quote(String s) {
     return "'" + s + "'";
   }
 

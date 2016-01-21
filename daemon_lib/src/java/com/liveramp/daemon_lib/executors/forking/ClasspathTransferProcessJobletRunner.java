@@ -33,7 +33,7 @@ public class ClasspathTransferProcessJobletRunner implements ProcessJobletRunner
         new ProcessBuilder(path, "-cp",
             classpath,
             ForkedJobletRunner.class.getName(),
-            quote(jobletFactoryClass.getName()),
+            ForkedJobletRunner.quote(jobletFactoryClass.getName()),
             configStore.getPath(),
             workingDir,
             cofigIdentifier);
@@ -51,16 +51,12 @@ public class ClasspathTransferProcessJobletRunner implements ProcessJobletRunner
     return pid;
   }
 
-  private static String quote(String s) {
-    return "'" + s + "'";
-  }
-
   private String getClasspath() throws ClassNotFoundException {
     ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
     List<URL> urls = Lists.newArrayList(((URLClassLoader)cl).getURLs());
     urls.add(JarUtils.getMainJarURL());
-    
+
     List<String> paths = new ArrayList<>();
     for (URL url : urls) {
       paths.add(url.getPath());
