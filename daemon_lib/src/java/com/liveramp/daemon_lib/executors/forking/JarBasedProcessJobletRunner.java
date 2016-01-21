@@ -1,6 +1,5 @@
 package com.liveramp.daemon_lib.executors.forking;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -37,10 +36,6 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner {
             cofigIdentifier);
 
     processBuilder.environment().putAll(envVariables);
-
-    File out = new File("log/process_runner.out");
-    processBuilder.redirectOutput(out);
-    processBuilder.redirectError(out);
 
     LOG.info("Running command: {}", Joiner.on(' ').join(processBuilder.command()));
 
