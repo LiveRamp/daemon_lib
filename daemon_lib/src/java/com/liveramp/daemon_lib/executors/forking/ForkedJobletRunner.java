@@ -1,4 +1,4 @@
-package com.liveramp.daemon_lib.utils;
+package com.liveramp.daemon_lib.executors.forking;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,15 +14,14 @@ import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessUtil;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
+import com.liveramp.daemon_lib.utils.DaemonException;
+import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 
-public class ForkedJobletRunner {
+public class ForkedJobletRunner implements ProcessJobletRunner {
   private static final String JOBLET_RUNNER_SCRIPT = "bin/joblet_runner.sh";
   private static final String JOBLET_RUNNER_SCRIPT_SOURCE = "com/liveramp/daemon_lib/utils/joblet_runner.txt";
 
-  public static ForkedJobletRunner production() {
-    return new ForkedJobletRunner();
-  }
-
+  @Override
   public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException {
     prepareScript();
 
@@ -50,7 +49,7 @@ public class ForkedJobletRunner {
     }
   }
 
-  private static String quote(String s) {
+  public static String quote(String s) {
     return "'" + s + "'";
   }
 

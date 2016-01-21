@@ -12,11 +12,12 @@ import org.mockito.Mockito;
 import com.liveramp.daemon_lib.DaemonLibTestCase;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
+import com.liveramp.daemon_lib.executors.forking.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 
@@ -33,7 +34,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
 
   private JobletConfigStorage configStorage;
   private ProcessController processController;
-  private ForkedJobletRunner jobletRunner;
+  private ProcessJobletRunner jobletRunner;
   private JobletConfig config;
   private ForkedJobletExecutor<JobletConfig> executor;
 
@@ -50,7 +51,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   }
 
   @Test
-  public void execute() throws IOException, ProcessControllerException, DaemonException {
+  public void execute() throws IOException, ProcessControllerException, DaemonException, ClassNotFoundException {
     Mockito.when(configStorage.storeConfig(config)).thenReturn(MOCK_IDENTIFIER);
     Mockito.when(jobletRunner.run(MockJobletFactory.class, configStorage, MOCK_IDENTIFIER, Maps.<String, String>newHashMap(), TEST_ROOT)).thenReturn(PID);
 

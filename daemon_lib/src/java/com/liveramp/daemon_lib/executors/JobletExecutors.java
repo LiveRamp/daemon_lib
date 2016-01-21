@@ -15,12 +15,12 @@ import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
 import com.liveramp.daemon_lib.executors.processes.local.LocalProcessController;
 import com.liveramp.daemon_lib.executors.processes.local.PsPidGetter;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.daemon_lib.tracking.JobletStatusManager;
-import com.liveramp.daemon_lib.utils.ForkedJobletRunner;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 import com.liveramp.daemon_lib.utils.JobletProcessHandler;
@@ -37,7 +37,7 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<T> successCallback, JobletCallback<T> failureCallback, ProcessJobletRunner jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
@@ -55,9 +55,11 @@ public class JobletExecutors {
           new JobletConfigMetadata.Serializer()
       );
 
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStore, processController, ForkedJobletRunner.production(), envVariables, tmpPath);
+      return new ForkedJobletExecutor.Builder<>(tmpPath, jobletFactoryClass, configStore, processController, jobletRunner)
+          .setMaxProcesses(maxProcesses)
+          .putAllEnvVariables(envVariables)
+          .build();
     }
-
   }
 
   public static class Threaded {
