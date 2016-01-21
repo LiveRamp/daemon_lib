@@ -76,12 +76,11 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
       this.workingDir = workingDir;
       this.jobletFactoryClass = jobletFactoryClass;
       this.configStorage = configStorage;
+      this.processController = processController;
 
       this.maxProcesses = DEFAULT_MAX_PROCESSES;
       this.envVariables = new HashMap<>();
-
       this.jobletRunner = ProcessJobletRunners.production();
-      this.processController = processController;
     }
 
     public Builder<S> setMaxProcesses(int maxProcesses) {
