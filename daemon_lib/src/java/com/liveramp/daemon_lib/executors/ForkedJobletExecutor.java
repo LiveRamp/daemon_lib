@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
@@ -68,11 +67,9 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
     private ProcessController<JobletConfigMetadata> processController;
     private ProcessJobletRunner jobletRunner;
     private Map<String, String> envVariables;
-    private final DaemonNotifier notifier;
     private String workingDir;
 
-    public Builder(DaemonNotifier notifier, String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<JobletConfigMetadata> processController) {
-      this.notifier = notifier;
+    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<JobletConfigMetadata> processController) {
       this.workingDir = workingDir;
       this.jobletFactoryClass = jobletFactoryClass;
       this.configStorage = configStorage;

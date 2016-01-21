@@ -54,7 +54,7 @@ public class JobletExecutors {
           new JobletConfigMetadata.Serializer()
       );
 
-      return new ForkedJobletExecutor.Builder<>(notifier, tmpPath, jobletFactoryClass, configStore, processController)
+      return new ForkedJobletExecutor.Builder<>(tmpPath, jobletFactoryClass, configStore, processController)
           .setMaxProcesses(maxProcesses)
           .putAllEnvVariables(envVariables)
           .build();
