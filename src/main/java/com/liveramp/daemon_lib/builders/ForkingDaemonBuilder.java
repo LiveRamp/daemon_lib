@@ -29,10 +29,6 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   private static final int DEFAULT_MAX_PROCESSES = 1;
   private static final Map<String, String> DEFAULT_ENV_VARS = Maps.newHashMap();
 
-  public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer) {
-    this(workingDir, identifier, jobletFactoryClass, configProducer, null);
-  }
-
   public ForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, ProcessJobletRunner jobletRunner) {
     super(identifier, configProducer);
     this.workingDir = workingDir;
