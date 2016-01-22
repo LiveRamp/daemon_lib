@@ -138,6 +138,7 @@ public class Daemon<T extends JobletConfig> {
           return false;
         }
       } else {
+        lock.unlock();
         silentSleep(options.configWaitSeconds);
       }
     } else {
