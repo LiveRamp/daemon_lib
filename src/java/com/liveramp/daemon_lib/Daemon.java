@@ -94,14 +94,11 @@ public class Daemon<T extends JobletConfig> {
     try {
       while (running) {
         if (!processNext()) {
-          lock.unlock(); //should never be locked while sleeping
           silentSleep(options.failureWaitSeconds);
         }
-        lock.unlock(); //should never be locked while sleeping
         silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
-      lock.unlock(); //should never be locked while dying
       notifier.notify("Fatal error occurred in daemon (" + identifier + "). Shutting down.", Optional.<String>absent(), Optional.of(e));
       throw e;
     }
@@ -133,7 +130,6 @@ public class Daemon<T extends JobletConfig> {
           lock.unlock();
         }
         try {
-          lock.unlock(); //should never be locked while executing
           executor.execute(jobletConfig);
         } catch (Exception e) {
           notifier.notify("Error executing joblet config for daemon (" + identifier + ")",
@@ -146,7 +142,6 @@ public class Daemon<T extends JobletConfig> {
         silentSleep(options.configWaitSeconds);
       }
     } else {
-      lock.unlock(); //should never be locked while sleeping
       silentSleep(options.executionSlotWaitSeconds);
     }
 
