@@ -105,12 +105,12 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
     }
 
     public Builder<S> putAllEnvVariables(Map<String, String> envVariables) {
-      envVariables.putAll(envVariables);
+      this.envVariables.putAll(envVariables);
       return this;
     }
 
     public Builder<S> putEnvVariable(String key, String value) {
-      envVariables.put(key, value);
+      this.envVariables.put(key, value);
       return this;
     }
 
