@@ -73,8 +73,8 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
     DefaultJobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(daemonWorkingDir);
 
     try {
-      Joblet joblet = factory.create(config);
       jobletStatusManager.start(id);
+      Joblet joblet = factory.create(config);
       joblet.run();
       jobletStatusManager.complete(id);
     } catch (Throwable e) {
