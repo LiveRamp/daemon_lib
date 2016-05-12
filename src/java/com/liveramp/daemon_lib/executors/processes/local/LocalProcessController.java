@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.util.concurrent.UncaughtExceptionHandlers;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,11 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
 
     Executors.newScheduledThreadPool(
         1,
-        new ThreadFactoryBuilder().setDaemon(true).setNameFormat("process watcher").build()
+        new ThreadFactoryBuilder()
+            .setDaemon(true)
+            .setNameFormat("process watcher")
+            .setUncaughtExceptionHandler(UncaughtExceptionHandlers.systemExit())
+            .build()
     ).scheduleAtFixedRate(new ProcessesWatcher(), 0, pollDelay, TimeUnit.MILLISECONDS);
   }
 
