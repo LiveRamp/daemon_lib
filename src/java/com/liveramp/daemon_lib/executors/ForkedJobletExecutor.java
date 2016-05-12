@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
@@ -21,8 +22,9 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
   private final Class<? extends JobletFactory<? extends T>> jobletFactoryClass;
   private final Map<String, String> envVariables;
   private final String workingDir;
+  private final JobletCallback<T> failureCallback;
 
-  ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir) {
+  ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir, JobletCallback<T> failureCallback) {
     this.maxProcesses = maxProcesses;
     this.jobletFactoryClass = jobletFactoryClass;
     this.configStorage = configStorage;
@@ -30,6 +32,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
     this.jobletRunner = jobletRunner;
     this.envVariables = envVariables;
     this.workingDir = workingDir;
+    this.failureCallback = failureCallback;
   }
 
   @Override
@@ -39,6 +42,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
       int pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier, envVariables, workingDir);
       processController.registerProcess(pid, new JobletConfigMetadata(identifier));
     } catch (Exception e) {
+      failureCallback.callback(config);
       throw new DaemonException(e);
     }
   }
@@ -67,8 +71,9 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
     private ProcessJobletRunner jobletRunner;
     private Map<String, String> envVariables;
     private String workingDir;
+    private JobletCallback<S> failureCallback;
 
-    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner) {
+    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, JobletCallback<S> failureCallback) {
       this.workingDir = workingDir;
       this.jobletFactoryClass = jobletFactoryClass;
       this.configStorage = configStorage;
@@ -77,6 +82,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
       this.maxProcesses = DEFAULT_MAX_PROCESSES;
       this.envVariables = new HashMap<>();
       this.jobletRunner = jobletRunner;
+      this.failureCallback = failureCallback;
     }
 
     public Builder<S> setMaxProcesses(int maxProcesses) {
@@ -96,6 +102,11 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
 
     public Builder<S> setProcessController(ProcessController<JobletConfigMetadata> processController) {
       this.processController = processController;
+      return this;
+    }
+
+    public Builder<S> setFailureCallback(JobletCallback<S> failureCallback) {
+      this.failureCallback = failureCallback;
       return this;
     }
 
@@ -120,7 +131,7 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
     }
 
     public ForkedJobletExecutor<S> build() throws IOException {
-      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStorage, processController, jobletRunner, envVariables, workingDir);
+      return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStorage, processController, jobletRunner, envVariables, workingDir, failureCallback);
     }
   }
 }
