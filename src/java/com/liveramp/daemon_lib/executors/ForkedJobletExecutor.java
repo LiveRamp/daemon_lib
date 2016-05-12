@@ -105,6 +105,11 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
       return this;
     }
 
+    public Builder<S> setFailureCallback(JobletCallback<S> failureCallback) {
+      this.failureCallback = failureCallback;
+      return this;
+    }
+
     public Builder<S> setJobletRunner(ProcessJobletRunner jobletRunner) {
       this.jobletRunner = jobletRunner;
       return this;
