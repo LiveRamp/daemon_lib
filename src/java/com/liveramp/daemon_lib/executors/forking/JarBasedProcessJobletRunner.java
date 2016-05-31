@@ -25,23 +25,28 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner {
   }
 
   @Override
-  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException, ClassNotFoundException {
+  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass,
+                 JobletConfigStorage configStore,
+                 String cofigIdentifier,
+                 Map<String, String> envVariables,
+                 String workingDir) throws IOException, ClassNotFoundException {
     ProcessBuilder processBuilder =
-        new ProcessBuilder(executableCommand,
+        new ProcessBuilder(
+            executableCommand,
+            "-cp",
             jarPath,
             ForkedJobletRunner.class.getName(),
             ForkedJobletRunner.quote(jobletFactoryClass.getName()),
             configStore.getPath(),
             workingDir,
-            cofigIdentifier);
+            cofigIdentifier
+        );
 
     processBuilder.environment().putAll(envVariables);
 
-    LOG.debug("Running command: {}", Joiner.on(' ').join(processBuilder.command()));
+    LOG.info("Running command: {}", Joiner.on(' ').join(processBuilder.command()));
 
-    int pid = ProcessUtil.run(processBuilder);
-
-    return pid;
+    return ProcessUtil.run(processBuilder);
   }
 
   public static class Builder {
@@ -50,7 +55,7 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner {
     private String jarPath;
     private String executableCommand;
 
-    public Builder(String jarPath) {
+    private Builder(String jarPath) {
       this.jarPath = jarPath;
       this.executableCommand = DEFAULT_COMMAND;
     }
@@ -70,5 +75,9 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner {
     public JarBasedProcessJobletRunner build() {
       return new JarBasedProcessJobletRunner(executableCommand, jarPath);
     }
+  }
+
+  public static Builder builder(String jarPath) {
+    return new Builder(jarPath);
   }
 }
