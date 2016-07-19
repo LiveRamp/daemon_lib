@@ -3,4 +3,4 @@
 JOBJAR=`find . -name "*.job.jar" | head -1`
 
 mkdir -p log/forked-joblet-runner
-hadoop jar $JOBJAR com.liveramp.daemon_lib.executors.forking.ForkedJobletRunner $@ >> log/forked-joblet-runner.out 2>&1
+HADOOP_USER_NAME=rapleaf hadoop jar $JOBJAR com.liveramp.daemon_lib.executors.forking.ForkedJobletRunner $@ >> log/forked-joblet-runner.out 2>&1
