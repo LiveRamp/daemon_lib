@@ -45,7 +45,7 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
       scriptResourceInput.close();
       scriptProductionOutput.close();
 
-      productionScript.setExecutable(true);
+      productionScript.setExecutable(true, false);
     }
   }
 
