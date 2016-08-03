@@ -22,8 +22,8 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   private final Class<? extends JobletFactory<T>> jobletFactoryClass;
   private int maxProcesses;
   private Map<String, String> envVariables;
-  private JobletCallback<T> successCallback;
-  private JobletCallback<T> failureCallback;
+  private JobletCallback<? super T> successCallback;
+  private JobletCallback<? super T> failureCallback;
   private ProcessJobletRunner jobletRunner;
 
   private static final int DEFAULT_MAX_PROCESSES = 1;
@@ -51,12 +51,12 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
     return this;
   }
 
-  public ForkingDaemonBuilder<T> setSuccessCallback(JobletCallback<T> callback) {
+  public ForkingDaemonBuilder<T> setSuccessCallback(JobletCallback<? super T> callback) {
     this.successCallback = callback;
     return this;
   }
 
-  public ForkingDaemonBuilder<T> setFailureCallback(JobletCallback<T> callback) {
+  public ForkingDaemonBuilder<T> setFailureCallback(JobletCallback<? super T> callback) {
     this.failureCallback = callback;
     return this;
   }

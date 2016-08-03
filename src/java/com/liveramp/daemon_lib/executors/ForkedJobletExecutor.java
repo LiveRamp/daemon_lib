@@ -22,9 +22,9 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
   private final Class<? extends JobletFactory<? extends T>> jobletFactoryClass;
   private final Map<String, String> envVariables;
   private final String workingDir;
-  private final JobletCallback<T> failureCallback;
+  private final JobletCallback<? super T> failureCallback;
 
-  ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir, JobletCallback<T> failureCallback) {
+  ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, Map<String, String> envVariables, String workingDir, JobletCallback<? super T> failureCallback) {
     this.maxProcesses = maxProcesses;
     this.jobletFactoryClass = jobletFactoryClass;
     this.configStorage = configStorage;
@@ -71,9 +71,9 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
     private ProcessJobletRunner jobletRunner;
     private Map<String, String> envVariables;
     private String workingDir;
-    private JobletCallback<S> failureCallback;
+    private JobletCallback<? super S> failureCallback;
 
-    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, JobletCallback<S> failureCallback) {
+    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<JobletConfigMetadata> processController, ProcessJobletRunner jobletRunner, JobletCallback<? super S> failureCallback) {
       this.workingDir = workingDir;
       this.jobletFactoryClass = jobletFactoryClass;
       this.configStorage = configStorage;

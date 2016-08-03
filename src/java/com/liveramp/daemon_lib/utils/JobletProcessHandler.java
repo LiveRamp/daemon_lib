@@ -10,12 +10,12 @@ import com.liveramp.daemon_lib.tracking.JobletStatus;
 import com.liveramp.daemon_lib.tracking.JobletStatusManager;
 
 public class JobletProcessHandler<T extends JobletConfig> implements ProcessHandler<JobletConfigMetadata> {
-  private final JobletCallback<T> successCallback;
-  private final JobletCallback<T> failureCallback;
+  private final JobletCallback<? super T> successCallback;
+  private final JobletCallback<? super T> failureCallback;
   private final JobletConfigStorage<T> configStorage;
   private final JobletStatusManager jobletStatusManager;
 
-  public JobletProcessHandler(JobletCallback<T> successCallback, JobletCallback<T> failureCallback, JobletConfigStorage<T> configStorage, JobletStatusManager jobletStatusManager) {
+  public JobletProcessHandler(JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, JobletConfigStorage<T> configStorage, JobletStatusManager jobletStatusManager) {
     this.successCallback = successCallback;
     this.failureCallback = failureCallback;
     this.configStorage = configStorage;
