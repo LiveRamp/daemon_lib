@@ -8,10 +8,10 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 
 public class BlockingJobletExecutor<T extends JobletConfig> implements JobletExecutor<T> {
   private final JobletFactory<T> jobletFactory;
-  private final JobletCallback<T> successCallback;
-  private final JobletCallback<T> failureCallback;
+  private final JobletCallback<? super T> successCallback;
+  private final JobletCallback<? super T> failureCallback;
 
-  public BlockingJobletExecutor(JobletFactory<T> jobletFactory, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) {
+  public BlockingJobletExecutor(JobletFactory<T> jobletFactory, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback) {
     this.jobletFactory = jobletFactory;
     this.successCallback = successCallback;
     this.failureCallback = failureCallback;
