@@ -1,13 +1,14 @@
 package com.liveramp.daemon_lib;
 
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.base.Optional;
+import com.liveramp.daemon_lib.executors.JobletExecutor;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionCondition;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
+import com.liveramp.daemon_lib.utils.DaemonException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.liveramp.daemon_lib.executors.JobletExecutor;
-import com.liveramp.daemon_lib.utils.DaemonException;
+import java.util.concurrent.TimeUnit;
 
 public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
@@ -73,9 +74,13 @@ public class Daemon<T extends JobletConfig> {
   private boolean running;
   private final JobletCallback<T> preExecutionCallback;
   private DaemonLock lock;
+  private final ExecutionCondition executionCondition;
+  private final ConfigBasedExecutionCondition<T> configBasedExecutionCondition;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options, ExecutionCondition executionCondition, ConfigBasedExecutionCondition<T> configBasedExecutionCondition) {
     this.preExecutionCallback = preExecutionCallback;
+    this.executionCondition = executionCondition;
+    this.configBasedExecutionCondition = configBasedExecutionCondition;
     this.identifier = clean(identifier);
     this.configProducer = configProducer;
     this.executor = executor;
@@ -109,7 +114,7 @@ public class Daemon<T extends JobletConfig> {
   }
 
   protected boolean processNext() {
-    if (executor.canExecuteAnother()) {
+    if (executionCondition.canExecute()) {
       T jobletConfig;
       try {
         lock.lock();
@@ -120,7 +125,7 @@ public class Daemon<T extends JobletConfig> {
         return false;
       }
 
-      if (jobletConfig != null) {
+      if (jobletConfig != null && configBasedExecutionCondition.apply(jobletConfig)) {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
           preExecutionCallback.callback(jobletConfig);

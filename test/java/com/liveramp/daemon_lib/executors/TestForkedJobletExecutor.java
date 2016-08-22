@@ -1,14 +1,7 @@
 package com.liveramp.daemon_lib.executors;
 
-import java.io.IOException;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import junit.framework.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.liveramp.daemon_lib.DaemonLibTestCase;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
@@ -18,9 +11,16 @@ import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.DefaultForkedExecutionCondition;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
+import junit.framework.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -64,10 +64,11 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   @Test
   public void canExecuteAnother() throws ProcessControllerException {
     Mockito.when(processController.getProcesses()).thenReturn(Lists.<ProcessDefinition<JobletConfigMetadata>>newArrayList());
-    Assert.assertEquals(true, executor.canExecuteAnother());
+    DefaultForkedExecutionCondition executionCondition = new DefaultForkedExecutionCondition(processController, MAX_PROCESSES);
+    Assert.assertEquals(true, executionCondition.canExecute());
 
     Mockito.when(processController.getProcesses()).thenReturn(Lists.newArrayList(DUMMY_PROCESS));
-    Assert.assertEquals(false, executor.canExecuteAnother());
+    Assert.assertEquals(false, executionCondition.canExecute());
   }
 
   private interface MockJobletFactory extends JobletFactory<JobletConfig> {

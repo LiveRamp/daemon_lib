@@ -1,21 +1,21 @@
 package com.liveramp.daemon_lib.executors;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import junit.framework.Assert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.liveramp.daemon_lib.DaemonLibTestCase;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.built_in.IDConfig;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.DefaultThreadedExecutionCondition;
 import com.liveramp.daemon_lib.utils.DaemonException;
+import junit.framework.Assert;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -33,7 +33,7 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
 
   @Before
   public void setUp() throws Exception {
-    pool = (ThreadPoolExecutor)Executors.newFixedThreadPool(2);
+    pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
     factory = mock(JobletFactory.class, RETURNS_DEEP_STUBS);
     successCallback = mock(JobletCallback.class);
     failureCallback = mock(JobletCallback.class);
@@ -94,18 +94,20 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
       }
     });
 
-    Assert.assertTrue(jobletExecutor.canExecuteAnother());
+    final DefaultThreadedExecutionCondition defaultThreadedExecutionCondition = new DefaultThreadedExecutionCondition(pool);
+
+    Assert.assertTrue(defaultThreadedExecutionCondition.canExecute());
     jobletExecutor.execute(config);
-    Assert.assertTrue(jobletExecutor.canExecuteAnother());
+    Assert.assertTrue(defaultThreadedExecutionCondition.canExecute());
 
     jobletExecutor.execute(config);
-    Assert.assertFalse(jobletExecutor.canExecuteAnother());
+    Assert.assertFalse(defaultThreadedExecutionCondition.canExecute());
 
     stop.set(true);
     pool.shutdown();
     pool.awaitTermination(10, TimeUnit.SECONDS);
 
-    Assert.assertTrue(jobletExecutor.canExecuteAnother());
+    Assert.assertTrue(defaultThreadedExecutionCondition.canExecute());
   }
 
 }

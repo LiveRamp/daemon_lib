@@ -1,18 +1,19 @@
 package com.liveramp.daemon_lib.executors;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
-import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.DefaultForkedExecutionCondition;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecutor<T> {
   private final JobletConfigStorage<T> configStorage;
@@ -48,12 +49,8 @@ public class ForkedJobletExecutor<T extends JobletConfig> implements JobletExecu
   }
 
   @Override
-  public boolean canExecuteAnother() {
-    try {
-      return processController.getProcesses().size() < maxProcesses;
-    } catch (ProcessControllerException e) {
-      return false;
-    }
+  public ExecutionCondition getDefaultExecutionCondition() {
+    return new DefaultForkedExecutionCondition(processController, maxProcesses);
   }
 
   @Override

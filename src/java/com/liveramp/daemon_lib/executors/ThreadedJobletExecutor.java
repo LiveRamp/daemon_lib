@@ -1,16 +1,17 @@
 package com.liveramp.daemon_lib.executors;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadPoolExecutor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.DefaultThreadedExecutionCondition;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
 import com.liveramp.daemon_lib.utils.DaemonException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExecutor<T> {
   private static final Logger LOG = LoggerFactory.getLogger(ThreadedJobletExecutor.class);
@@ -46,8 +47,8 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
   }
 
   @Override
-  public boolean canExecuteAnother() {
-    return threadPool.getActiveCount() < threadPool.getMaximumPoolSize();
+  public ExecutionCondition getDefaultExecutionCondition() {
+    return new DefaultThreadedExecutionCondition(threadPool);
   }
 
   @Override
