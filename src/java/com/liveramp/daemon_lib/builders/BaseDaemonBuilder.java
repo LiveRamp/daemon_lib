@@ -25,7 +25,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   private JobletCallback<T> onNewConfigCallback;
   private DaemonLock lock;
   protected ExecutionCondition additionalExecutionCondition = ExecutionConditions.alwaysExecute();
-  protected ConfigBasedExecutionCondition<T> configBasedExecutionCondition = ConfigBasedExecutionConditions.alwaysExecute();
+  protected ConfigBasedExecutionCondition<T> postConfigExecutionCondition = ConfigBasedExecutionConditions.alwaysExecute();
 
   public BaseDaemonBuilder(String identifier, JobletConfigProducer<T> configProducer) {
     this.identifier = identifier;
@@ -91,13 +91,13 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     return self();
   }
 
-  public K setAdditionalPreExecutionCondition(ExecutionCondition executionCondition) {
+  public K setAdditionalPreConfigExecutionCondition(ExecutionCondition executionCondition) {
     this.additionalExecutionCondition = executionCondition;
     return self();
   }
 
   public K setPostConfigExecutionCondition(ConfigBasedExecutionCondition<T> configBasedExecutionCondition) {
-    this.configBasedExecutionCondition = configBasedExecutionCondition;
+    this.postConfigExecutionCondition = configBasedExecutionCondition;
     return self();
   }
 
@@ -112,6 +112,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   @NotNull
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
     final JobletExecutor<T> executor = getExecutor();
-    return new Daemon<>(identifier, executor, configProducer, onNewConfigCallback, lock, notifier, options, ExecutionConditions.and(executor.getDefaultExecutionCondition(), additionalExecutionCondition), configBasedExecutionCondition);
+    return new Daemon<>(identifier, executor, configProducer, onNewConfigCallback, lock, notifier, options, ExecutionConditions.and(executor.getDefaultExecutionCondition(), additionalExecutionCondition), postConfigExecutionCondition);
   }
 }
