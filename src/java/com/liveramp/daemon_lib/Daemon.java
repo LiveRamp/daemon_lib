@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
+import com.liveramp.daemon_lib.utils.HostUtil;
 
 public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
@@ -96,7 +97,7 @@ public class Daemon<T extends JobletConfig> {
   }
 
   public final void start() {
-    LOG.info("Starting daemon ({})", identifier);
+    LOG.info("Starting daemon {}", getDaemonSignature());
     running = true;
 
     try {
@@ -107,10 +108,10 @@ public class Daemon<T extends JobletConfig> {
         silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
-      notifier.notify("Fatal error occurred in daemon (" + identifier + "). Shutting down.", Optional.<String>absent(), Optional.of(e));
+      notifier.notify("Fatal error occurred in daemon (" + getDaemonSignature() + "). Shutting down.", Optional.<String>absent(), Optional.of(e));
       throw e;
     }
-    LOG.info("Exiting daemon ({})", identifier);
+    LOG.info("Exiting daemon ({})", getDaemonSignature());
   }
 
   protected boolean processNext() {
@@ -120,7 +121,7 @@ public class Daemon<T extends JobletConfig> {
         lock.lock();
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
-        notifier.notify("Error getting next config for daemon (" + identifier + ")", Optional.<String>absent(), Optional.of(e));
+        notifier.notify("Error getting next config for daemon (" + getDaemonSignature() + ")", Optional.<String>absent(), Optional.of(e));
         lock.unlock();
         return false;
       }
@@ -130,7 +131,7 @@ public class Daemon<T extends JobletConfig> {
         try {
           preExecutionCallback.callback(jobletConfig);
         } catch (DaemonException e) {
-          notifier.notify("Error executing callbacks for daemon (" + identifier + ")",
+          notifier.notify("Error executing callbacks for daemon (" + getDaemonSignature() + ")",
               Optional.of(jobletConfig.toString() + "\n" + preExecutionCallback.toString()),
               Optional.of(e));
           return false;
@@ -140,7 +141,7 @@ public class Daemon<T extends JobletConfig> {
         try {
           executor.execute(jobletConfig);
         } catch (Exception e) {
-          notifier.notify("Error executing joblet config for daemon (" + identifier + ")",
+          notifier.notify("Error executing joblet config for daemon (" + getDaemonSignature() + ")",
               Optional.of(jobletConfig.toString()),
               Optional.of(e));
           return false;
@@ -174,4 +175,10 @@ public class Daemon<T extends JobletConfig> {
       LOG.error("Daemon interrupted: ", e);
     }
   }
+
+  private String getDaemonSignature() {
+    final String hostName = HostUtil.safeGetHostName();
+    return String.format("(%s) on (%s)", identifier, hostName);
+  }
+
 }
