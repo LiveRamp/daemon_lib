@@ -37,7 +37,13 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
     if (!productionScript.exists()) {
       InputStream scriptResourceInput = ForkedJobletRunner.class.getClassLoader().getResourceAsStream(JOBLET_RUNNER_SCRIPT_SOURCE);
 
-      FileUtils.forceMkdir(productionScript.getParentFile());
+      final File scriptParentDir = productionScript.getParentFile();
+      try {
+        FileUtils.forceMkdir(scriptParentDir);
+      } catch (IOException e) {
+        throw new IOException(String.format("Could not create directory for Joblet Runner script at %s", scriptParentDir.getAbsolutePath()), e);
+      }
+
       FileOutputStream scriptProductionOutput = new FileOutputStream(JOBLET_RUNNER_SCRIPT);
 
       ByteStreams.copy(scriptResourceInput, scriptProductionOutput);
