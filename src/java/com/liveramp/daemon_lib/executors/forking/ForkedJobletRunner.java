@@ -78,13 +78,9 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
     JobletConfig config = JobletConfigStorage.production(configStorePath).loadConfig(id);
     DefaultJobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(daemonWorkingDir);
 
-    try {
-      jobletStatusManager.start(id);
-      Joblet joblet = factory.create(config);
-      joblet.run();
-      jobletStatusManager.complete(id);
-    } catch (Throwable e) {
-      throw e;
-    }
+    jobletStatusManager.start(id);
+    Joblet joblet = factory.create(config);
+    joblet.run();
+    jobletStatusManager.complete(id);
   }
 }
