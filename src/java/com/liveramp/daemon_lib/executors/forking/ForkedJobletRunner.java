@@ -17,7 +17,7 @@ import com.liveramp.daemon_lib.executors.processes.ProcessUtil;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
-import com.liveramp.java_support.util.JarUtils;
+import com.liveramp.java_support.RunJarUtil;
 
 public class ForkedJobletRunner implements ProcessJobletRunner {
   private static final String JOBLET_RUNNER_SCRIPT = "bin/joblet_runner.sh";
@@ -27,7 +27,7 @@ public class ForkedJobletRunner implements ProcessJobletRunner {
   public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException, ClassNotFoundException {
     prepareScript();
 
-    URL launchJar = JarUtils.getMainJarURL();
+    URL launchJar = RunJarUtil.getLaunchJarURL();
     if(launchJar == null){
       throw new RuntimeException("Cannot find main jar path!");
     }
