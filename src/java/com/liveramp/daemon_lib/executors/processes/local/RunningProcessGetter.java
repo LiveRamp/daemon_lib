@@ -2,7 +2,7 @@ package com.liveramp.daemon_lib.executors.processes.local;
 
 import java.util.Map;
 
-public interface PidGetter {
+public interface RunningProcessGetter<Pid, PidData> {
 
   class PidData {
     String command;
@@ -15,6 +15,6 @@ public interface PidGetter {
     }
   }
 
-  Map<Integer, PidData> getPids() throws Exception;
+  Map<Pid, PidData> getPids() throws Exception;
 
 }

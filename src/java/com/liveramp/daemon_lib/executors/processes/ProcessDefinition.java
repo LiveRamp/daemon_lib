@@ -1,15 +1,15 @@
 package com.liveramp.daemon_lib.executors.processes;
 
-public class ProcessDefinition<T extends ProcessMetadata> {
-  private final int pid;
+public class ProcessDefinition<T extends ProcessMetadata, Pid> {
+  private final Pid pid;
   private final T metadata;
 
-  public ProcessDefinition(int pid, T metadata) {
+  public ProcessDefinition(Pid pid, T metadata) {
     this.pid = pid;
     this.metadata = metadata;
   }
 
-  public int getPid() {
+  public Pid getPid() {
     return pid;
   }
 

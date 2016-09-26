@@ -24,22 +24,24 @@ import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 
-public class LocalProcessController<T extends ProcessMetadata> implements ProcessController<T> {
+public class LocalProcessController<T extends ProcessMetadata, Pid> implements ProcessController<T, Pid> {
   private static Logger LOG = LoggerFactory.getLogger(LocalProcessController.class);
 
   private final DaemonNotifier notifier;
   private final FsHelper fsHelper;
-  private final ProcessHandler<T> processHandler;
-  private final PidGetter pidGetter;
+  private FileNamePidProcessor<Pid> pidProcessor;
+  private final ProcessHandler<T, Pid> processHandler;
+  private final RunningProcessGetter<Pid, ?> runningProcessGetter;
   private final ProcessMetadata.Serializer<T> metadataSerializer;
 
-  private volatile List<ProcessDefinition<T>> currentProcesses;
+  private volatile List<ProcessDefinition<T, Pid>> currentProcesses;
 
-  public LocalProcessController(DaemonNotifier notifier, FsHelper fsHelper, ProcessHandler<T> processHandler, PidGetter pidGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+  public LocalProcessController(DaemonNotifier notifier, FsHelper fsHelper, FileNamePidProcessor<Pid> pidProcessor, ProcessHandler<T, Pid> processHandler, RunningProcessGetter runningProcessGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
     this.notifier = notifier;
     this.fsHelper = fsHelper;
+    this.pidProcessor = pidProcessor;
     this.processHandler = processHandler;
-    this.pidGetter = pidGetter;
+    this.runningProcessGetter = runningProcessGetter;
     this.metadataSerializer = metadataSerializer;
     this.currentProcesses = null;
 
@@ -54,9 +56,9 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
   }
 
   @Override
-  public void registerProcess(int pid, T metadata) throws ProcessControllerException {
+  public void registerProcess(Pid pid, T metadata) throws ProcessControllerException {
     LOG.info("Registering process {}.", pid);
-    ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadata);
+    ProcessDefinition<T, Pid> process = new ProcessDefinition<>(pid, metadata);
     File tmpFile = fsHelper.getPidTmpPath(process.getPid());
     if (!tmpFile.getParentFile().exists() && !tmpFile.getParentFile().mkdirs()) {
       throw new ProcessControllerException(String.format("Unable to create parent directory '%s' for %d pid", tmpFile.getParent(), process.getPid()));
@@ -73,7 +75,7 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
   }
 
   @Override
-  public List<ProcessDefinition<T>> getProcesses() throws ProcessControllerException {
+  public List<ProcessDefinition<T, Pid>> getProcesses() throws ProcessControllerException {
     try {
       return getWatchedProcesses(fsHelper);
     } catch (IOException e) {
@@ -85,11 +87,11 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
     @Override
     public void run() {
       try {
-        List<ProcessDefinition<T>> watchedProcesses = getWatchedProcesses(fsHelper);
-        Map<Integer, PidGetter.PidData> runningPids = pidGetter.getPids();
-        Iterator<ProcessDefinition<T>> iterator = watchedProcesses.iterator();
+        List<ProcessDefinition<T, Pid>> watchedProcesses = getWatchedProcesses(fsHelper);
+        Map<Pid, ?> runningPids = runningProcessGetter.getPids();
+        Iterator<ProcessDefinition<T, Pid>> iterator = watchedProcesses.iterator();
         while (iterator.hasNext()) {
-          ProcessDefinition<T> watchedProcess = iterator.next();
+          ProcessDefinition<T, Pid> watchedProcess = iterator.next();
           if (!runningPids.containsKey(watchedProcess.getPid())) {
             LOG.info("Deregister process {}.", watchedProcess.getPid());
             File watchedFile = fsHelper.getPidPath(watchedProcess.getPid());
@@ -113,15 +115,15 @@ public class LocalProcessController<T extends ProcessMetadata> implements Proces
     }
   }
 
-  private synchronized List<ProcessDefinition<T>> getWatchedProcesses(FsHelper fsHelper) throws IOException {
-    List<ProcessDefinition<T>> pids = Lists.newLinkedList();
+  private synchronized List<ProcessDefinition<T, Pid>> getWatchedProcesses(FsHelper fsHelper) throws IOException {
+    List<ProcessDefinition<T, Pid>> pids = Lists.newLinkedList();
     String[] fileList = fsHelper.getBasePath().list();
     if (fileList != null) {
       for (String s : fileList) {
-        if (s.matches("\\d+")) {
-          int pid = Integer.parseInt(s);
-          File pidPath = fsHelper.getPidPath(pid);
-          ProcessDefinition<T> process = new ProcessDefinition<>(pid, metadataSerializer.fromBytes(fsHelper.readMetadata(pidPath)));
+        Optional<Pid> pidOptional = pidProcessor.processFileName(s);
+        if (pidOptional.isPresent()) {
+          File pidPath = fsHelper.getPidPath(pidOptional.get());
+          ProcessDefinition<T, Pid> process = new ProcessDefinition<>(pidOptional.get(), metadataSerializer.fromBytes(fsHelper.readMetadata(pidPath)));
           pids.add(process);
         }
       }

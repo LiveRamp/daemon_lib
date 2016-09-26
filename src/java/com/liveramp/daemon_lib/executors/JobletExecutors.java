@@ -16,9 +16,11 @@ import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
+import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
 import com.liveramp.daemon_lib.executors.processes.local.LocalProcessController;
-import com.liveramp.daemon_lib.executors.processes.local.PsPidGetter;
+import com.liveramp.daemon_lib.executors.processes.local.LocalProcessPidProcessor;
+import com.liveramp.daemon_lib.executors.processes.local.PsRunningProcessGetter;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.daemon_lib.tracking.JobletStatusManager;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
@@ -37,7 +39,7 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T,JobletConfigMetadata,Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
@@ -46,11 +48,12 @@ public class JobletExecutors {
 
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
-      LocalProcessController<JobletConfigMetadata> processController = new LocalProcessController<>(
+      LocalProcessController<JobletConfigMetadata, Integer> processController = new LocalProcessController<>(
           notifier,
           new FsHelper(pidDir.getPath()),
-          new JobletProcessHandler<>(successCallback, failureCallback, configStore, jobletStatusManager),
-          new PsPidGetter(),
+          new LocalProcessPidProcessor(),
+          new JobletProcessHandler<T, Integer>(successCallback, failureCallback, configStore, jobletStatusManager),
+          new PsRunningProcessGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
       );

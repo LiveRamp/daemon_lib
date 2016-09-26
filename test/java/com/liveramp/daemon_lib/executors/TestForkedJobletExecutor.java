@@ -8,6 +8,7 @@ import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.forking.ForkedJobletRunner;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
+import com.liveramp.daemon_lib.executors.processes.MetadataFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
 import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
@@ -18,6 +19,7 @@ import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -37,16 +39,18 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   private ProcessController processController;
   private ProcessJobletRunner jobletRunner;
   private JobletConfig config;
-  private ForkedJobletExecutor<JobletConfig> executor;
+  private ForkedJobletExecutor<JobletConfig, JobletConfigMetadata, Integer> executor;
+  private MetadataFactory metadataFactory;
 
-  private static final ProcessDefinition<JobletConfigMetadata> DUMMY_PROCESS = new ProcessDefinition<>(1, new JobletConfigMetadata("a"));
+  private static final ProcessDefinition<JobletConfigMetadata, Integer> DUMMY_PROCESS = new ProcessDefinition<>(1, new JobletConfigMetadata("a"));
 
   @Before
   public void setup() {
     this.configStorage = Mockito.mock(JobletConfigStorage.class);
     this.processController = Mockito.mock(ProcessController.class);
     this.jobletRunner = Mockito.mock(ForkedJobletRunner.class);
-    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner, Maps.<String, String>newHashMap(), TEST_ROOT, new JobletCallback.None<>());
+    this.metadataFactory = Mockito.mock(MetadataFactory.class);
+    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner, metadataFactory,Maps.<String, String>newHashMap(), TEST_ROOT, new JobletCallback.None<>());
 
     this.config = Mockito.mock(JobletConfig.class);
   }
@@ -63,7 +67,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
 
   @Test
   public void canExecuteAnother() throws ProcessControllerException {
-    Mockito.when(processController.getProcesses()).thenReturn(Lists.<ProcessDefinition<JobletConfigMetadata>>newArrayList());
+    Mockito.when(processController.getProcesses()).thenReturn(Lists.<ProcessDefinition<JobletConfigMetadata, Integer>>newArrayList());
     DefaultForkedExecutionCondition executionCondition = new DefaultForkedExecutionCondition(processController, MAX_PROCESSES);
     Assert.assertEquals(true, executionCondition.canExecute());
 

@@ -9,7 +9,7 @@ import com.liveramp.daemon_lib.executors.processes.local.ProcessHandler;
 import com.liveramp.daemon_lib.tracking.JobletStatus;
 import com.liveramp.daemon_lib.tracking.JobletStatusManager;
 
-public class JobletProcessHandler<T extends JobletConfig> implements ProcessHandler<JobletConfigMetadata> {
+public class JobletProcessHandler<T extends JobletConfig, Pid> implements ProcessHandler<JobletConfigMetadata, Pid> {
   private final JobletCallback<? super T> successCallback;
   private final JobletCallback<? super T> failureCallback;
   private final JobletConfigStorage<T> configStorage;
@@ -23,7 +23,7 @@ public class JobletProcessHandler<T extends JobletConfig> implements ProcessHand
   }
 
   @Override
-  public void onRemove(ProcessDefinition<JobletConfigMetadata> watchedProcess) throws DaemonException {
+  public void onRemove(ProcessDefinition<JobletConfigMetadata, Pid> watchedProcess) throws DaemonException {
     final String identifier = watchedProcess.getMetadata().getIdentifier();
 
     final T jobletConfig;

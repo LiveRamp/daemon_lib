@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-public class PsPidGetter implements PidGetter {
+public class PsRunningProcessGetter implements RunningProcessGetter {
 
   @Override
   public Map<Integer, PidData> getPids() throws IOException {
@@ -39,7 +39,7 @@ public class PsPidGetter implements PidGetter {
   }
 
   public static void main(String[] args) throws IOException {
-    PsPidGetter pidGetter = new PsPidGetter();
+    PsRunningProcessGetter pidGetter = new PsRunningProcessGetter();
     System.out.println(pidGetter.getPids());
   }
 }
