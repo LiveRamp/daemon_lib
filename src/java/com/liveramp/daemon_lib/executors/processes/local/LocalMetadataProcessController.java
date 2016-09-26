@@ -24,8 +24,8 @@ import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 
-public class LocalProcessController<T extends ProcessMetadata, Pid> implements ProcessController<T, Pid> {
-  private static Logger LOG = LoggerFactory.getLogger(LocalProcessController.class);
+public class LocalMetadataProcessController<T extends ProcessMetadata, Pid> implements ProcessController<T, Pid> {
+  private static Logger LOG = LoggerFactory.getLogger(LocalMetadataProcessController.class);
 
   private final DaemonNotifier notifier;
   private final FsHelper fsHelper;
@@ -36,7 +36,7 @@ public class LocalProcessController<T extends ProcessMetadata, Pid> implements P
 
   private volatile List<ProcessDefinition<T, Pid>> currentProcesses;
 
-  public LocalProcessController(DaemonNotifier notifier, FsHelper fsHelper, FileNamePidProcessor<Pid> pidProcessor, ProcessHandler<T, Pid> processHandler, RunningProcessGetter runningProcessGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+  public LocalMetadataProcessController(DaemonNotifier notifier, FsHelper fsHelper, FileNamePidProcessor<Pid> pidProcessor, ProcessHandler<T, Pid> processHandler, RunningProcessGetter runningProcessGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
     this.notifier = notifier;
     this.fsHelper = fsHelper;
     this.pidProcessor = pidProcessor;

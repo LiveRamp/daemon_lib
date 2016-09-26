@@ -16,9 +16,8 @@ import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
-import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
-import com.liveramp.daemon_lib.executors.processes.local.LocalProcessController;
+import com.liveramp.daemon_lib.executors.processes.local.LocalMetadataProcessController;
 import com.liveramp.daemon_lib.executors.processes.local.LocalProcessPidProcessor;
 import com.liveramp.daemon_lib.executors.processes.local.PsRunningProcessGetter;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
@@ -48,7 +47,7 @@ public class JobletExecutors {
 
       JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
-      LocalProcessController<JobletConfigMetadata, Integer> processController = new LocalProcessController<>(
+      LocalMetadataProcessController<JobletConfigMetadata, Integer> processController = new LocalMetadataProcessController<>(
           notifier,
           new FsHelper(pidDir.getPath()),
           new LocalProcessPidProcessor(),
