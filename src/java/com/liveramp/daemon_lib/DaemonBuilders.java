@@ -9,7 +9,10 @@ import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 
 public class DaemonBuilders {
 
-  @Deprecated   // use DaemonBuildersInternal.forked -- armaan
+  /**
+   * @deprecated use DaemonBuildersInternal.forked -- armaan
+   */
+  @Deprecated
   public static <T extends JobletConfig> ForkingDaemonBuilder<T> forked(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer) throws IllegalAccessException, IOException, InstantiationException {
     return new ForkingDaemonBuilder<>(
         workingDir,
@@ -20,7 +23,10 @@ public class DaemonBuilders {
     );
   }
 
-  @Deprecated // use DaemonBuildersInternal.forked -- armaan
+  /**
+   * @deprecated use DaemonBuildersInternal.forked -- armaan
+   */
+  @Deprecated
   public static <T extends JobletConfig> ForkingDaemonBuilder<T> forked(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> jobletConfigProducer, ProcessJobletRunner jobletRunner) throws IllegalAccessException, IOException, InstantiationException {
     return new ForkingDaemonBuilder<>(
         workingDir,
