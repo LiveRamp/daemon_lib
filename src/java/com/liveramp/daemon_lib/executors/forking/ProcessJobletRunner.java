@@ -9,6 +9,4 @@ import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 
 public interface ProcessJobletRunner<Pid> {
   Pid run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException, ClassNotFoundException;
-
-  void shutdown();
 }

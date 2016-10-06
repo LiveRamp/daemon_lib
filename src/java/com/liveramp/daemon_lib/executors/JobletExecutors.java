@@ -17,6 +17,7 @@ import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
+import com.liveramp.daemon_lib.executors.processes.local.JobletConfigMetadataFactory;
 import com.liveramp.daemon_lib.executors.processes.local.LocalMetadataProcessController;
 import com.liveramp.daemon_lib.executors.processes.local.LocalProcessPidProcessor;
 import com.liveramp.daemon_lib.executors.processes.local.PsRunningProcessGetter;
@@ -38,7 +39,7 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T,JobletConfigMetadata,Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T,JobletConfigMetadata,Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
@@ -51,13 +52,15 @@ public class JobletExecutors {
           notifier,
           new FsHelper(pidDir.getPath()),
           new LocalProcessPidProcessor(),
-          new JobletProcessHandler<T, Integer>(successCallback, failureCallback, configStore, jobletStatusManager),
+          new JobletProcessHandler<T, Integer, JobletConfigMetadata>(successCallback, failureCallback, configStore, jobletStatusManager),
           new PsRunningProcessGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
       );
 
-      return new ForkedJobletExecutor.Builder<>(tmpPath, jobletFactoryClass, configStore, processController, jobletRunner, failureCallback)
+      JobletConfigMetadataFactory metadataFactory = new JobletConfigMetadataFactory();
+
+      return new ForkedJobletExecutor.Builder<>(tmpPath, jobletFactoryClass, configStore, processController, metadataFactory, jobletRunner, failureCallback)
           .setMaxProcesses(maxProcesses)
           .putAllEnvVariables(envVariables)
           .build();
@@ -83,7 +86,7 @@ public class JobletExecutors {
     }
   }
 
-  private static boolean hasNoArgConstructor(Class klass) {
+  public static boolean hasNoArgConstructor(Class klass) {
     for (Constructor constructor : klass.getConstructors()) {
       if (constructor.getParameterTypes().length == 0) {
         return true;

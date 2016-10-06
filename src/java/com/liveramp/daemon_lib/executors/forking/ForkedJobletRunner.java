@@ -41,11 +41,6 @@ public class ForkedJobletRunner implements ProcessJobletRunner<Integer> {
     return pid;
   }
 
-  @Override
-  public void shutdown() {
-
-  }
-
   private static void prepareScript() throws IOException {
     File productionScript = new File(JOBLET_RUNNER_SCRIPT);
     if (!productionScript.exists()) {

@@ -62,7 +62,7 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
 
   }
 
-  public static class Builder<S extends JobletConfig, M extends JobletConfigMetadata, Pid> {
+  public static class Builder<S extends JobletConfig, M extends ProcessMetadata, Pid> {
     private static final int DEFAULT_MAX_PROCESSES = 1;
 
     private int maxProcesses;
@@ -75,7 +75,7 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
     private JobletCallback<? super S> failureCallback;
     private MetadataFactory<M> metadataFactory;
 
-    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<M, Pid> processController, ProcessJobletRunner jobletRunner, JobletCallback<? super S> failureCallback) {
+    public Builder(String workingDir, Class<? extends JobletFactory<? extends S>> jobletFactoryClass, JobletConfigStorage<S> configStorage, ProcessController<M, Pid> processController, MetadataFactory<M> metadataFactory, ProcessJobletRunner<Pid> jobletRunner, JobletCallback<? super S> failureCallback) {
       this.workingDir = workingDir;
       this.jobletFactoryClass = jobletFactoryClass;
       this.configStorage = configStorage;
@@ -85,6 +85,7 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
       this.envVariables = new HashMap<>();
       this.jobletRunner = jobletRunner;
       this.failureCallback = failureCallback;
+      this.metadataFactory = metadataFactory;
     }
 
     public Builder<S, M, Pid> setMaxProcesses(int maxProcesses) {
@@ -132,7 +133,7 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
       return this;
     }
 
-    public Builder<S, M, Pid> setWorkingDir(MetadataFactory<M> metadataFactory) {
+    public Builder<S, M, Pid> setMetadataFactory(MetadataFactory<M> metadataFactory) {
       this.metadataFactory = metadataFactory;
       return this;
     }

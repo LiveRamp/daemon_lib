@@ -31,12 +31,12 @@ public class LocalMetadataProcessController<T extends ProcessMetadata, Pid> impl
   private final FsHelper fsHelper;
   private FileNamePidProcessor<Pid> pidProcessor;
   private final ProcessHandler<T, Pid> processHandler;
-  private final RunningProcessGetter<Pid, ?> runningProcessGetter;
+  private final RunningProcessGetter<Pid, ?, T> runningProcessGetter;
   private final ProcessMetadata.Serializer<T> metadataSerializer;
 
   private volatile List<ProcessDefinition<T, Pid>> currentProcesses;
 
-  public LocalMetadataProcessController(DaemonNotifier notifier, FsHelper fsHelper, FileNamePidProcessor<Pid> pidProcessor, ProcessHandler<T, Pid> processHandler, RunningProcessGetter runningProcessGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+  public LocalMetadataProcessController(DaemonNotifier notifier, FsHelper fsHelper, FileNamePidProcessor<Pid> pidProcessor, ProcessHandler<T, Pid> processHandler, RunningProcessGetter<Pid,?, T> runningProcessGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
     this.notifier = notifier;
     this.fsHelper = fsHelper;
     this.pidProcessor = pidProcessor;
@@ -88,7 +88,7 @@ public class LocalMetadataProcessController<T extends ProcessMetadata, Pid> impl
     public void run() {
       try {
         List<ProcessDefinition<T, Pid>> watchedProcesses = getWatchedProcesses(fsHelper);
-        Map<Pid, ?> runningPids = runningProcessGetter.getPids();
+        Map<Pid, ?> runningPids = runningProcessGetter.getPids(watchedProcesses);
         Iterator<ProcessDefinition<T, Pid>> iterator = watchedProcesses.iterator();
         while (iterator.hasNext()) {
           ProcessDefinition<T, Pid> watchedProcess = iterator.next();

@@ -49,11 +49,6 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
     return ProcessUtil.run(processBuilder);
   }
 
-  @Override
-  public void shutdown() {
-
-  }
-
   public static class Builder {
     private static final String DEFAULT_COMMAND = "java";
 
