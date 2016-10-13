@@ -3,14 +3,18 @@ package com.liveramp.daemon_lib.executors.processes.local;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-public class PsPidGetter implements PidGetter {
+import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
+import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
+
+public class PsRunningProcessGetter implements RunningProcessGetter<Integer, RunningProcessGetter.PidData, JobletConfigMetadata> {
 
   @Override
-  public Map<Integer, PidData> getPids() throws IOException {
+  public Map<Integer, PidData> getPids(List<ProcessDefinition<JobletConfigMetadata, Integer>> unused) throws IOException {
     Map<Integer, PidData> pidToCommand = Maps.newHashMap();
     Process p = Runtime.getRuntime().exec("ps -Aopid,command");
 
@@ -39,7 +43,7 @@ public class PsPidGetter implements PidGetter {
   }
 
   public static void main(String[] args) throws IOException {
-    PsPidGetter pidGetter = new PsPidGetter();
-    System.out.println(pidGetter.getPids());
+    PsRunningProcessGetter pidGetter = new PsRunningProcessGetter();
+    System.out.println(pidGetter.getPids(null));
   }
 }

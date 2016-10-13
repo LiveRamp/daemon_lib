@@ -19,12 +19,12 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 import com.liveramp.java_support.RunJarUtil;
 
-public class ForkedJobletRunner implements ProcessJobletRunner {
+public class ForkedJobletRunner implements ProcessJobletRunner<Integer> {
   private static final String JOBLET_RUNNER_SCRIPT = "bin/joblet_runner.sh";
   private static final String JOBLET_RUNNER_SCRIPT_SOURCE = "com/liveramp/daemon_lib/utils/joblet_runner.txt";
 
   @Override
-  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException, ClassNotFoundException {
+  public Integer run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass, JobletConfigStorage configStore, String cofigIdentifier, Map<String, String> envVariables, String workingDir) throws IOException, ClassNotFoundException {
     prepareScript();
 
     URL launchJar = RunJarUtil.getLaunchJarURL();

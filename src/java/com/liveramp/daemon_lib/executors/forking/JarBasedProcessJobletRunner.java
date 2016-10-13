@@ -13,7 +13,7 @@ import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class JarBasedProcessJobletRunner implements ProcessJobletRunner {
+public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer> {
   private static final Logger LOG = getLogger(JarBasedProcessJobletRunner.class);
 
   private final String executableCommand;
@@ -25,7 +25,7 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner {
   }
 
   @Override
-  public int run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass,
+  public Integer run(Class<? extends JobletFactory<? extends JobletConfig>> jobletFactoryClass,
                  JobletConfigStorage configStore,
                  String cofigIdentifier,
                  Map<String, String> envVariables,

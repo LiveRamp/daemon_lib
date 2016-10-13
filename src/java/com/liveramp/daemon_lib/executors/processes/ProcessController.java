@@ -2,8 +2,8 @@ package com.liveramp.daemon_lib.executors.processes;
 
 import java.util.List;
 
-public interface ProcessController<T extends ProcessMetadata> {
-  void registerProcess(int pid, T metadata) throws ProcessControllerException;
+public interface ProcessController<T extends ProcessMetadata, Pid> {
+  void registerProcess(Pid pid, T metadata) throws ProcessControllerException;
 
-  List<ProcessDefinition<T>> getProcesses() throws ProcessControllerException;
+  List<ProcessDefinition<T, Pid>> getProcesses() throws ProcessControllerException;
 }

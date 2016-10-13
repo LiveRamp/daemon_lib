@@ -17,12 +17,12 @@ public class FsHelper {
     return new File(basePath);
   }
 
-  public File getPidPath(int pid) {
-    return new File(basePath, Integer.valueOf(pid).toString());
+  public <Pid> File getPidPath(Pid pid) {
+    return new File(basePath, pid.toString());
   }
 
-  public File getPidTmpPath(int pid) {
-    return new File(basePath, Integer.valueOf(pid).toString() + "_tmp");
+  public <Pid> File getPidTmpPath(Pid pid) {
+    return new File(basePath, pid.toString() + "_tmp");
   }
 
   public void writeMetadata(File path, byte[] metadata) throws IOException {
