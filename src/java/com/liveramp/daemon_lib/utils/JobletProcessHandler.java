@@ -30,7 +30,7 @@ public class JobletProcessHandler<T extends JobletConfig, Pid, M extends Process
 
   @Override
   public void onRemove(ProcessDefinition<M, Pid> watchedProcess) throws DaemonException {
-    LOG.info("Removing process with PID: "+watchedProcess.getPid());
+    LOG.info("Removing process with PID: " + watchedProcess.getPid());
     final String identifier = watchedProcess.getMetadata().getIdentifier();
 
     final T jobletConfig;
@@ -45,11 +45,11 @@ public class JobletProcessHandler<T extends JobletConfig, Pid, M extends Process
         JobletStatus status = jobletStatusManager.getStatus(identifier);
         switch (status) {
           case DONE:
-            LOG.info("Process succeeded - PID: "+watchedProcess.getPid());
+            LOG.info("Process succeeded - PID: " + watchedProcess.getPid());
             successCallback.callback(jobletConfig);
             break;
           default:
-            LOG.info("Process failed - PID: "+watchedProcess.getPid());
+            LOG.info("Process failed - PID: " + watchedProcess.getPid());
             failureCallback.callback(jobletConfig);
             break;
         }
@@ -59,8 +59,8 @@ public class JobletProcessHandler<T extends JobletConfig, Pid, M extends Process
       } catch (Exception e) {
         throw new DaemonException(String.format("Error processing config %s", jobletConfig), e);
       }
-    }else{
-      LOG.info("No Managed Status Found - PID: "+watchedProcess.getPid());
+    } else {
+      LOG.info("No Managed Status Found - PID: " + watchedProcess.getPid());
     }
   }
 }
