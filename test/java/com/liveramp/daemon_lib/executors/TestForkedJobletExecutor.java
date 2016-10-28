@@ -13,7 +13,7 @@ import com.liveramp.daemon_lib.DaemonLibTestCase;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.executors.forking.ForkedJobletRunner;
+import com.liveramp.daemon_lib.executors.forking.JarBasedProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.MetadataFactory;
 import com.liveramp.daemon_lib.executors.processes.ProcessController;
@@ -48,9 +48,9 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
   public void setup() {
     this.configStorage = Mockito.mock(JobletConfigStorage.class);
     this.processController = Mockito.mock(ProcessController.class);
-    this.jobletRunner = Mockito.mock(ForkedJobletRunner.class);
+    this.jobletRunner = Mockito.mock(JarBasedProcessJobletRunner.class);
     this.metadataFactory = Mockito.mock(MetadataFactory.class);
-    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner, metadataFactory,Maps.<String, String>newHashMap(), TEST_ROOT, new JobletCallback.None<>());
+    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner, metadataFactory, Maps.<String, String>newHashMap(), TEST_ROOT, new JobletCallback.None<>());
 
     this.config = Mockito.mock(JobletConfig.class);
   }
