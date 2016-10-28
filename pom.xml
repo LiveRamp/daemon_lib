@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project>
   <modelVersion>4.0.0</modelVersion>
 
-  <!--TODO replace with your project name-->
   <artifactId>daemon_lib</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <parent>
     <groupId>com.liveramp</groupId>
-    <artifactId>pom-ant-structure</artifactId>
+    <artifactId>pom-common</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-
-  <properties>
-    <skip.db.init>true</skip.db.init>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -63,13 +57,13 @@
 
   <repositories>
     <repository>
-      <id>all-snapshots</id>
-      <url>http://artifactory.liveramp.net/artifactory/all-snapshots</url>
+      <id>liveramp-repositories</id>
+      <name>Liveramp Repositories</name>
+      <url>http://repository.liveramp.com/artifactory/liveramp-repositories</url>
       <snapshots>
         <enabled>true</enabled>
         <updatePolicy>always</updatePolicy>
       </snapshots>
     </repository>
   </repositories>
-
 </project>
