@@ -6,7 +6,7 @@ import java.util.Map;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 
-public interface RunningProcessGetter<Pid, PidData, M extends ProcessMetadata> {
+public interface RunningProcessGetter<Pid, PidDataType, M extends ProcessMetadata> {
 
   class PidData {
     String command;
@@ -19,6 +19,6 @@ public interface RunningProcessGetter<Pid, PidData, M extends ProcessMetadata> {
     }
   }
 
-  Map<Pid, PidData> getPids(List<ProcessDefinition<M,Pid>> definitions) throws Exception;
+  Map<Pid, PidDataType> getPids(List<ProcessDefinition<M,Pid>> definitions) throws Exception;
 
 }
