@@ -97,6 +97,7 @@ public class Daemon<T extends JobletConfig> {
   }
 
   public final void start() {
+    LOG.info("Running open-source version of daemon_lib");
     LOG.info("Starting daemon {}", getDaemonSignature());
     running = true;
 
