@@ -79,8 +79,8 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
       return this;
     }
 
-    public Builder addJvmOptions(String... options) {
-      jvmOptions.addAll(Arrays.asList(options));
+    public Builder addJvmOptions(String... jvmOptions) {
+      this.jvmOptions.addAll(Arrays.asList(jvmOptions));
       return this;
     }
 
