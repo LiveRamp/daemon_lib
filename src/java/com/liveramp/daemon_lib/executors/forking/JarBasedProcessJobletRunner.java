@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 
 import com.liveramp.daemon_lib.JobletConfig;
@@ -36,7 +35,7 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
                      String cofigIdentifier,
                      Map<String, String> envVariables,
                      String workingDir) throws IOException, ClassNotFoundException {
-    ImmutableList.Builder<String> commandListBuilder = ImmutableList.builder();
+    List<String> commandListBuilder = new ArrayList<>();
     commandListBuilder.add(executableCommand);
     commandListBuilder.addAll(jvmOptions);
     commandListBuilder.addAll(Arrays.asList(
@@ -48,7 +47,7 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
         workingDir,
         cofigIdentifier
     ));
-    ProcessBuilder processBuilder = new ProcessBuilder(commandListBuilder.build());
+    ProcessBuilder processBuilder = new ProcessBuilder(commandListBuilder);
 
     processBuilder.environment().putAll(envVariables);
 
