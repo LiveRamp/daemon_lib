@@ -71,7 +71,7 @@
   <repositories>
     <repository>
       <id>all-snapshots</id>
-      <url>http://artifactory.liveramp.net/artifactory/all-snapshots</url>
+      <url>http://library.liveramp.net/artifactory/all-snapshots</url>
       <snapshots>
         <enabled>true</enabled>
         <updatePolicy>always</updatePolicy>
