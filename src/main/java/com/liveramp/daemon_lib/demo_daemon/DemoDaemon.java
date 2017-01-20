@@ -6,6 +6,7 @@ import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.executors.forking.JarBasedProcessJobletRunner;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 public class DemoDaemon {
@@ -58,7 +59,8 @@ public class DemoDaemon {
         "/tmp/daemons",
         "demo",
         Factory.class,
-        new Producer()
+        new Producer(),
+        JarBasedProcessJobletRunner.builder(".").build()
     )
         .setMaxProcesses(4)
         .setConfigWaitSeconds(1)
