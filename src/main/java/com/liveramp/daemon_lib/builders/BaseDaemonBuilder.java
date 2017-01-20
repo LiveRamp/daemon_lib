@@ -1,5 +1,9 @@
 package com.liveramp.daemon_lib.builders;
 
+import java.io.IOException;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.DaemonLock;
 import com.liveramp.daemon_lib.DaemonNotifier;
@@ -12,10 +16,8 @@ import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconf
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionConditions;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionConditions;
+import com.liveramp.daemon_lib.utils.LoggingForwardingNotifier;
 import com.liveramp.daemon_lib.utils.NoOpDaemonNotifier;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
 
 public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDaemonBuilder<T, K>> {
   protected final String identifier;
@@ -103,7 +105,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
 
   @SuppressWarnings("unchecked")
   private K self() {
-    return (K) this;
+    return (K)this;
   }
 
   @NotNull
@@ -112,6 +114,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   @NotNull
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
     final JobletExecutor<T> executor = getExecutor();
+    LoggingForwardingNotifier notifier = new LoggingForwardingNotifier(this.notifier);
     return new Daemon<>(identifier, executor, configProducer, onNewConfigCallback, lock, notifier, options, ExecutionConditions.and(executor.getDefaultExecutionCondition(), additionalExecutionCondition), postConfigExecutionCondition);
   }
 }
