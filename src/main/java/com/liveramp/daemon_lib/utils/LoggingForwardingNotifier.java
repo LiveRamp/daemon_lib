@@ -1,4 +1,4 @@
-package com.liveramp.daemon_lib.utils;
+package java.com.liveramp.daemon_lib.utils;
 
 import com.google.common.base.Optional;
 import org.slf4j.Logger;
