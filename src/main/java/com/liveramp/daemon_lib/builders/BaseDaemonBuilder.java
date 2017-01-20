@@ -16,7 +16,7 @@ import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconf
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionConditions;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionConditions;
-import java.com.liveramp.daemon_lib.utils.LoggingForwardingNotifier;
+import com.liveramp.daemon_lib.utils.LoggingForwardingNotifier;
 import com.liveramp.daemon_lib.utils.NoOpDaemonNotifier;
 
 public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDaemonBuilder<T, K>> {
