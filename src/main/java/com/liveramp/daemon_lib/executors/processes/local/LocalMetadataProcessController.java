@@ -22,6 +22,7 @@ import com.liveramp.daemon_lib.executors.processes.ProcessControllerException;
 import com.liveramp.daemon_lib.executors.processes.ProcessDefinition;
 import com.liveramp.daemon_lib.executors.processes.ProcessMetadata;
 import com.liveramp.daemon_lib.utils.DaemonException;
+import com.liveramp.daemon_lib.utils.HostUtil;
 
 
 public class LocalMetadataProcessController<T extends ProcessMetadata, Pid> implements ProcessController<T, Pid> {
@@ -100,7 +101,7 @@ public class LocalMetadataProcessController<T extends ProcessMetadata, Pid> impl
             } catch (DaemonException e) {
               LOG.error("Exception while handling process termination.", e);
               notifier.notify(
-                  "Error handling joblet termination in daemon for joblet with pid " + watchedProcess.getPid(),
+                  String.format("Error handling joblet termination in daemon for joblet with pid %s on %s", watchedProcess.getPid(), HostUtil.safeGetHostName()),
                   Optional.of(String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e))),
                   Optional.<Throwable>absent()
               );
