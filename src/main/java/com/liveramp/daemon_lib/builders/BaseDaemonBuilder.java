@@ -115,6 +115,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
     final JobletExecutor<T> executor = getExecutor();
     LoggingForwardingNotifier notifier = new LoggingForwardingNotifier(this.notifier);
-    return new Daemon<>(identifier, executor, configProducer, onNewConfigCallback, lock, notifier, options, ExecutionConditions.and(executor.getDefaultExecutionCondition(), additionalExecutionCondition), postConfigExecutionCondition);
+    return new Daemon<>(identifier, executor, configProducer, onNewConfigCallback, lock, notifier, options, additionalExecutionCondition, postConfigExecutionCondition);
   }
 }

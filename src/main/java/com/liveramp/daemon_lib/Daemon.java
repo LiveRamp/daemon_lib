@@ -1,14 +1,16 @@
 package com.liveramp.daemon_lib;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.base.Optional;
-import com.liveramp.daemon_lib.executors.JobletExecutor;
-import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionCondition;
-import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
-import com.liveramp.daemon_lib.utils.DaemonException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
+import com.liveramp.daemon_lib.executors.JobletExecutor;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionCondition;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionConditions;
+import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.HostUtil;
 
 public class Daemon<T extends JobletConfig> {
@@ -116,7 +118,7 @@ public class Daemon<T extends JobletConfig> {
   }
 
   protected boolean processNext() {
-    if (executionCondition.canExecute()) {
+    if (ExecutionConditions.and(executor.getDefaultExecutionCondition(), executionCondition).canExecute()) {
       T jobletConfig;
       try {
         lock.lock();

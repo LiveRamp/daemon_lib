@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Supplier;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -39,7 +40,7 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T,JobletConfigMetadata,Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T,JobletConfigMetadata,Integer> get(DaemonNotifier notifier, String tmpPath, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner, Supplier<ForkedJobletExecutor.Config> executorConfigSupplier) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
@@ -61,7 +62,7 @@ public class JobletExecutors {
       JobletConfigMetadataFactory metadataFactory = new JobletConfigMetadataFactory();
 
       return new ForkedJobletExecutor.Builder<>(tmpPath, jobletFactoryClass, configStore, processController, metadataFactory, jobletRunner, failureCallback)
-          .setMaxProcesses(maxProcesses)
+          .setExecutorConfigSupplier(executorConfigSupplier)
           .putAllEnvVariables(envVariables)
           .build();
     }
@@ -70,19 +71,17 @@ public class JobletExecutors {
   public static class Threaded {
     @Deprecated
     public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(int maxActiveJoblets, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletCallback<T> successCallbacks, JobletCallback<T> failureCallbacks) throws IllegalAccessException, InstantiationException {
-      return get(maxActiveJoblets, jobletFactoryClass.newInstance(), successCallbacks, failureCallbacks);
+      return get(jobletFactoryClass.newInstance(), successCallbacks, failureCallbacks, () -> new ThreadedJobletExecutor.Config(maxActiveJoblets));
     }
 
-    public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(int maxActiveJoblets, JobletFactory<T> jobletFactory, JobletCallback<T> successCallbacks, JobletCallback<T> failureCallbacks) throws IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(JobletFactory<T> jobletFactory, JobletCallback<T> successCallbacks, JobletCallback<T> failureCallbacks, Supplier<ThreadedJobletExecutor.Config> threadedExecutorConfigSupplier) throws IllegalAccessException, InstantiationException {
       Preconditions.checkNotNull(jobletFactory);
-      Preconditions.checkArgument(maxActiveJoblets > 0);
 
-      ThreadPoolExecutor threadPool = (ThreadPoolExecutor)Executors.newFixedThreadPool(
-          maxActiveJoblets,
+      ThreadPoolExecutor threadPool = (ThreadPoolExecutor)Executors.newCachedThreadPool(
           new ThreadFactoryBuilder().setNameFormat("joblet-executor-%d").build()
       );
 
-      return new ThreadedJobletExecutor<>(threadPool, jobletFactory, successCallbacks, failureCallbacks);
+      return new ThreadedJobletExecutor<>(threadPool, jobletFactory, successCallbacks, failureCallbacks, threadedExecutorConfigSupplier);
     }
   }
 
