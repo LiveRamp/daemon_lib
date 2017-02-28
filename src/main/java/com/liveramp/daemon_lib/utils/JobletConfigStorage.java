@@ -37,7 +37,10 @@ public class JobletConfigStorage<T extends JobletConfig> {
 
   public T loadConfig(String identifier) throws IOException, ClassNotFoundException {
     try {
-      ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getPath(identifier)));
+      FileInputStream in = new FileInputStream(getPath(identifier));
+      ObjectInputStream ois = System.getProperty("joblet.config.serverid.recover") == null ?
+          new ObjectInputStream(in) :
+          new JobletConfigRecoveryStream(in);
       T config = (T)ois.readObject();
       ois.close();
 
