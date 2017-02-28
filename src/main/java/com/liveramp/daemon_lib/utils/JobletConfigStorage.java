@@ -13,7 +13,6 @@ import org.apache.commons.lang.SerializationUtils;
 import com.liveramp.daemon_lib.JobletConfig;
 
 public class JobletConfigStorage<T extends JobletConfig> {
-  public static final String JOBLET_CONFIG_SERIAL_VERSION_UID_RECOVERY_PROPERTY = "joblet.config.serverid.recover";
   private final String basePath;
 
   public JobletConfigStorage(String basePath) {
@@ -38,10 +37,7 @@ public class JobletConfigStorage<T extends JobletConfig> {
 
   public T loadConfig(String identifier) throws IOException, ClassNotFoundException {
     try {
-      FileInputStream in = new FileInputStream(getPath(identifier));
-      ObjectInputStream ois = System.getProperty(JOBLET_CONFIG_SERIAL_VERSION_UID_RECOVERY_PROPERTY) == null ?
-          new ObjectInputStream(in) :
-          new JobletConfigRecoveryStream(in);
+      ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getPath(identifier)));
       T config = (T)ois.readObject();
       ois.close();
 
