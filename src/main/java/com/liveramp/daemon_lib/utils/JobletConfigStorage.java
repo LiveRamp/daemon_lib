@@ -14,8 +14,6 @@ import com.liveramp.daemon_lib.JobletConfig;
 
 public class JobletConfigStorage<T extends JobletConfig> {
   public static final String JOBLET_CONFIG_SERIAL_VERSION_UID_RECOVERY_PROPERTY = "joblet.config.serverid.recover";
-  public static final String JOBLET_CONFIG_SERIAL_VERSION_UID_RECOVERY_VAR = "JOBLET_CONFIG_SER_VER_RECOVER";
-
   private final String basePath;
 
   public JobletConfigStorage(String basePath) {
@@ -41,9 +39,7 @@ public class JobletConfigStorage<T extends JobletConfig> {
   public T loadConfig(String identifier) throws IOException, ClassNotFoundException {
     try {
       FileInputStream in = new FileInputStream(getPath(identifier));
-      String property = System.getProperty(JOBLET_CONFIG_SERIAL_VERSION_UID_RECOVERY_PROPERTY);
-      String var = System.getenv(JOBLET_CONFIG_SERIAL_VERSION_UID_RECOVERY_VAR);
-      ObjectInputStream ois = property == null && var == null ?
+      ObjectInputStream ois = System.getProperty(JOBLET_CONFIG_SERIAL_VERSION_UID_RECOVERY_PROPERTY) == null ?
           new ObjectInputStream(in) :
           new JobletConfigRecoveryStream(in);
       T config = (T)ois.readObject();
