@@ -37,7 +37,7 @@ public class LocalMetadataProcessController<T extends ProcessMetadata, Pid> impl
 
   private volatile List<ProcessDefinition<T, Pid>> currentProcesses;
 
-  public LocalMetadataProcessController(DaemonNotifier notifier, FsHelper fsHelper, FileNamePidProcessor<Pid> pidProcessor, ProcessHandler<T, Pid> processHandler, RunningProcessGetter<Pid,?, T> runningProcessGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
+  public LocalMetadataProcessController(DaemonNotifier notifier, FsHelper fsHelper, FileNamePidProcessor<Pid> pidProcessor, ProcessHandler<T, Pid> processHandler, RunningProcessGetter<Pid, ?, T> runningProcessGetter, int pollDelay, ProcessMetadata.Serializer<T> metadataSerializer) {
     this.notifier = notifier;
     this.fsHelper = fsHelper;
     this.pidProcessor = pidProcessor;
@@ -53,7 +53,7 @@ public class LocalMetadataProcessController<T extends ProcessMetadata, Pid> impl
             .setNameFormat("process watcher")
             .setUncaughtExceptionHandler(UncaughtExceptionHandlers.systemExit())
             .build()
-    ).scheduleAtFixedRate(new ProcessesWatcher(), 0, pollDelay, TimeUnit.MILLISECONDS);
+    ).scheduleWithFixedDelay(new ProcessesWatcher(), 0, pollDelay, TimeUnit.MILLISECONDS);
   }
 
   @Override
