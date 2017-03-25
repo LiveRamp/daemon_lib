@@ -12,8 +12,8 @@ import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.executors.config.ExecutorConfig;
-import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.DefaultThreadedExecutionCondition;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionConditions;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
 public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExecutor<T> {
@@ -25,12 +25,16 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
   private final JobletCallback<T> failureCallback;
   private final Supplier<Config> executorConfigSupplier;
 
+  private Config config;
+
   public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallback<T> successCallback, JobletCallback<T> failureCallback, Supplier<Config> executorConfigSupplier) {
     this.threadPool = threadPool;
     this.jobletFactory = jobletFactory;
     this.successCallback = successCallback;
     this.failureCallback = failureCallback;
     this.executorConfigSupplier = executorConfigSupplier;
+
+    this.config = executorConfigSupplier.get();
   }
 
   @Override
@@ -53,14 +57,16 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
 
   @Override
   public ExecutionCondition getDefaultExecutionCondition() {
-    return new DefaultThreadedExecutionCondition(threadPool);
+    return ExecutionConditions.and(
+        () -> threadPool.getActiveCount() < threadPool.getMaximumPoolSize(),
+        () -> threadPool.getActiveCount() < config.numJoblets);
   }
 
   @Override
   public void reloadConfiguration() {
-    final Config config = executorConfigSupplier.get();
+    config = executorConfigSupplier.get();
     threadPool.setCorePoolSize(config.numJoblets);
-    threadPool.setMaximumPoolSize(config.numJoblets);
+    threadPool.setMaximumPoolSize(config.numJoblets > 0 ? config.numJoblets : 1);
   }
 
   @Override
