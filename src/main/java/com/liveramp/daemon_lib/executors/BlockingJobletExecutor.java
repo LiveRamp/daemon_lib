@@ -36,6 +36,11 @@ public class BlockingJobletExecutor<T extends JobletConfig> implements JobletExe
   }
 
   @Override
+  public void reloadConfiguration() {
+
+  }
+
+  @Override
   public void shutdown() {
 
   }

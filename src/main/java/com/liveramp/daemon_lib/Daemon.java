@@ -118,6 +118,7 @@ public class Daemon<T extends JobletConfig> {
   }
 
   protected boolean processNext() {
+    executor.reloadConfiguration();
     if (ExecutionConditions.and(executor.getDefaultExecutionCondition(), executionCondition).canExecute()) {
       T jobletConfig;
       try {

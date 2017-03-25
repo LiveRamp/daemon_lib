@@ -53,7 +53,14 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
 
   @Override
   public ExecutionCondition getDefaultExecutionCondition() {
-    return new DefaultThreadedExecutionCondition(threadPool, executorConfigSupplier.get());
+    return new DefaultThreadedExecutionCondition(threadPool);
+  }
+
+  @Override
+  public void reloadConfiguration() {
+    final Config config = executorConfigSupplier.get();
+    threadPool.setCorePoolSize(config.numJoblets);
+    threadPool.setMaximumPoolSize(config.numJoblets);
   }
 
   @Override

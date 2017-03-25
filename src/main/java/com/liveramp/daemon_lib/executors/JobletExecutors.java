@@ -77,7 +77,8 @@ public class JobletExecutors {
     public static <T extends JobletConfig> ThreadedJobletExecutor<T> get(JobletFactory<T> jobletFactory, JobletCallback<T> successCallbacks, JobletCallback<T> failureCallbacks, Supplier<ThreadedJobletExecutor.Config> threadedExecutorConfigSupplier) throws IllegalAccessException, InstantiationException {
       Preconditions.checkNotNull(jobletFactory);
 
-      ThreadPoolExecutor threadPool = (ThreadPoolExecutor)Executors.newCachedThreadPool(
+      ThreadPoolExecutor threadPool = (ThreadPoolExecutor)Executors.newFixedThreadPool(
+          threadedExecutorConfigSupplier.get().numJoblets,
           new ThreadFactoryBuilder().setNameFormat("joblet-executor-%d").build()
       );
 

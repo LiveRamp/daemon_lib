@@ -95,7 +95,7 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
       }
     });
 
-    final DefaultThreadedExecutionCondition defaultThreadedExecutionCondition = new DefaultThreadedExecutionCondition(pool, new ThreadedJobletExecutor.Config(2));
+    final DefaultThreadedExecutionCondition defaultThreadedExecutionCondition = new DefaultThreadedExecutionCondition(pool);
 
     Assert.assertTrue(defaultThreadedExecutionCondition.canExecute());
     jobletExecutor.execute(config);

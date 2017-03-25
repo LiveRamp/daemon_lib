@@ -29,6 +29,8 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
   private final JobletCallback<? super T> failureCallback;
   private final Supplier<Config> configSupplier;
 
+  private int numJoblets;
+
   ForkedJobletExecutor(Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<M, Pid> processController, ProcessJobletRunner<Pid> jobletRunner, MetadataFactory<M> metadataFactory, Map<String, String> envVariables, String workingDir, JobletCallback<? super T> failureCallback, Supplier<Config> configSupplier) {
     this.jobletFactoryClass = jobletFactoryClass;
     this.configStorage = configStorage;
@@ -39,6 +41,8 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
     this.workingDir = workingDir;
     this.failureCallback = failureCallback;
     this.configSupplier = configSupplier;
+
+    this.numJoblets = configSupplier.get().numJoblets;
   }
 
   @Override
@@ -55,7 +59,12 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
 
   @Override
   public ExecutionCondition getDefaultExecutionCondition() {
-    return new DefaultForkedExecutionCondition(processController, configSupplier.get().numJoblets);
+    return new DefaultForkedExecutionCondition(processController, numJoblets);
+  }
+
+  @Override
+  public void reloadConfiguration() {
+    numJoblets = configSupplier.get().numJoblets;
   }
 
   @Override

@@ -9,5 +9,7 @@ public interface JobletExecutor<T extends JobletConfig> {
 
   ExecutionCondition getDefaultExecutionCondition();
 
+  void reloadConfiguration();
+
   void shutdown();
 }
