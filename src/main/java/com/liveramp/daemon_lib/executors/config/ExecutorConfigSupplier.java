@@ -15,7 +15,11 @@ public class ExecutorConfigSupplier<T extends ExecutorConfig> implements Supplie
   @Override
   public T get() {
     final byte[] bytes = reader.get();
-    return deserializer.apply(bytes);
+    if (bytes == null) {
+      return null;
+    } else {
+      return deserializer.apply(bytes);
+    }
   }
 
   @Override
