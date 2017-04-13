@@ -98,11 +98,6 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
       this.executorConfigSupplier = () -> new Config(DEFAULT_MAX_PROCESSES);
     }
 
-    public Builder<S, M, Pid> setMaxProcesses(int maxProcesses) {
-      this.executorConfigSupplier = () -> new Config(maxProcesses);
-      return this;
-    }
-
     public Builder<S, M, Pid> setJobletFactoryClass(Class<? extends JobletFactory<? extends S>> jobletFactoryClass) {
       this.jobletFactoryClass = jobletFactoryClass;
       return this;
