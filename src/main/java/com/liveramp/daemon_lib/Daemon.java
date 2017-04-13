@@ -105,6 +105,7 @@ public class Daemon<T extends JobletConfig> {
 
     try {
       while (running) {
+        executor.reloadConfiguration();
         if (!processNext()) {
           silentSleep(options.failureWaitSeconds);
         }
@@ -118,7 +119,6 @@ public class Daemon<T extends JobletConfig> {
   }
 
   protected boolean processNext() {
-    executor.reloadConfiguration();
     if (ExecutionConditions.and(executor.getDefaultExecutionCondition(), executionCondition).canExecute()) {
       T jobletConfig;
       try {
