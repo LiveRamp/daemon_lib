@@ -43,7 +43,7 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
     successCallback = new JobletCallback.None<>();
     failureCallback = new JobletCallback.None<>();
 
-    executorConfigSupplier = () -> new ForkedJobletExecutor.Config(DEFAULT_MAX_PROCESSES);
+    executorConfigSupplier = null;
   }
 
   public ForkingDaemonBuilder<T> setMaxProcesses(int maxProcesses) {
@@ -75,7 +75,8 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   @Override
   protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
     final String tmpPath = new File(workingDir, identifier).getPath();
-    final Supplier<ForkedJobletExecutor.Config> compositeConfigSupplier = ExecutorConfigSuppliers.fallingBack(executorConfigSupplier, () -> new ForkedJobletExecutor.Config(maxProcesses));
+    final Supplier<ForkedJobletExecutor.Config> defaultConfigSupplier = () -> new ForkedJobletExecutor.Config(maxProcesses);
+    final Supplier<ForkedJobletExecutor.Config> compositeConfigSupplier = executorConfigSupplier == null ? defaultConfigSupplier : ExecutorConfigSuppliers.fallingBack(executorConfigSupplier, defaultConfigSupplier);
     return JobletExecutors.Forked.get(notifier, tmpPath, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, compositeConfigSupplier);
   }
 }

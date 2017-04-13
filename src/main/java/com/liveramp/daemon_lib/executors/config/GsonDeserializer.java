@@ -15,8 +15,6 @@ public class GsonDeserializer<T> implements Function<byte[], T> {
     this.gson = new Gson();
   }
 
-
-
   @Override
   public T apply(byte[] bytes) {
     return gson.fromJson(new String(bytes, Charset.forName("UTF-8")), klass);
