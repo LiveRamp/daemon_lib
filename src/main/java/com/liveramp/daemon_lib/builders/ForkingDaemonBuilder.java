@@ -11,8 +11,6 @@ import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.config_serialization.JavaJobletConfigSerializer;
-import com.liveramp.daemon_lib.config_serialization.JobletConfigSerializer;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.JobletExecutors;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
@@ -26,7 +24,6 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
   private JobletCallback<? super T> successCallback;
   private JobletCallback<? super T> failureCallback;
   private ProcessJobletRunner jobletRunner;
-  private JobletConfigSerializer<T> jobletConfigSerializer;
 
   private static final int DEFAULT_MAX_PROCESSES = 1;
   private static final Map<String, String> DEFAULT_ENV_VARS = Maps.newHashMap();
@@ -41,7 +38,6 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
     envVariables = DEFAULT_ENV_VARS;
     successCallback = new JobletCallback.None<>();
     failureCallback = new JobletCallback.None<>();
-    jobletConfigSerializer = new JavaJobletConfigSerializer<>();
   }
 
   public ForkingDaemonBuilder<T> setMaxProcesses(int maxProcesses) {
@@ -64,15 +60,10 @@ public class ForkingDaemonBuilder<T extends JobletConfig> extends BaseDaemonBuil
     return this;
   }
 
-  public ForkingDaemonBuilder<T> setJobletConfigSerializer(JobletConfigSerializer<T> jobletConfigSerializer) {
-    this.jobletConfigSerializer = jobletConfigSerializer;
-    return this;
-  }
-
   @NotNull
   @Override
   protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
     final String tmpPath = new File(workingDir, identifier).getPath();
-    return JobletExecutors.Forked.get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, jobletConfigSerializer);
+    return JobletExecutors.Forked.get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner);
   }
 }
