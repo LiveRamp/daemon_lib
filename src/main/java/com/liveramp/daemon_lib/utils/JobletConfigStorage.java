@@ -5,18 +5,23 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.liveramp.daemon_lib.JobletConfig;
+import com.liveramp.daemon_lib.config_serialization.JavaJobletConfigSerializer;
+import com.liveramp.daemon_lib.config_serialization.JobletConfigSerializer;
 
 public class JobletConfigStorage<T extends JobletConfig> {
   private final String basePath;
+  private final JobletConfigSerializer<T> jobletConfigSerializer;
 
-  public JobletConfigStorage(String basePath) {
+  public JobletConfigStorage(String basePath, JobletConfigSerializer<T> jobletConfigSerializer) {
     this.basePath = basePath;
+    this.jobletConfigSerializer = jobletConfigSerializer;
   }
 
   // Stores config and returns an identifier that can be used to retrieve it
@@ -25,9 +30,10 @@ public class JobletConfigStorage<T extends JobletConfig> {
     try {
       File path = getPath(identifier);
       FileUtils.forceMkdir(path.getParentFile());
-      FileOutputStream fos = new FileOutputStream(path);
-      SerializationUtils.serialize(config, fos);
-      fos.close();
+      try (OutputStream outputStream = new FileOutputStream(path)) {
+        byte[] serializedConfig = jobletConfigSerializer.serialize(config);
+        outputStream.write(serializedConfig);
+      }
     } catch (FileNotFoundException e) {
       throw new IOException(e);
     }
@@ -37,11 +43,10 @@ public class JobletConfigStorage<T extends JobletConfig> {
 
   public T loadConfig(String identifier) throws IOException, ClassNotFoundException {
     try {
-      ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getPath(identifier)));
-      T config = (T)ois.readObject();
-      ois.close();
-
-      return config;
+      try (InputStream inputStream = new FileInputStream(getPath(identifier))) {
+        byte[] serializedConfig = IOUtils.toByteArray(inputStream);
+        return jobletConfigSerializer.deserialize(serializedConfig);
+      }
     } catch (FileNotFoundException e) {
       throw new IOException(e);
     }
@@ -59,7 +64,11 @@ public class JobletConfigStorage<T extends JobletConfig> {
   }
 
   public static <T extends JobletConfig> JobletConfigStorage<T> production(String path) {
-    return new JobletConfigStorage<>(path);
+    return production(path, new JavaJobletConfigSerializer<>());
+  }
+
+  public static <T extends JobletConfig> JobletConfigStorage<T> production(String path, JobletConfigSerializer<T> jobletConfigSerializer) {
+    return new JobletConfigStorage<>(path, jobletConfigSerializer);
   }
 
   private String createIdentifier(JobletConfig config) {
@@ -70,3 +79,4 @@ public class JobletConfigStorage<T extends JobletConfig> {
     return new File(basePath + "/" + identifier);
   }
 }
+

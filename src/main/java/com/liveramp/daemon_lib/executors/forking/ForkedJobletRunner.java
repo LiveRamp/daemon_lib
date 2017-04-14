@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.config_serialization.JavaJobletConfigSerializer;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
@@ -30,7 +31,7 @@ public class ForkedJobletRunner {
     String id = args[3];
 
     JobletFactory factory = (JobletFactory)Class.forName(jobletFactoryClassName).newInstance();
-    JobletConfig config = JobletConfigStorage.production(configStorePath).loadConfig(id);
+    JobletConfig config = JobletConfigStorage.production(configStorePath, new JavaJobletConfigSerializer<>()).loadConfig(id);
     DefaultJobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(daemonWorkingDir);
 
     jobletStatusManager.start(id);

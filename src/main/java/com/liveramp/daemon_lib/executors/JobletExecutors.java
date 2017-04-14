@@ -15,6 +15,7 @@ import com.liveramp.daemon_lib.DaemonNotifier;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.config_serialization.JobletConfigSerializer;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
 import com.liveramp.daemon_lib.executors.processes.local.FsHelper;
 import com.liveramp.daemon_lib.executors.processes.local.JobletConfigMetadataFactory;
@@ -39,20 +40,20 @@ public class JobletExecutors {
   public static class Forked {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T,JobletConfigMetadata,Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T, JobletConfigMetadata, Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner, JobletConfigSerializer<T> jobletConfigSerializer) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
       File configStoreDir = new File(tmpPath, "config_store");
       FileUtils.forceMkdir(pidDir);
 
-      JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
+      JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath(), jobletConfigSerializer);
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalMetadataProcessController<JobletConfigMetadata, Integer> processController = new LocalMetadataProcessController<>(
           notifier,
           new FsHelper(pidDir.getPath()),
           new LocalProcessPidProcessor(),
-          new JobletProcessHandler<T, Integer, JobletConfigMetadata>(successCallback, failureCallback, configStore, jobletStatusManager),
+          new JobletProcessHandler<>(successCallback, failureCallback, configStore, jobletStatusManager),
           new PsRunningProcessGetter(),
           DEFAULT_POLL_DELAY,
           new JobletConfigMetadata.Serializer()
