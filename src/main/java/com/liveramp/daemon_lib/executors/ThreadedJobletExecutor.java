@@ -1,17 +1,20 @@
 package com.liveramp.daemon_lib.executors;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
-import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.DefaultThreadedExecutionCondition;
+import com.liveramp.daemon_lib.executors.config.ExecutorConfig;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
+import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionConditions;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExecutor<T> {
   private static final Logger LOG = LoggerFactory.getLogger(ThreadedJobletExecutor.class);
@@ -20,12 +23,18 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
   private final JobletFactory<T> jobletFactory;
   private final JobletCallback<T> successCallback;
   private final JobletCallback<T> failureCallback;
+  private final Supplier<Config> executorConfigSupplier;
 
-  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) {
+  private Config config;
+
+  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallback<T> successCallback, JobletCallback<T> failureCallback, Supplier<Config> executorConfigSupplier) {
     this.threadPool = threadPool;
     this.jobletFactory = jobletFactory;
     this.successCallback = successCallback;
     this.failureCallback = failureCallback;
+    this.executorConfigSupplier = executorConfigSupplier;
+
+    this.config = executorConfigSupplier.get();
   }
 
   @Override
@@ -48,11 +57,28 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
 
   @Override
   public ExecutionCondition getDefaultExecutionCondition() {
-    return new DefaultThreadedExecutionCondition(threadPool);
+    return ExecutionConditions.and(
+        () -> threadPool.getActiveCount() < threadPool.getMaximumPoolSize(),
+        () -> threadPool.getActiveCount() < config.numJoblets);
+  }
+
+  @Override
+  public void reloadConfiguration() {
+    config = executorConfigSupplier.get();
+    threadPool.setCorePoolSize(config.numJoblets);
+    threadPool.setMaximumPoolSize(config.numJoblets > 0 ? config.numJoblets : 1);
   }
 
   @Override
   public void shutdown() {
     threadPool.shutdown();
+  }
+
+  public static class Config implements ExecutorConfig {
+    public final int numJoblets;
+
+    public Config(int numJoblets) {
+      this.numJoblets = numJoblets;
+    }
   }
 }

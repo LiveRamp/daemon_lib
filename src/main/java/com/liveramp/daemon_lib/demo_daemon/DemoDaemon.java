@@ -1,11 +1,17 @@
 package com.liveramp.daemon_lib.demo_daemon;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+
 import com.liveramp.daemon_lib.Daemon;
 import com.liveramp.daemon_lib.DaemonBuilders;
 import com.liveramp.daemon_lib.Joblet;
+import com.liveramp.daemon_lib.JobletCallback;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletConfigProducer;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.executors.ThreadedJobletExecutor;
+import com.liveramp.daemon_lib.executors.config.ExecutorConfigSuppliers;
 import com.liveramp.daemon_lib.executors.forking.JarBasedProcessJobletRunner;
 import com.liveramp.daemon_lib.utils.DaemonException;
 
@@ -21,7 +27,11 @@ public class DemoDaemon {
     @Override
     public void run() throws DaemonException {
       try {
-        Thread.sleep(100 * 1000);
+        final String startmsg = "Started: " + id;
+        final String endMsg = "Ending: " + id;
+        System.out.println(startmsg);
+        Thread.sleep(3 * 1000);
+        System.out.println(endMsg);
       } catch (InterruptedException e) {
         throw new DaemonException(e);
       }
@@ -34,6 +44,11 @@ public class DemoDaemon {
 
     public Config(int id) {
       this.id = id;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("{ \"className\": \"%s\", \"id\": %d }", this.getClass().getCanonicalName(), id);
     }
   }
 
@@ -54,7 +69,37 @@ public class DemoDaemon {
     }
   }
 
-  public static void main(String[] args) throws Exception {
+  public static class SuccessCallback<T extends JobletConfig> implements JobletCallback<T> {
+    @Override
+    public void callback(T config) throws DaemonException {
+      System.out.println("Success " + config);
+    }
+  }
+
+  public static class FailureCallback<T extends JobletConfig> implements JobletCallback<T> {
+    @Override
+    public void callback(T config) throws DaemonException {
+      System.out.println("Failure " + config);
+    }
+  }
+
+  public static Daemon getFileBasedConfigDaemon() throws IllegalAccessException, IOException, InstantiationException {
+    Daemon daemon = DaemonBuilders.threaded(
+        "threaded",
+        new Factory(),
+        new Producer()
+    )
+        .setExecutorConfigSupplier(ExecutorConfigSuppliers.standard(Paths.get("/tmp/daemon-info"), ThreadedJobletExecutor.Config.class))
+        .setSuccessCallback(new SuccessCallback<>())
+        .setFailureCallback(new FailureCallback<>())
+        .setConfigWaitSeconds(1)
+        .setNextConfigWaitSeconds(1)
+        .build();
+
+    return daemon;
+  }
+
+  public static Daemon getFixedConfigDaemon() throws IllegalAccessException, IOException, InstantiationException {
     Daemon daemon = DaemonBuilders.forked(
         "/tmp/daemons",
         "demo",
@@ -62,11 +107,17 @@ public class DemoDaemon {
         new Producer(),
         JarBasedProcessJobletRunner.builder(".").build()
     )
-        .setMaxProcesses(4)
+        .setSuccessCallback(new SuccessCallback<>())
+        .setFailureCallback(new FailureCallback<>())
         .setConfigWaitSeconds(1)
         .setNextConfigWaitSeconds(1)
         .build();
 
+    return daemon;
+  }
+
+  public static void main(String[] args) throws Exception {
+    Daemon daemon = getFileBasedConfigDaemon();
     daemon.start();
   }
 }

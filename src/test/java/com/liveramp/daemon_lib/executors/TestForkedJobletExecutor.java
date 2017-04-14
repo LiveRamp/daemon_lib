@@ -50,7 +50,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     this.processController = Mockito.mock(ProcessController.class);
     this.jobletRunner = Mockito.mock(JarBasedProcessJobletRunner.class);
     this.metadataFactory = Mockito.mock(MetadataFactory.class);
-    this.executor = new ForkedJobletExecutor<>(MAX_PROCESSES, MockJobletFactory.class, configStorage, processController, jobletRunner, metadataFactory, Maps.<String, String>newHashMap(), TEST_ROOT, new JobletCallback.None<>());
+    this.executor = new ForkedJobletExecutor<>(MockJobletFactory.class, configStorage, processController, jobletRunner, metadataFactory, Maps.<String, String>newHashMap(), TEST_ROOT, new JobletCallback.None<>(), () -> new ForkedJobletExecutor.Config(MAX_PROCESSES));
 
     this.config = Mockito.mock(JobletConfig.class);
   }

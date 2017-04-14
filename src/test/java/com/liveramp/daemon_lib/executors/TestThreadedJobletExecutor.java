@@ -38,7 +38,7 @@ public class TestThreadedJobletExecutor extends DaemonLibTestCase {
     factory = mock(JobletFactory.class, RETURNS_DEEP_STUBS);
     successCallback = mock(JobletCallback.class);
     failureCallback = mock(JobletCallback.class);
-    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, successCallback, failureCallback);
+    jobletExecutor = new ThreadedJobletExecutor<>(pool, factory, successCallback, failureCallback, () -> new ThreadedJobletExecutor.Config(2));
   }
 
   @After
