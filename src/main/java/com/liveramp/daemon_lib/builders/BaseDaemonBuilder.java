@@ -103,10 +103,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     return self();
   }
 
-  @SuppressWarnings("unchecked")
-  private K self() {
-    return (K)this;
-  }
+  protected abstract K self();
 
   @NotNull
   protected abstract JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException;
