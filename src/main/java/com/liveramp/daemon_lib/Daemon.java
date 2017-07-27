@@ -73,12 +73,12 @@ public class Daemon<T extends JobletConfig> {
   private final Options options;
 
   private boolean running;
-  private final JobletCallback<T> preExecutionCallback;
+  private final JobletCallback<? super T> preExecutionCallback;
   private DaemonLock lock;
   private final ExecutionCondition executionCondition;
   private final ConfigBasedExecutionCondition<T> configBasedExecutionCondition;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options, ExecutionCondition executionCondition, ConfigBasedExecutionCondition<T> configBasedExecutionCondition) {
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<? super T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options, ExecutionCondition executionCondition, ConfigBasedExecutionCondition<T> configBasedExecutionCondition) {
     this.preExecutionCallback = preExecutionCallback;
     this.executionCondition = executionCondition;
     this.configBasedExecutionCondition = configBasedExecutionCondition;

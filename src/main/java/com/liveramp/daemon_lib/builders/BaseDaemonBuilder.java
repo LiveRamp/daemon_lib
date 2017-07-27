@@ -24,7 +24,9 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   private final JobletConfigProducer<T> configProducer;
   protected DaemonNotifier notifier;
   private final Daemon.Options options;
-  private JobletCallback<T> onNewConfigCallback;
+  private JobletCallback<? super T> onNewConfigCallback;
+  protected JobletCallback<? super T> successCallback;
+  protected JobletCallback<? super T> failureCallback;
   private DaemonLock lock;
   protected ExecutionCondition additionalExecutionCondition = ExecutionConditions.alwaysExecute();
   protected ConfigBasedExecutionCondition<T> postConfigExecutionCondition = ConfigBasedExecutionConditions.alwaysExecute();
@@ -33,6 +35,8 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     this.identifier = identifier;
     this.configProducer = configProducer;
     this.onNewConfigCallback = new JobletCallback.None<>();
+    this.successCallback = new JobletCallback.None<>();
+    this.failureCallback = new JobletCallback.None<>();
     this.lock = new NoOpDaemonLock();
 
     this.options = new Daemon.Options();
@@ -79,8 +83,24 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   /**
    * The callback that should be immediately after a new config is produced.
    */
-  public K setOnNewConfigCallback(JobletCallback<T> callback) {
+  public K setOnNewConfigCallback(JobletCallback<? super T> callback) {
     this.onNewConfigCallback = callback;
+    return self();
+  }
+
+  /**
+   * The callback that gets executed when the joblet succeeds.
+   */
+  public K setSuccessCallback(JobletCallback<? super T> callback) {
+    this.successCallback = callback;
+    return self();
+  }
+
+  /**
+   * The callback that gets executed when the joblet fails.
+   */
+  public K setFailureCallback(JobletCallback<? super T> callback) {
+    this.failureCallback = callback;
     return self();
   }
 
@@ -103,10 +123,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     return self();
   }
 
-  @SuppressWarnings("unchecked")
-  private K self() {
-    return (K)this;
-  }
+  protected abstract K self();
 
   @NotNull
   protected abstract JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException;
