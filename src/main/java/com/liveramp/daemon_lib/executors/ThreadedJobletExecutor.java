@@ -18,10 +18,10 @@ public class ThreadedJobletExecutor<T extends JobletConfig> implements JobletExe
 
   private final ThreadPoolExecutor threadPool;
   private final JobletFactory<T> jobletFactory;
-  private final JobletCallback<T> successCallback;
-  private final JobletCallback<T> failureCallback;
+  private final JobletCallback<? super T> successCallback;
+  private final JobletCallback<? super T> failureCallback;
 
-  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallback<T> successCallback, JobletCallback<T> failureCallback) {
+  public ThreadedJobletExecutor(ThreadPoolExecutor threadPool, JobletFactory<T> jobletFactory, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback) {
     this.threadPool = threadPool;
     this.jobletFactory = jobletFactory;
     this.successCallback = successCallback;
