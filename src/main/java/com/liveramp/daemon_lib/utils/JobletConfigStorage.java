@@ -63,7 +63,7 @@ public class JobletConfigStorage<T extends JobletConfig> {
   }
 
   private String createIdentifier(JobletConfig config) {
-    return String.valueOf(config.hashCode()) + String.valueOf(System.nanoTime());
+    return String.valueOf(Math.abs((long)config.hashCode())) + String.valueOf(System.nanoTime());
   }
 
   private File getPath(String identifier) {
