@@ -50,7 +50,7 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
         configStore.getPath(),
         workingDir,
         cofigIdentifier,
-        deserializers.stream().map(Class::getCanonicalName).collect(Collectors.joining(";"))
+        deserializers.stream().map(Class::getName).collect(Collectors.joining(";"))
     ));
     ProcessBuilder processBuilder = new ProcessBuilder(commandListBuilder);
 
