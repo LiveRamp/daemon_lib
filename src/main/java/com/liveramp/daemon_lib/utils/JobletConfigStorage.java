@@ -3,21 +3,21 @@ package com.liveramp.daemon_lib.utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SerializationUtils;
 import org.jetbrains.annotations.NotNull;
 
 import com.liveramp.daemon_lib.JobletConfig;
+import com.liveramp.daemon_lib.serialization.JavaObjectDeserializer;
+import com.liveramp.daemon_lib.serialization.JavaObjectSerializer;
 
 public class JobletConfigStorage<T extends JobletConfig> {
-  public static final Function<Serializable, byte[]> DEFAULT_SERIALIZER = SerializationUtils::serialize;
+  public static final Function<JobletConfig, byte[]> DEFAULT_SERIALIZER = new JavaObjectSerializer<>();
 
   private final String basePath;
   private final Function<? super T, byte[]> serializer;
-  private final Function<byte[], T> deserializer;
+  private final Function<byte[], ? super T> deserializer;
 
   public JobletConfigStorage(String basePath) {
     this(basePath, DEFAULT_SERIALIZER, getDefaultDeserializer());
@@ -25,7 +25,7 @@ public class JobletConfigStorage<T extends JobletConfig> {
 
   public JobletConfigStorage(String basePath,
                              Function<? super T, byte[]> serializer,
-                             Function<byte[], T> deserializer) {
+                             Function<byte[], ? super T> deserializer) {
     this.basePath = basePath;
     this.serializer = serializer;
     this.deserializer = deserializer;
@@ -45,11 +45,12 @@ public class JobletConfigStorage<T extends JobletConfig> {
     return identifier;
   }
 
+  @SuppressWarnings("unchecked")
   public T loadConfig(String identifier) throws IOException, ClassNotFoundException {
     try {
 
       final byte[] storedBytes = FileUtils.readFileToByteArray(getPath(identifier));
-      return deserializer.apply(storedBytes);
+      return (T)deserializer.apply(storedBytes);
 
     } catch (FileNotFoundException e) {
       throw new IOException(e);
@@ -73,7 +74,7 @@ public class JobletConfigStorage<T extends JobletConfig> {
 
   public static <T extends JobletConfig> JobletConfigStorage<T> production(String path,
                                                                            Function<? super T, byte[]> serializer,
-                                                                           Function<byte[], T> deserializer) {
+                                                                           Function<byte[], ? super T> deserializer) {
     return new JobletConfigStorage<>(path, serializer, deserializer);
   }
 
@@ -87,8 +88,8 @@ public class JobletConfigStorage<T extends JobletConfig> {
 
   @SuppressWarnings("unchecked")
   @NotNull
-  public static <T> Function<byte[], T> getDefaultDeserializer() {
-    return b -> (T)SerializationUtils.deserialize(b);
+  public static <T extends JobletConfig> Function<byte[], T> getDefaultDeserializer() {
+    return new JavaObjectDeserializer<>();
   }
 
 }

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
@@ -22,11 +24,13 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
   private final String executableCommand;
   private final String jarPath;
   private final List<String> jvmOptions;
+  private List<Class<?>> deserializers;
 
-  private JarBasedProcessJobletRunner(String executableCommand, String jarPath, List<String> jvmOptions) {
+  private JarBasedProcessJobletRunner(String executableCommand, String jarPath, List<String> jvmOptions, List<Class<?>> deserializers) {
     this.executableCommand = executableCommand;
     this.jarPath = jarPath;
     this.jvmOptions = jvmOptions;
+    this.deserializers = deserializers;
   }
 
   @Override
@@ -45,7 +49,8 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
         ForkedJobletRunner.quote(jobletFactoryClass.getName()),
         configStore.getPath(),
         workingDir,
-        cofigIdentifier
+        cofigIdentifier,
+        deserializers.stream().map(Class::getCanonicalName).collect(Collectors.joining(";"))
     ));
     ProcessBuilder processBuilder = new ProcessBuilder(commandListBuilder);
 
@@ -62,6 +67,7 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
     private String jarPath;
     private String executableCommand;
     private List<String> jvmOptions;
+    private List<Class<?>> deserializers;
 
     private Builder(String jarPath) {
       this.jarPath = jarPath;
@@ -84,8 +90,13 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
       return this;
     }
 
+    public <C extends JobletConfig> Builder addCustomDeserializers(List<Function<byte[], C>> deserializers) {
+      this.deserializers = deserializers.stream().map(Object::getClass).collect(Collectors.toList());
+      return this;
+    }
+
     public JarBasedProcessJobletRunner build() {
-      return new JarBasedProcessJobletRunner(executableCommand, jarPath, jvmOptions);
+      return new JarBasedProcessJobletRunner(executableCommand, jarPath, jvmOptions, deserializers);
     }
   }
 

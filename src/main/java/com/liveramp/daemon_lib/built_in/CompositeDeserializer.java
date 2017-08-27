@@ -16,9 +16,9 @@ public class CompositeDeserializer<T> implements Function<byte[], T> {
 
   private static final Logger LOG = LoggerFactory.getLogger(CompositeDeserializer.class);
 
-  private List<Function<byte[], T>> deserializersInOrder;
+  private List<Function<byte[], ? extends T>> deserializersInOrder;
 
-  public CompositeDeserializer(List<Function<byte[], T>> deserializersInOrder) {
+  public CompositeDeserializer(List<Function<byte[], ? extends T>> deserializersInOrder) {
     this.deserializersInOrder = deserializersInOrder;
   }
 
@@ -35,15 +35,16 @@ public class CompositeDeserializer<T> implements Function<byte[], T> {
 
     List<Throwable> exceptions = Lists.newArrayList();
 
-    for (Function<byte[], T> deserializer : deserializersInOrder) {
+    for (Function<byte[], ? extends T> deserializer : deserializersInOrder) {
       try {
         return deserializer.apply(bytes);
       } catch (Throwable t) {
-        LOG.info("Couldn't deserialize with " + deserializer, t);
+        LOG.debug("Couldn't deserialize with " + deserializer, t);
         exceptions.add(t);
       }
     }
 
     throw new IllegalArgumentException("No deserializer worked. Failures were " + exceptions.stream().map(ExceptionUtils::getFullStackTrace).collect(Collectors.toList()));
   }
+
 }

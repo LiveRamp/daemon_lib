@@ -44,7 +44,7 @@ public class JobletExecutors {
       return get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, JobletConfigStorage.DEFAULT_SERIALIZER, JobletConfigStorage.getDefaultDeserializer());
     }
 
-    public static <T extends JobletConfig> ForkedJobletExecutor<T, JobletConfigMetadata, Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner, Function<? super T, byte[]> serializer, Function<byte[], T> deserializer) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T extends JobletConfig> ForkedJobletExecutor<T, JobletConfigMetadata, Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner, Function<? super T, byte[]> serializer, Function<byte[], ? super T> deserializer) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
