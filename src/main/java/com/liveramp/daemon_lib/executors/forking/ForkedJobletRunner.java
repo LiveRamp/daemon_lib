@@ -2,6 +2,7 @@ package com.liveramp.daemon_lib.executors.forking;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,6 +41,7 @@ public class ForkedJobletRunner {
     final List<Function<byte[], ? extends JobletConfig>> deserializersWithDefault = Stream.concat(
         Stream.of(customSerializationClasses.split(";")).map(ForkedJobletRunner::getInstanceOfDeserializer),
         Stream.of(JobletConfigStorage.getDefaultDeserializer()))
+        .filter(Objects::nonNull)
         .collect(Collectors.toList());
     JobletConfig config = JobletConfigStorage.production(configStorePath,
         null,
@@ -57,7 +59,10 @@ public class ForkedJobletRunner {
     try {
       return (Function<byte[], JobletConfig>)Class.forName(s).newInstance();
     } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
-      throw new RuntimeException(e);
+      System.err.println("Could not find class " + s);
+      System.err.println("Ignoring deserializer " + s);
+      return null;
     }
   }
+
 }
