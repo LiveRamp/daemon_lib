@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 
 import com.liveramp.daemon_lib.JobletConfig;
@@ -73,6 +74,7 @@ public class JarBasedProcessJobletRunner implements ProcessJobletRunner<Integer>
       this.jarPath = jarPath;
       this.executableCommand = DEFAULT_COMMAND;
       this.jvmOptions = new ArrayList<>();
+      this.deserializers = Lists.newArrayList();
     }
 
     public Builder setJarPath(String jarPath) {
