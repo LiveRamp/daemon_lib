@@ -1,10 +1,15 @@
 package com.liveramp.daemon_lib.executors.forking;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.liveramp.daemon_lib.Joblet;
 import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
+import com.liveramp.daemon_lib.built_in.CompositeDeserializer;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
@@ -28,14 +33,31 @@ public class ForkedJobletRunner {
     String configStorePath = args[1];
     String daemonWorkingDir = args[2];
     String id = args[3];
+    String customSerializationClasses = args.length > 4 ? args[4] : "";
 
     JobletFactory factory = (JobletFactory)Class.forName(jobletFactoryClassName).newInstance();
-    JobletConfig config = JobletConfigStorage.production(configStorePath).loadConfig(id);
     DefaultJobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(daemonWorkingDir);
+    final List<Function<byte[], ? extends JobletConfig>> deserializersWithDefault = Stream.concat(
+        Stream.of(customSerializationClasses.split(";")).map(ForkedJobletRunner::getInstanceOfDeserializer),
+        Stream.of(JobletConfigStorage.getDefaultDeserializer()))
+        .collect(Collectors.toList());
+    JobletConfig config = JobletConfigStorage.production(configStorePath,
+        null,
+        new CompositeDeserializer<>(deserializersWithDefault))
+        .loadConfig(id);
 
     jobletStatusManager.start(id);
     Joblet joblet = factory.create(config);
     joblet.run();
     jobletStatusManager.complete(id);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Function<byte[], JobletConfig> getInstanceOfDeserializer(String s) {
+    try {
+      return (Function<byte[], JobletConfig>)Class.forName(s).newInstance();
+    } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

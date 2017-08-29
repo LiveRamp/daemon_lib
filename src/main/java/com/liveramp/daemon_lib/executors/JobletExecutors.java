@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Function;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -40,13 +41,17 @@ public class JobletExecutors {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
     public static <T extends JobletConfig> ForkedJobletExecutor<T, JobletConfigMetadata, Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
+      return get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, JobletConfigStorage.DEFAULT_SERIALIZER, JobletConfigStorage.getDefaultDeserializer());
+    }
+
+    public static <T extends JobletConfig> ForkedJobletExecutor<T, JobletConfigMetadata, Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner, Function<? super T, byte[]> serializer, Function<byte[], ? super T> deserializer) throws IOException, IllegalAccessException, InstantiationException {
       Preconditions.checkArgument(hasNoArgConstructor(jobletFactoryClass), String.format("Class %s has no accessible no-arg constructor", jobletFactoryClass.getName()));
 
       File pidDir = new File(tmpPath, "pids");
       File configStoreDir = new File(tmpPath, "config_store");
       FileUtils.forceMkdir(pidDir);
 
-      JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath());
+      JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath(), serializer, deserializer);
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalMetadataProcessController<JobletConfigMetadata, Integer> processController = new LocalMetadataProcessController<>(
           notifier,

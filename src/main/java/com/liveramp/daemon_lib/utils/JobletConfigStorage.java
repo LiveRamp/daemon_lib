@@ -1,22 +1,34 @@
 package com.liveramp.daemon_lib.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SerializationUtils;
+import org.jetbrains.annotations.NotNull;
 
 import com.liveramp.daemon_lib.JobletConfig;
+import com.liveramp.daemon_lib.serialization.JavaObjectDeserializer;
+import com.liveramp.daemon_lib.serialization.JavaObjectSerializer;
 
 public class JobletConfigStorage<T extends JobletConfig> {
+  public static final Function<JobletConfig, byte[]> DEFAULT_SERIALIZER = new JavaObjectSerializer<>();
+
   private final String basePath;
+  private final Function<? super T, byte[]> serializer;
+  private final Function<byte[], ? super T> deserializer;
 
   public JobletConfigStorage(String basePath) {
+    this(basePath, DEFAULT_SERIALIZER, getDefaultDeserializer());
+  }
+
+  public JobletConfigStorage(String basePath,
+                             Function<? super T, byte[]> serializer,
+                             Function<byte[], ? super T> deserializer) {
     this.basePath = basePath;
+    this.serializer = serializer;
+    this.deserializer = deserializer;
   }
 
   // Stores config and returns an identifier that can be used to retrieve it
@@ -25,9 +37,7 @@ public class JobletConfigStorage<T extends JobletConfig> {
     try {
       File path = getPath(identifier);
       FileUtils.forceMkdir(path.getParentFile());
-      FileOutputStream fos = new FileOutputStream(path);
-      SerializationUtils.serialize(config, fos);
-      fos.close();
+      FileUtils.writeByteArrayToFile(path, serializer.apply(config));
     } catch (FileNotFoundException e) {
       throw new IOException(e);
     }
@@ -35,13 +45,13 @@ public class JobletConfigStorage<T extends JobletConfig> {
     return identifier;
   }
 
+  @SuppressWarnings("unchecked")
   public T loadConfig(String identifier) throws IOException, ClassNotFoundException {
     try {
-      ObjectInputStream ois = new ObjectInputStream(new FileInputStream(getPath(identifier)));
-      T config = (T)ois.readObject();
-      ois.close();
 
-      return config;
+      final byte[] storedBytes = FileUtils.readFileToByteArray(getPath(identifier));
+      return (T)deserializer.apply(storedBytes);
+
     } catch (FileNotFoundException e) {
       throw new IOException(e);
     }
@@ -59,7 +69,13 @@ public class JobletConfigStorage<T extends JobletConfig> {
   }
 
   public static <T extends JobletConfig> JobletConfigStorage<T> production(String path) {
-    return new JobletConfigStorage<>(path);
+    return production(path, JobletConfigStorage.DEFAULT_SERIALIZER, getDefaultDeserializer());
+  }
+
+  public static <T extends JobletConfig> JobletConfigStorage<T> production(String path,
+                                                                           Function<? super T, byte[]> serializer,
+                                                                           Function<byte[], ? super T> deserializer) {
+    return new JobletConfigStorage<>(path, serializer, deserializer);
   }
 
   private String createIdentifier(JobletConfig config) {
@@ -69,4 +85,11 @@ public class JobletConfigStorage<T extends JobletConfig> {
   private File getPath(String identifier) {
     return new File(basePath + "/" + identifier);
   }
+
+  @SuppressWarnings("unchecked")
+  @NotNull
+  public static <T extends JobletConfig> Function<byte[], T> getDefaultDeserializer() {
+    return new JavaObjectDeserializer<>();
+  }
+
 }
