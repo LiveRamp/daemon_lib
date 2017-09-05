@@ -36,8 +36,10 @@ public class ForkedJobletRunner {
     String id = args[3];
     String customSerializationClasses = args.length > 4 ? args[4] : "";
 
-    JobletFactory factory = (JobletFactory)Class.forName(jobletFactoryClassName).newInstance();
     DefaultJobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(daemonWorkingDir);
+    jobletStatusManager.start(id);
+
+    JobletFactory factory = (JobletFactory)Class.forName(jobletFactoryClassName).newInstance();
     final List<Function<byte[], ? extends JobletConfig>> deserializersWithDefault = Stream.concat(
         Stream.of(customSerializationClasses.split(";")).map(ForkedJobletRunner::getInstanceOfDeserializer),
         Stream.of(JobletConfigStorage.getDefaultDeserializer()))
@@ -48,7 +50,6 @@ public class ForkedJobletRunner {
         new CompositeDeserializer<>(deserializersWithDefault))
         .loadConfig(id);
 
-    jobletStatusManager.start(id);
     Joblet joblet = factory.create(config);
     joblet.run();
     jobletStatusManager.complete(id);
