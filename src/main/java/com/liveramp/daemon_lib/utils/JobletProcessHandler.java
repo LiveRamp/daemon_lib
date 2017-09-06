@@ -61,6 +61,7 @@ public class JobletProcessHandler<T extends JobletConfig, Pid, M extends Process
       }
     } else {
       LOG.info("No Managed Status Found - PID: " + watchedProcess.getPid());
+      failureCallback.callback(jobletConfig);
     }
   }
 }
