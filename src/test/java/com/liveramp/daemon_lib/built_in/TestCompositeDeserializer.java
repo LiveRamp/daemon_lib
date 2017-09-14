@@ -8,6 +8,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class TestCompositeDeserializer {
 
   @Test
@@ -24,7 +26,7 @@ public class TestCompositeDeserializer {
     ));
 
     final Set<String> actualSet = deser.apply(bytes);
-    org.junit.Assert.assertEquals(expected, actualSet);
+    assertEquals(expected, actualSet);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -39,6 +41,27 @@ public class TestCompositeDeserializer {
     ));
 
     deser.apply(bytes);
+  }
+
+  @Test
+  public void testCompositeOfComposites() {
+    final Charset charset = Charset.forName("UTF-8");
+    final IDConfig expected = new IDConfig(1L);
+    final byte[] bytes = new Gson().toJson(expected).getBytes(charset);
+    final CompositeDeserializer<IDConfig> deser = new CompositeDeserializer<>(Lists.newArrayList(
+        b -> {
+          throw new RuntimeException();
+        },
+        b -> new Gson().fromJson(new String(bytes, charset), IDConfig.class),
+        b -> new IDConfig(1L)
+    ));
+    final CompositeDeserializer<IDConfig> compcomp = new CompositeDeserializer<IDConfig>(Lists.newArrayList(
+        b -> { throw new RuntimeException(); },
+        deser
+    ));
+
+    final IDConfig actual = compcomp.apply(bytes);
+    assertEquals(expected.getId(), actual.getId());
   }
 
 }
