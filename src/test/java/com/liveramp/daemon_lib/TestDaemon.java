@@ -5,6 +5,7 @@ import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionCondition;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
 import com.liveramp.daemon_lib.utils.DaemonException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -42,7 +43,7 @@ public class TestDaemon extends DaemonLibTestCase {
 
     daemon.processNext();
 
-    Mockito.verify(executor, times(1)).execute(config);
+    Mockito.verify(executor, times(1)).execute(any(String.class), config);
   }
 
   @Test
@@ -52,7 +53,7 @@ public class TestDaemon extends DaemonLibTestCase {
 
     daemon.processNext();
 
-    Mockito.verify(executor, never()).execute(any(JobletConfig.class));
+    Mockito.verify(executor, never()).execute(any(String.class), any(JobletConfig.class));
   }
 
   @Test
@@ -62,6 +63,6 @@ public class TestDaemon extends DaemonLibTestCase {
 
     daemon.processNext();
 
-    Mockito.verify(executor, never()).execute(any(JobletConfig.class));
+    Mockito.verify(executor, never()).execute(any(String.class), any(JobletConfig.class));
   }
 }
