@@ -11,9 +11,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.withSettings;
 
 public class TestDaemon extends DaemonLibTestCase {
   JobletExecutor<JobletConfig> executor;
@@ -43,7 +45,7 @@ public class TestDaemon extends DaemonLibTestCase {
 
     daemon.processNext();
 
-    Mockito.verify(executor, times(1)).execute(any(String.class), config);
+    Mockito.verify(executor, times(1)).execute(any(String.class), eq(config));
   }
 
   @Test
