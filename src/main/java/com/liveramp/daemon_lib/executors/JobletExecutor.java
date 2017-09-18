@@ -7,9 +7,9 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 
 public interface JobletExecutor<T extends JobletConfig> {
 
-  String initialize(T config) throws DaemonException;
+  ExecutionContext<T> createContext(T config) throws DaemonException;
 
-  void execute(String initString, T config) throws DaemonException;
+  void execute(ExecutionContext<T> context) throws DaemonException;
 
   ExecutionCondition getDefaultExecutionCondition();
 
