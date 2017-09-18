@@ -41,9 +41,17 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
   }
 
   @Override
-  public void execute(T config) throws DaemonException {
+  public String initialize(T config) throws DaemonException {
     try {
-      String identifier = configStorage.storeConfig(config);
+      return configStorage.storeConfig(config);
+    } catch (IOException e) {
+      throw new DaemonException(e);
+    }
+  }
+
+  @Override
+  public void execute(String identifier, T config) throws DaemonException {
+    try {
       Pid pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier, envVariables, workingDir);
       processController.registerProcess(pid, metadataFactory.createMetadata(identifier, jobletFactoryClass, configStorage, envVariables));
     } catch (Exception e) {

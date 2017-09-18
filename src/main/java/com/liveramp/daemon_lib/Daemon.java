@@ -1,17 +1,20 @@
 package com.liveramp.daemon_lib;
 
 import com.google.common.base.Optional;
+
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionCondition;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
 import com.liveramp.daemon_lib.utils.DaemonException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
+
 import com.liveramp.daemon_lib.utils.HostUtil;
 
-public class Daemon<T extends JobletConfig> {
+public class Daemon<T extends JobletConfig, I> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
 
   private static final int DEFAULT_CONFIG_WAIT_SECONDS = 1;
@@ -126,10 +129,11 @@ public class Daemon<T extends JobletConfig> {
         lock.unlock();
         return false;
       }
-
+      String initValue;
       if (jobletConfig != null && configBasedExecutionCondition.apply(jobletConfig)) {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
+          initValue = executor.initialize(jobletConfig);
           preExecutionCallback.callback(jobletConfig);
         } catch (DaemonException e) {
           notifier.notify("Error executing callbacks for daemon (" + getDaemonSignature() + ")",
@@ -140,7 +144,7 @@ public class Daemon<T extends JobletConfig> {
           lock.unlock();
         }
         try {
-          executor.execute(jobletConfig);
+          executor.execute(initValue, jobletConfig);
         } catch (Exception e) {
           notifier.notify("Error executing joblet config for daemon (" + getDaemonSignature() + ")",
               Optional.of(jobletConfig.toString()),
