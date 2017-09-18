@@ -29,6 +29,11 @@ public class FsHelper {
     FileOutputStream output = new FileOutputStream(path);
     output.write(metadata);
     output.close();
+    //verify that the control file was written correctly
+    if (!Arrays.equals(this.readMetadata(path), metadata)) {
+      throw new IOException("Written metadata file was not equal to the provided metadata. " +
+          "The metadata cannot be trusted for callbacks so this joblet is aborting early. File path was: " + path);
+    }
   }
 
   public byte[] readMetadata(File path) throws IOException {
