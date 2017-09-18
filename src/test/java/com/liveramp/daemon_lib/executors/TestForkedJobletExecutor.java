@@ -60,7 +60,7 @@ public class TestForkedJobletExecutor extends DaemonLibTestCase {
     Mockito.when(configStorage.storeConfig(config)).thenReturn(MOCK_IDENTIFIER);
     Mockito.when(jobletRunner.run(MockJobletFactory.class, configStorage, MOCK_IDENTIFIER, Maps.<String, String>newHashMap(), TEST_ROOT)).thenReturn(PID);
 
-    executor.execute(MOCK_IDENTIFIER, config);
+    executor.execute(MOCK_IDENTIFIER, eq(config));
 
     Mockito.verify(processController, times(1)).registerProcess(eq(PID), any(JobletConfigMetadata.class)); // TODO(asarkar): shouldn't actually be testing this - its an implementation detail
   }
