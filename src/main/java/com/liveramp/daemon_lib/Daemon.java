@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.liveramp.daemon_lib.utils.HostUtil;
 
-public class Daemon<T extends JobletConfig, I> {
+public class Daemon<T extends JobletConfig> {
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
 
   private static final int DEFAULT_CONFIG_WAIT_SECONDS = 1;
