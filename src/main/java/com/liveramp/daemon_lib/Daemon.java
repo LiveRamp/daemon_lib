@@ -2,6 +2,7 @@ package com.liveramp.daemon_lib;
 
 import com.google.common.base.Optional;
 
+import com.liveramp.daemon_lib.executors.ExecutionContext;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionCondition;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
@@ -129,11 +130,11 @@ public class Daemon<T extends JobletConfig> {
         lock.unlock();
         return false;
       }
-      String initValue;
+      ExecutionContext<T> executionContext;
       if (jobletConfig != null && configBasedExecutionCondition.apply(jobletConfig)) {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
-          initValue = executor.initialize(jobletConfig);
+          executionContext = executor.createContext(jobletConfig);
           preExecutionCallback.callback(jobletConfig);
         } catch (DaemonException e) {
           notifier.notify("Error executing callbacks for daemon (" + getDaemonSignature() + ")",
@@ -144,7 +145,7 @@ public class Daemon<T extends JobletConfig> {
           lock.unlock();
         }
         try {
-          executor.execute(initValue, jobletConfig);
+          executor.execute(executionContext);
         } catch (Exception e) {
           notifier.notify("Error executing joblet config for daemon (" + getDaemonSignature() + ")",
               Optional.of(jobletConfig.toString()),

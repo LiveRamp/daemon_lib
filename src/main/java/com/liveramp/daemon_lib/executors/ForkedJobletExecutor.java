@@ -27,6 +27,7 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
   private final Map<String, String> envVariables;
   private final String workingDir;
   private final JobletCallback<? super T> failureCallback;
+  private ExecutionContext<T> context;
 
   ForkedJobletExecutor(int maxProcesses, Class<? extends JobletFactory<? extends T>> jobletFactoryClass, JobletConfigStorage<T> configStorage, ProcessController<M, Pid> processController, ProcessJobletRunner<Pid> jobletRunner, MetadataFactory<M> metadataFactory, Map<String, String> envVariables, String workingDir, JobletCallback<? super T> failureCallback) {
     this.maxProcesses = maxProcesses;
@@ -41,21 +42,22 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
   }
 
   @Override
-  public String initialize(T config) throws DaemonException {
+  public ExecutionContext<T> createContext(T config) throws DaemonException {
     try {
-      return configStorage.storeConfig(config);
+      return new StringIdentifierExecutionContext<>(config, configStorage.storeConfig(config));
     } catch (IOException e) {
       throw new DaemonException(e);
     }
   }
 
   @Override
-  public void execute(String identifier, T config) throws DaemonException {
+  public void execute(ExecutionContext<T> executionContext) throws DaemonException {
+    StringIdentifierExecutionContext<T> context = (StringIdentifierExecutionContext<T>)executionContext;
     try {
-      Pid pid = jobletRunner.run(jobletFactoryClass, configStorage, identifier, envVariables, workingDir);
-      processController.registerProcess(pid, metadataFactory.createMetadata(identifier, jobletFactoryClass, configStorage, envVariables));
+      Pid pid = jobletRunner.run(jobletFactoryClass, configStorage, context.getConfigIdentifier(), envVariables, workingDir);
+      processController.registerProcess(pid, metadataFactory.createMetadata(context.getConfigIdentifier(), jobletFactoryClass, configStorage, envVariables));
     } catch (Exception e) {
-      failureCallback.callback(config);
+      failureCallback.callback(context.getConfig());
       throw new DaemonException(e);
     }
   }
@@ -148,6 +150,26 @@ public class ForkedJobletExecutor<T extends JobletConfig, M extends ProcessMetad
 
     public ForkedJobletExecutor<S, M, Pid> build() throws IOException {
       return new ForkedJobletExecutor<>(maxProcesses, jobletFactoryClass, configStorage, processController, jobletRunner, metadataFactory, envVariables, workingDir, failureCallback);
+    }
+  }
+
+  public static class StringIdentifierExecutionContext<T extends JobletConfig> implements ExecutionContext<T> {
+
+    private T jobletConfig;
+    private String configIdentifier;
+
+    public StringIdentifierExecutionContext(T jobletConfig, String configIdentifier) {
+      this.jobletConfig = jobletConfig;
+      this.configIdentifier = configIdentifier;
+    }
+
+    @Override
+    public T getConfig() {
+      return jobletConfig;
+    }
+
+    public String getConfigIdentifier() {
+      return configIdentifier;
     }
   }
 }

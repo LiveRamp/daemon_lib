@@ -1,6 +1,7 @@
 package com.liveramp.daemon_lib;
 
 import com.liveramp.daemon_lib.built_in.NoOpDaemonLock;
+import com.liveramp.daemon_lib.executors.ExecutionContext;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionCondition;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
@@ -45,7 +46,7 @@ public class TestDaemon extends DaemonLibTestCase {
 
     daemon.processNext();
 
-    Mockito.verify(executor, times(1)).execute(any(String.class), eq(config));
+    Mockito.verify(executor, times(1)).execute(any(ExecutionContext.class));
   }
 
   @Test
@@ -55,7 +56,7 @@ public class TestDaemon extends DaemonLibTestCase {
 
     daemon.processNext();
 
-    Mockito.verify(executor, never()).execute(any(String.class), any(JobletConfig.class));
+    Mockito.verify(executor, never()).execute(any(ExecutionContext.class));
   }
 
   @Test
@@ -65,6 +66,6 @@ public class TestDaemon extends DaemonLibTestCase {
 
     daemon.processNext();
 
-    Mockito.verify(executor, never()).execute(any(String.class), any(JobletConfig.class));
+    Mockito.verify(executor, never()).execute(any(ExecutionContext.class));
   }
 }
