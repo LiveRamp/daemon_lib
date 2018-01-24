@@ -26,6 +26,7 @@ public class JavaObjectDeserializer<T extends JobletConfig> implements Function<
     try {
       return (T)SerializationUtils.deserialize(bytes);
     } catch (SerializationException e) {
+      LOG.error("Error during deserialization:", e);
       LOG.error("Failed to deserialize the joblet config due to some serialization error. " +
           "Attempting again while ignoring serial version UID - this may allow some cases to recover, " +
           "but may also lead to fatal errors later in the log if the class changes are in fact incompatible. " +
