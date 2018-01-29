@@ -41,7 +41,7 @@ public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends
     maxProcesses = DEFAULT_MAX_PROCESSES;
     envVariables = DEFAULT_ENV_VARS;
     serializer = JobletConfigStorage.DEFAULT_SERIALIZER;
-    deserializers = Lists.newArrayList(JobletConfigStorage.getDefaultDeserializer());
+    deserializers = Lists.newArrayList();
   }
 
   public E setMaxProcesses(int maxProcesses) {
@@ -67,6 +67,7 @@ public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends
   @NotNull
   @Override
   protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
+    deserializers.add(JobletConfigStorage.getDefaultDeserializer());
     final String tmpPath = new File(workingDir, identifier).getPath();
     return JobletExecutors.Forked.get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, serializer, new CompositeDeserializer<>(deserializers));
   }
