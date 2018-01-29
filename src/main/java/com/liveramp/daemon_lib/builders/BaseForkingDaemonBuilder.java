@@ -67,9 +67,10 @@ public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends
   @NotNull
   @Override
   protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
-    deserializers.add(JobletConfigStorage.getDefaultDeserializer());
+    List<Function<byte[], ? extends T>> deserializersWithDefault = Lists.newArrayList(deserializers);
+    deserializersWithDefault.add(JobletConfigStorage.getDefaultDeserializer());
     final String tmpPath = new File(workingDir, identifier).getPath();
-    return JobletExecutors.Forked.get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, serializer, new CompositeDeserializer<>(deserializers));
+    return JobletExecutors.Forked.get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, serializer, new CompositeDeserializer<>(deserializersWithDefault));
   }
 
 }
