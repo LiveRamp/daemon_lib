@@ -30,7 +30,7 @@ public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends
   private static final int DEFAULT_MAX_PROCESSES = 1;
   private static final Map<String, String> DEFAULT_ENV_VARS = Maps.newHashMap();
   private Function<? super T, byte[]> serializer;
-  private List<Function<byte[], ? extends T>> deserializers;
+  private List<Function<byte[], ? extends T>> customDeserializers;
 
   protected BaseForkingDaemonBuilder(String workingDir, String identifier, Class<? extends JobletFactory<T>> jobletFactoryClass, JobletConfigProducer<T> configProducer, ProcessJobletRunner jobletRunner) {
     super(identifier, configProducer);
@@ -41,7 +41,7 @@ public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends
     maxProcesses = DEFAULT_MAX_PROCESSES;
     envVariables = DEFAULT_ENV_VARS;
     serializer = JobletConfigStorage.DEFAULT_SERIALIZER;
-    deserializers = Lists.newArrayList();
+    customDeserializers = Lists.newArrayList();
   }
 
   public E setMaxProcesses(int maxProcesses) {
@@ -60,14 +60,14 @@ public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends
   }
 
   public E addToConfigStorageDeserializers(Function<byte[], ? extends T> deserializer) {
-    this.deserializers.add(deserializer);
+    this.customDeserializers.add(deserializer);
     return self();
   }
 
   @NotNull
   @Override
   protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
-    List<Function<byte[], ? extends T>> deserializersWithDefault = Lists.newArrayList(deserializers);
+    List<Function<byte[], ? extends T>> deserializersWithDefault = Lists.newArrayList(customDeserializers);
     deserializersWithDefault.add(JobletConfigStorage.getDefaultDeserializer());
     final String tmpPath = new File(workingDir, identifier).getPath();
     return JobletExecutors.Forked.get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, serializer, new CompositeDeserializer<>(deserializersWithDefault));
