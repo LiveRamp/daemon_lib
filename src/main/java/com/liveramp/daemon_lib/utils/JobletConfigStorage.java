@@ -9,8 +9,10 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import com.liveramp.daemon_lib.JobletConfig;
+import com.liveramp.daemon_lib.built_in.CompositeDeserializer;
 import com.liveramp.daemon_lib.serialization.JavaObjectDeserializer;
 import com.liveramp.daemon_lib.serialization.JavaObjectSerializer;
+import com.liveramp.daemon_lib.serialization.ThreadContextClassloaderDeserializer;
 
 public class JobletConfigStorage<T extends JobletConfig> {
   public static final Function<JobletConfig, byte[]> DEFAULT_SERIALIZER = new JavaObjectSerializer<>();
@@ -89,7 +91,7 @@ public class JobletConfigStorage<T extends JobletConfig> {
   @SuppressWarnings("unchecked")
   @NotNull
   public static <T extends JobletConfig> Function<byte[], T> getDefaultDeserializer() {
-    return new JavaObjectDeserializer<>();
+    return new CompositeDeserializer<>(new JavaObjectDeserializer<>(), new ThreadContextClassloaderDeserializer<>());
   }
 
 }
