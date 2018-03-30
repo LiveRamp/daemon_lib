@@ -100,7 +100,7 @@ public class Daemon<T extends JobletConfig> {
     return identifier.replaceAll("\\s", "-");
   }
 
-  public final void start() {
+  public void start() {
     LOG.info("Running open-source version of daemon_lib");
     LOG.info("Starting daemon {}", getDaemonSignature());
     running = true;
