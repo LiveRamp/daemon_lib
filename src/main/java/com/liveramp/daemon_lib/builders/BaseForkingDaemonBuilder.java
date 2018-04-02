@@ -17,7 +17,7 @@ import com.liveramp.daemon_lib.built_in.CompositeDeserializer;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.JobletExecutors;
 import com.liveramp.daemon_lib.executors.forking.ProcessJobletRunner;
-import com.liveramp.daemon_lib.utils.JobletConfigStorage;
+import com.liveramp.daemon_lib.utils.BaseJobletConfigStorage;
 
 public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends BaseForkingDaemonBuilder<T, E>> extends BaseDaemonBuilder<T, E> {
 
@@ -40,7 +40,7 @@ public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends
 
     maxProcesses = DEFAULT_MAX_PROCESSES;
     envVariables = DEFAULT_ENV_VARS;
-    serializer = JobletConfigStorage.DEFAULT_SERIALIZER;
+    serializer = BaseJobletConfigStorage.DEFAULT_SERIALIZER;
     customDeserializers = Lists.newArrayList();
   }
 
@@ -68,7 +68,7 @@ public abstract class BaseForkingDaemonBuilder<T extends JobletConfig, E extends
   @Override
   protected JobletExecutor<T> getExecutor() throws IllegalAccessException, IOException, InstantiationException {
     List<Function<byte[], ? extends T>> deserializersWithDefault = Lists.newArrayList(customDeserializers);
-    deserializersWithDefault.add(JobletConfigStorage.getDefaultDeserializer());
+    deserializersWithDefault.add(BaseJobletConfigStorage.getDefaultDeserializer());
     final String tmpPath = new File(workingDir, identifier).getPath();
     return JobletExecutors.Forked.get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, serializer, new CompositeDeserializer<>(deserializersWithDefault));
   }
