@@ -12,8 +12,9 @@ import com.liveramp.daemon_lib.JobletConfig;
 import com.liveramp.daemon_lib.JobletFactory;
 import com.liveramp.daemon_lib.built_in.CompositeDeserializer;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
+import com.liveramp.daemon_lib.utils.BaseJobletConfigStorage;
 import com.liveramp.daemon_lib.utils.DaemonException;
-import com.liveramp.daemon_lib.utils.JobletConfigStorage;
+import com.liveramp.daemon_lib.utils.DiskJobletConfigStorage;
 
 public class ForkedJobletRunner {
   public static String quote(String s) {
@@ -42,10 +43,10 @@ public class ForkedJobletRunner {
     JobletFactory factory = (JobletFactory)Class.forName(jobletFactoryClassName).newInstance();
     final List<Function<byte[], ? extends JobletConfig>> deserializersWithDefault = Stream.concat(
         Stream.of(customSerializationClasses.split(";")).map(ForkedJobletRunner::getInstanceOfDeserializer),
-        Stream.of(JobletConfigStorage.getDefaultDeserializer()))
+        Stream.of(BaseJobletConfigStorage.getDefaultDeserializer()))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
-    JobletConfig config = JobletConfigStorage.production(configStorePath,
+    JobletConfig config = DiskJobletConfigStorage.production(configStorePath,
         null,
         new CompositeDeserializer<>(deserializersWithDefault))
         .loadConfig(id);

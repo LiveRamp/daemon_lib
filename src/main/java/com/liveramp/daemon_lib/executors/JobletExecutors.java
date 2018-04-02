@@ -24,6 +24,8 @@ import com.liveramp.daemon_lib.executors.processes.local.LocalProcessPidProcesso
 import com.liveramp.daemon_lib.executors.processes.local.PsRunningProcessGetter;
 import com.liveramp.daemon_lib.tracking.DefaultJobletStatusManager;
 import com.liveramp.daemon_lib.tracking.JobletStatusManager;
+import com.liveramp.daemon_lib.utils.BaseJobletConfigStorage;
+import com.liveramp.daemon_lib.utils.DiskJobletConfigStorage;
 import com.liveramp.daemon_lib.utils.JobletConfigMetadata;
 import com.liveramp.daemon_lib.utils.JobletConfigStorage;
 import com.liveramp.daemon_lib.utils.JobletProcessHandler;
@@ -41,7 +43,7 @@ public class JobletExecutors {
     private static final int DEFAULT_POLL_DELAY = 1000;
 
     public static <T extends JobletConfig> ForkedJobletExecutor<T, JobletConfigMetadata, Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner) throws IOException, IllegalAccessException, InstantiationException {
-      return get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, JobletConfigStorage.DEFAULT_SERIALIZER, JobletConfigStorage.getDefaultDeserializer());
+      return get(notifier, tmpPath, maxProcesses, jobletFactoryClass, envVariables, successCallback, failureCallback, jobletRunner, BaseJobletConfigStorage.DEFAULT_SERIALIZER, BaseJobletConfigStorage.getDefaultDeserializer());
     }
 
     public static <T extends JobletConfig> ForkedJobletExecutor<T, JobletConfigMetadata, Integer> get(DaemonNotifier notifier, String tmpPath, int maxProcesses, Class<? extends JobletFactory<T>> jobletFactoryClass, Map<String, String> envVariables, JobletCallback<? super T> successCallback, JobletCallback<? super T> failureCallback, ProcessJobletRunner<Integer> jobletRunner, Function<? super T, byte[]> serializer, Function<byte[], ? super T> deserializer) throws IOException, IllegalAccessException, InstantiationException {
@@ -51,7 +53,7 @@ public class JobletExecutors {
       File configStoreDir = new File(tmpPath, "config_store");
       FileUtils.forceMkdir(pidDir);
 
-      JobletConfigStorage<T> configStore = JobletConfigStorage.production(configStoreDir.getPath(), serializer, deserializer);
+      JobletConfigStorage<T> configStore = DiskJobletConfigStorage.production(configStoreDir.getPath(), serializer, deserializer);
       JobletStatusManager jobletStatusManager = new DefaultJobletStatusManager(tmpPath);
       LocalMetadataProcessController<JobletConfigMetadata, Integer> processController = new LocalMetadataProcessController<>(
           notifier,
