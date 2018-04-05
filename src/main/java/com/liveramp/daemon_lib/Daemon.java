@@ -112,6 +112,7 @@ public class Daemon<T extends JobletConfig> {
       }
     } catch (Exception e) {
       notifier.notify("Fatal error occurred in daemon (" + getDaemonSignature() + "). Shutting down.", Optional.empty(), Optional.of(e));
+      stop();
       throw e;
     }
     LOG.info("Exiting daemon ({})", getDaemonSignature());
