@@ -1,6 +1,6 @@
 package com.liveramp.daemon_lib.executors.processes.local;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class LocalProcessPidProcessor implements FileNamePidProcessor<Integer> {
   @Override
@@ -8,7 +8,7 @@ public class LocalProcessPidProcessor implements FileNamePidProcessor<Integer> {
     if (filename.matches("\\d+")) {
       return Optional.of(Integer.parseInt(filename));
     } else {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 }

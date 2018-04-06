@@ -1,6 +1,6 @@
 package com.liveramp.daemon_lib.utils;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import com.liveramp.daemon_lib.DaemonNotifier;
 

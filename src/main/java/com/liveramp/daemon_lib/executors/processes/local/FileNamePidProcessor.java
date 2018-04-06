@@ -1,6 +1,6 @@
 package com.liveramp.daemon_lib.executors.processes.local;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public interface FileNamePidProcessor<Pid> {
 
