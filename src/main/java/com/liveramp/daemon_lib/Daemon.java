@@ -1,18 +1,16 @@
 package com.liveramp.daemon_lib;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.liveramp.daemon_lib.executors.ExecutionContext;
 import com.liveramp.daemon_lib.executors.JobletExecutor;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.postconfig.ConfigBasedExecutionCondition;
 import com.liveramp.daemon_lib.executors.processes.execution_conditions.preconfig.ExecutionCondition;
 import com.liveramp.daemon_lib.utils.DaemonException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
-
 import com.liveramp.daemon_lib.utils.HostUtil;
 
 public class Daemon<T extends JobletConfig> {
@@ -113,7 +111,7 @@ public class Daemon<T extends JobletConfig> {
         silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
-      notifier.notify("Fatal error occurred in daemon (" + getDaemonSignature() + "). Shutting down.", Optional.<String>absent(), Optional.of(e));
+      notifier.notify("Fatal error occurred in daemon (" + getDaemonSignature() + "). Shutting down.", Optional.empty(), Optional.of(e));
       throw e;
     }
     LOG.info("Exiting daemon ({})", getDaemonSignature());
@@ -126,7 +124,7 @@ public class Daemon<T extends JobletConfig> {
         lock.lock();
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
-        notifier.notify("Error getting next config for daemon (" + getDaemonSignature() + ")", Optional.<String>absent(), Optional.of(e));
+        notifier.notify("Error getting next config for daemon (" + getDaemonSignature() + ")", Optional.empty(), Optional.of(e));
         lock.unlock();
         return false;
       }

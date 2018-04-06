@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.UncaughtExceptionHandlers;
@@ -103,7 +103,7 @@ public class LocalMetadataProcessController<T extends ProcessMetadata, Pid> impl
               notifier.notify(
                   String.format("Error handling joblet termination in daemon for joblet with pid %s on %s", watchedProcess.getPid(), HostUtil.safeGetHostName()),
                   Optional.of(String.format("Configuration: %s. Exception:%s", watchedProcess.getMetadata(), ExceptionUtils.getStackTrace(e))),
-                  Optional.<Throwable>absent()
+                  Optional.empty()
               );
             }
             watchedFile.delete();
