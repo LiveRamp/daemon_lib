@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
@@ -21,25 +22,20 @@ public class GCSJobletConfigStorage<T extends JobletConfig> extends BaseJobletCo
   private final String basePath;
   private final Function<? super T, byte[]> serializer;
   private final Function<byte[], ? super T> deserializer;
-  private final Storage storage;
-  private final String bucket;
+  private final Bucket bucket;
 
-  public GCSJobletConfigStorage(String basePath,
-                                String bucket,
-                                Storage storage) {
-    this(basePath, DEFAULT_SERIALIZER, getDefaultDeserializer(), bucket, storage);
+  public GCSJobletConfigStorage(String basePath, String bucket) {
+    this(basePath, DEFAULT_SERIALIZER, getDefaultDeserializer(), bucket);
   }
 
   public GCSJobletConfigStorage(String basePath,
                                 Function<? super T, byte[]> serializer,
                                 Function<byte[], ? super T> deserializer,
-                                String bucket,
-                                Storage storage) {
+                                String bucket) {
     this.basePath = basePath;
     this.serializer = serializer;
     this.deserializer = deserializer;
-    this.storage = storage;
-    this.bucket = bucket;
+    this.bucket = Bucket.newBuilder(bucket).build();
   }
 
   @Override
@@ -52,48 +48,47 @@ public class GCSJobletConfigStorage<T extends JobletConfig> extends BaseJobletCo
   @Override
   public void storeConfig(String identifier, T config) throws IOException {
     try {
-      final BlobId blobId = BlobId.of(bucket, getPath(identifier));
+      final BlobId blobId = BlobId.of(this.bucket.getName(), getPath(identifier));
       final BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-      storage.create(blobInfo, serializer.apply(config));
+      this.bucket.getStorage().create(blobInfo, serializer.apply(config));
     } catch (final StorageException ex) {
       throw new IOException(String.format(
-      "Unable to persist to %s/%s", bucket, getPath(identifier)), ex);
+      "Unable to persist to %s/%s", this.bucket.getName(), getPath(identifier)), ex);
     }
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public T loadConfig(String identifier) throws IOException, ClassNotFoundException {
-
-      final BlobId blobId = BlobId.of(bucket, getPath(identifier));
-      final Blob object = storage.get(blobId);
+      final BlobId blobId = BlobId.of(this.bucket.getName(), getPath(identifier));
+      final Blob blob = this.bucket.getStorage().get(blobId);
       if (object == null) {
         throw new IOException(String.format("%s/%s does not exist in cloud storage.",
-          bucket, getPath(identifier)));
+          this.bucket.getName(), getPath(identifier)));
       }
-      final byte[] content = object.getContent();
-      final byte[] storedBytes = FileUtils.readFileToByteArray(getPath(identifier));
-      return (T)deserializer.apply(storedBytes);
+      return (T)deserializer.apply(blob.getContent());
   }
 
   @Override
   public void deleteConfig(String identifier) throws IOException {
-    final BlobId blobId = BlobId.of(bucket, getPath(identifier));
+    final BlobId blobId = BlobId.of(this.bucket.getName(), getPath(identifier));
     if (!storage.delete(blobId)) {
-      throw new IOException(String.format("Failed to delete configuration for id %s at %s", bucket, getPath(identifier));
+      throw new IOException(String.format("Failed to delete configuration for id %s at %s",
+                            this.bucket.getName(), getPath(identifier));
     }
   }
 
   @Override
   public Set<String> getStoredIdentifiers() throws IOException {
-    // TODO: implement
+    final Page<Blob> blobs = this.Bucket.List(Storage.BlobListOption.prefix(this.basePath));
+    blobSet = Sets.newHashSet(blobs);
+
   }
 
   @Override
   public String getPath() {
     return basePath;
   }
-
 
   private File getPath(String identifier) {
     return new File(basePath + "/" + identifier);
