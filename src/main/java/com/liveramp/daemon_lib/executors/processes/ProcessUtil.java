@@ -8,12 +8,11 @@ import org.apache.commons.lang.NotImplementedException;
 public class ProcessUtil {
 
   public static int run(ProcessBuilder processBuiler) throws IOException {
-    Process process = processBuiler.start();
+    Process process = startProcess(processBuiler);
+    return extractPid(process);
+  }
 
-    process.getInputStream().close();
-    process.getErrorStream().close();
-    process.getOutputStream().close();
-
+  public static int extractPid(Process process) throws IOException {
     int pid;
     // Non portable way to get process pid
     if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
@@ -30,4 +29,13 @@ public class ProcessUtil {
     }
   }
 
+  public static Process startProcess(ProcessBuilder processBuiler) throws IOException {
+    Process process = processBuiler.start();
+
+    process.getInputStream().close();
+    process.getErrorStream().close();
+    process.getOutputStream().close();
+
+    return process;
+  }
 }
