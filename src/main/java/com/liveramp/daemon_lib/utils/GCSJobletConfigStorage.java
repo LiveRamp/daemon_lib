@@ -81,8 +81,11 @@ public class GCSJobletConfigStorage<T extends JobletConfig> extends BaseJobletCo
   @Override
   public Set<String> getStoredIdentifiers() throws IOException {
     final Page<Blob> blobs = this.Bucket.List(Storage.BlobListOption.prefix(this.basePath));
-    blobSet = Sets.newHashSet(blobs);
-
+    idSet = (String)Sets.newHashSet();
+    while (blobs.hasNext()) {
+      idSet.add((String)blobs.next());
+    }
+    return idSet
   }
 
   @Override
