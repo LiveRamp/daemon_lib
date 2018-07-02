@@ -1,6 +1,9 @@
 package com.liveramp.daemon_lib.executors.processes;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -30,12 +33,31 @@ public class ProcessUtil {
   }
 
   public static Process startProcess(ProcessBuilder processBuiler) throws IOException {
+    return startProcess(processBuiler,
+        new CloseStream<>(),
+        new CloseStream<>(),
+        new CloseStream<>());
+  }
+
+  public static Process startProcess(ProcessBuilder processBuiler,
+                                     IOConsumer<InputStream> standardOutCallback,
+                                     IOConsumer<InputStream> standardErrorCallback,
+                                     IOConsumer<OutputStream> standardInputCallback) throws IOException {
     Process process = processBuiler.start();
 
-    process.getInputStream().close();
-    process.getErrorStream().close();
-    process.getOutputStream().close();
+    standardOutCallback.acceptIO(process.getInputStream());
+    standardErrorCallback.acceptIO(process.getErrorStream());
+    standardInputCallback.acceptIO(process.getOutputStream());
 
     return process;
   }
+
+  private static class CloseStream<T extends Closeable> implements IOConsumer<T> {
+
+    @Override
+    public void acceptIO(T t) throws IOException {
+      t.close();
+    }
+  }
+
 }
