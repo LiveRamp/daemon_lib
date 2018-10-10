@@ -1,6 +1,39 @@
 # daemon_lib
 daemon_lib is a Java library that makes it easy to write parallelized task processors. The primary motivation is to make it easy to orchestrate multiple independent instances of a single program operating on different inputs. The core library has no infrastructure dependencies beyond access to a working directory on disk.
 
+## Adding the dependency
+
+In Maven, make your project section look like this:
+
+```
+<project>
+<!-- All the other stuff -->
+
+  <dependencies>
+    <!-- All your other dependencies -->
+    <dependency>
+      <groupId>com.liveramp</groupId>
+      <artifactId>daemon_lib</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>liveramp-repositories</id>
+      <name>Liveramp Repositories</name>
+      <url>http://repository.liveramp.com/artifactory/liveramp-repositories</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
+</project>
+```
+
+The repository section is necessary because this project hasn't been published to Maven Central yet.
+
 ## Background
 We often find ourselves building systems that are essentially many instances of a single “workflow” operating on different inputs, commonly as the backend for an asynchronous service. These instances run in parallel, either as threads within the main application process for tasks that are short-lived, or as separate background processes on the same machine for tasks that need to survive application restarts. 
 
