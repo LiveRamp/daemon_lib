@@ -45,7 +45,12 @@ public class JobletProcessHandler<T extends JobletConfig, Pid, M extends Process
       try {
         status = jobletStatusManager.getStatus(identifier);
       } catch (Exception e) {
-        status = JobletStatus.IN_PROGRESS;
+        try {
+          failureCallback.callback(jobletConfig);
+        } catch (Exception callbackException) {
+          throw new DaemonException("Failure callback triggered due to an exception in jobletStatusManager. Failure callback, however, also failed.", callbackException);
+        }
+        throw e;
       }
 
       try {

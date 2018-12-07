@@ -77,9 +77,14 @@ public class TestJobletProcessHandler {
   }
 
   @Test
-  public void testOnRemoveAttemptsFailureCallbackOnException() throws DaemonException {
+  public void testOnRemoveAttemptsFailureCallbackOnExceptionThenReThrows() throws DaemonException {
     when(jobletStatusManager.getStatus(IDENTIFIER)).thenThrow(new IllegalArgumentException());
-    jobletProcessHandler.onRemove(processDefinition);
+    try {
+      jobletProcessHandler.onRemove(processDefinition);
+      Assert.fail();
+    } catch (IllegalArgumentException ignored) {
+
+    }
     verify(failureCallback, times(1)).callback(jobletConfig);
   }
 
