@@ -41,8 +41,14 @@ public class JobletProcessHandler<T extends JobletConfig, Pid, M extends Process
     }
 
     if (jobletStatusManager.exists(identifier)) {
+      JobletStatus status;
       try {
-        JobletStatus status = jobletStatusManager.getStatus(identifier);
+        status = jobletStatusManager.getStatus(identifier);
+      } catch (Exception e) {
+        status = JobletStatus.IN_PROGRESS;
+      }
+
+      try {
         switch (status) {
           case DONE:
             LOG.info("Process succeeded - PID: " + watchedProcess.getPid());
