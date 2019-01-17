@@ -101,7 +101,7 @@ public class Daemon<T extends JobletConfig> {
   public void start() {
     LOG.info("Running open-source version of daemon_lib");
     LOG.info("Starting daemon {}", getDaemonSignature());
-    running = true;
+    markAsRunning();
 
     try {
       while (running) {
@@ -118,6 +118,10 @@ public class Daemon<T extends JobletConfig> {
     LOG.info("Exiting daemon ({})", getDaemonSignature());
   }
 
+  void markAsRunning() {
+    running = true;
+  }
+
   protected boolean processNext() {
     if (executionCondition.canExecute()) {
       T jobletConfig;
@@ -130,7 +134,7 @@ public class Daemon<T extends JobletConfig> {
         return false;
       }
       ExecutionContext<T> executionContext;
-      if (jobletConfig != null && configBasedExecutionCondition.apply(jobletConfig) && this.running) {
+      if (this.running && jobletConfig != null && configBasedExecutionCondition.apply(jobletConfig)) {
         LOG.info("Found joblet config: " + jobletConfig);
         try {
           executionContext = executor.createContext(jobletConfig);
