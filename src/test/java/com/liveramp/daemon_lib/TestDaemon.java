@@ -44,6 +44,7 @@ public class TestDaemon extends DaemonLibTestCase {
     Mockito.when(configBasedExecutionCondition.apply(config)).thenReturn(true);
     Mockito.when(configProducer.getNextConfig()).thenReturn(config);
 
+    daemon.markAsRunning();
     daemon.processNext();
 
     Mockito.verify(executor, times(1)).execute(any(ExecutionContext.class));
@@ -54,6 +55,7 @@ public class TestDaemon extends DaemonLibTestCase {
     Mockito.when(executionCondition.canExecute()).thenReturn(false);
     Mockito.when(configProducer.getNextConfig()).thenReturn(config);
 
+    daemon.markAsRunning();
     daemon.processNext();
 
     Mockito.verify(executor, never()).execute(any(ExecutionContext.class));
@@ -64,8 +66,20 @@ public class TestDaemon extends DaemonLibTestCase {
     Mockito.when(executionCondition.canExecute()).thenReturn(false);
     Mockito.when(configProducer.getNextConfig()).thenReturn(null);
 
+    daemon.markAsRunning();
     daemon.processNext();
 
     Mockito.verify(executor, never()).execute(any(ExecutionContext.class));
+  }
+
+  @Test
+  public void noExecutionIfNotRunning() throws DaemonException {
+    Mockito.when(executionCondition.canExecute()).thenReturn(true);
+    Mockito.when(configBasedExecutionCondition.apply(config)).thenReturn(true);
+    Mockito.when(configProducer.getNextConfig()).thenReturn(config);
+
+    daemon.processNext();
+
+    Mockito.verifyZeroInteractions(executor);
   }
 }
