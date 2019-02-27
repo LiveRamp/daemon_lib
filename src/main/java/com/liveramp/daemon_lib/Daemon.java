@@ -80,6 +80,8 @@ public class Daemon<T extends JobletConfig> {
   private final ExecutionCondition executionCondition;
   private final ConfigBasedExecutionCondition<T> configBasedExecutionCondition;
 
+  private final DaemonCallback wakeUpCallback;
+
   public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<? super T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options, ExecutionCondition executionCondition, ConfigBasedExecutionCondition<T> configBasedExecutionCondition) {
     this.preExecutionCallback = preExecutionCallback;
     this.executionCondition = executionCondition;
@@ -90,6 +92,22 @@ public class Daemon<T extends JobletConfig> {
     this.notifier = notifier;
     this.options = options;
     this.lock = lock;
+    this.wakeUpCallback = new DaemonCallback.None();
+
+    this.running = false;
+  }
+
+  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<? super T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options, ExecutionCondition executionCondition, ConfigBasedExecutionCondition<T> configBasedExecutionCondition, DaemonCallback wakeUpCallback) {
+    this.preExecutionCallback = preExecutionCallback;
+    this.executionCondition = executionCondition;
+    this.configBasedExecutionCondition = configBasedExecutionCondition;
+    this.identifier = clean(identifier);
+    this.configProducer = configProducer;
+    this.executor = executor;
+    this.notifier = notifier;
+    this.options = options;
+    this.lock = lock;
+    this.wakeUpCallback = wakeUpCallback;
 
     this.running = false;
   }
@@ -123,6 +141,15 @@ public class Daemon<T extends JobletConfig> {
   }
 
   protected boolean processNext() {
+    try {
+      wakeUpCallback.callback();
+    } catch (DaemonException e) {
+      notifier.notify("Error executing wakeUpCallback for daemon (" + getDaemonSignature() + ")",
+          Optional.of(wakeUpCallback.toString()),
+          Optional.of(e));
+      return false;
+    }
+
     if (executionCondition.canExecute()) {
       T jobletConfig;
       try {
