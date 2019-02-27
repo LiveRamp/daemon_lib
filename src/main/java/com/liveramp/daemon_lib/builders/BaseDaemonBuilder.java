@@ -1,5 +1,6 @@
 package com.liveramp.daemon_lib.builders;
 
+import com.liveramp.daemon_lib.DaemonCallback;
 import java.io.IOException;
 
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +28,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   private JobletCallback<? super T> onNewConfigCallback;
   protected JobletCallback<? super T> successCallback;
   protected JobletCallback<? super T> failureCallback;
+  private DaemonCallback wakeUpCallback;
   private DaemonLock lock;
   protected ExecutionCondition additionalExecutionCondition = ExecutionConditions.alwaysExecute();
   protected ConfigBasedExecutionCondition<T> postConfigExecutionCondition = ConfigBasedExecutionConditions.alwaysExecute();
@@ -37,6 +39,7 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
     this.onNewConfigCallback = new JobletCallback.None<>();
     this.successCallback = new JobletCallback.None<>();
     this.failureCallback = new JobletCallback.None<>();
+    this.wakeUpCallback = new DaemonCallback.None();
     this.lock = new NoOpDaemonLock();
 
     this.options = new Daemon.Options();
@@ -89,6 +92,14 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   }
 
   /**
+   * The callback that gets executed each time the daemon wakes up.
+   */
+  public K setWakeUpCallback(DaemonCallback callback) {
+    this.wakeUpCallback = callback;
+    return self();
+  }
+
+  /**
    * The callback that gets executed when the joblet succeeds.
    */
   public K setSuccessCallback(JobletCallback<? super T> callback) {
@@ -132,6 +143,6 @@ public abstract class BaseDaemonBuilder<T extends JobletConfig, K extends BaseDa
   public Daemon<T> build() throws IllegalAccessException, IOException, InstantiationException {
     final JobletExecutor<T> executor = getExecutor();
     LoggingForwardingNotifier notifier = new LoggingForwardingNotifier(this.notifier);
-    return new Daemon<>(identifier, executor, configProducer, onNewConfigCallback, lock, notifier, options, ExecutionConditions.and(executor.getDefaultExecutionCondition(), additionalExecutionCondition), postConfigExecutionCondition);
+    return new Daemon<>(identifier, executor, configProducer, onNewConfigCallback, lock, notifier, options, ExecutionConditions.and(executor.getDefaultExecutionCondition(), additionalExecutionCondition), postConfigExecutionCondition, wakeUpCallback);
   }
 }
