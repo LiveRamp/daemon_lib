@@ -142,8 +142,8 @@ public class Daemon<T extends JobletConfig> {
 
   protected boolean processNext() {
     try {
-      wakeUpCallback.callback();
-    } catch (DaemonException e) {
+      wakeUpCallback.call();
+    } catch (Exception e) {
       notifier.notify("Error executing wakeUpCallback for daemon (" + getDaemonSignature() + ")",
           Optional.of(wakeUpCallback.toString()),
           Optional.of(e));
