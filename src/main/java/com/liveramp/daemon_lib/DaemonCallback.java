@@ -1,13 +1,11 @@
 package com.liveramp.daemon_lib;
 
-import java.util.concurrent.Callable;
-
-public interface DaemonCallback extends Callable<Void> {
+public interface DaemonCallback extends Runnable {
 
   class None implements DaemonCallback {
     @Override
-    public Void call() {
-      return null;
+    public void run() {
+
     }
   }
 
