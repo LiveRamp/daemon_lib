@@ -7,7 +7,7 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>Daemon</name>
-  <description>Batch job dispatch and fulfillment using a database table</description>
+  <description>Modular batch job dispatch and fulfillment</description>
   <developers>
     <developer>
       <name>LiveRamp Engineering</name>

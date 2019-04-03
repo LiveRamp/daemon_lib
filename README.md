@@ -1,4 +1,7 @@
 # daemon_lib
+
+[![Build Status](https://api.travis-ci.com/LiveRamp/daemon_lib.svg?branch=master)](https://travis-ci.com/LiveRamp/daemon_lib)
+
 daemon_lib is a Java library that makes it easy to write parallelized task processors. The primary motivation is to make it easy to orchestrate multiple independent instances of a single program operating on different inputs. The core library has no infrastructure dependencies beyond access to a working directory on disk.
 
 ## Adding the dependency
@@ -40,9 +43,7 @@ The repository section is necessary because this project hasn't been published t
 ## Background
 We often find ourselves building systems that are essentially many instances of a single “workflow” operating on different inputs, commonly as the backend for an asynchronous service. These instances run in parallel, either as threads within the main application process for tasks that are short-lived, or as separate background processes on the same machine for tasks that need to survive application restarts. 
 
-
 daemon_lib handles all the boilerplate involved with building such a system, exposing control through a combination of configuration parameters and injectable callbacks to handle life cycle events. 
-
 
 ## Primary Constructs
 * Daemon: A highly-injectable, long-running process that delegates to user-provided classes to fetch new inputs, kick off workflows based on these inputs, and handle life cycle events. It is the runtime entry-point to the framework.
