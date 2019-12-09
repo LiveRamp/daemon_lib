@@ -135,7 +135,7 @@ public class Daemon<T extends JobletConfig> {
       }
       ExecutionContext<T> executionContext;
       if (this.running && jobletConfig != null && configBasedExecutionCondition.apply(jobletConfig)) {
-        LOG.info("Found joblet config: " + jobletConfig);
+        LOG.debug("Found joblet config: " + jobletConfig);
         try {
           executionContext = executor.createContext(jobletConfig);
           preExecutionCallback.callback(jobletConfig);
