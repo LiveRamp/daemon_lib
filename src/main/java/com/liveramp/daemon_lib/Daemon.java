@@ -32,9 +32,8 @@ public class Daemon<T extends JobletConfig> {
 
     /**
      * @param sleepingSeconds How long the daemon should wait before retrying when there is no config available. Please
-     *                        avoid setting this below the default value of 1, this typically leads to spinning on the
-     *                        database, or whatever you're checking for new configs.  In the worst case, setting this to
-     *                        1 should delay all work by at most 1 second (i.e. add 1 second to your SLAs).
+     *                        avoid setting this below 1s, this typically leads to spinning on the database, or whatever
+     *                        you're checking for new configs.
      * @return options for fluent usage
      */
     public Options setConfigWaitSeconds(int sleepingSeconds) {
