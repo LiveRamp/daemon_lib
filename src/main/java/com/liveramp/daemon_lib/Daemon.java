@@ -130,8 +130,9 @@ public class Daemon<T extends JobletConfig> {
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
         notifier.notify("Error getting next config for daemon (" + getDaemonSignature() + ")", Optional.empty(), Optional.of(e));
-        lock.unlock();
         return false;
+      } finally {
+        lock.unlock();
       }
       ExecutionContext<T> executionContext;
       if (this.running && jobletConfig != null && configBasedExecutionCondition.apply(jobletConfig)) {
@@ -144,8 +145,6 @@ public class Daemon<T extends JobletConfig> {
               Optional.of(jobletConfig.toString() + "\n" + preExecutionCallback.toString()),
               Optional.of(e));
           return false;
-        } finally {
-          lock.unlock();
         }
         try {
           executor.execute(executionContext);
@@ -156,7 +155,6 @@ public class Daemon<T extends JobletConfig> {
           return false;
         }
       } else {
-        lock.unlock();
         silentSleep(options.configWaitSeconds);
       }
     } else {
