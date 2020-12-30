@@ -142,12 +142,13 @@ public class Daemon<T extends JobletConfig> {
     } catch (DaemonException e) {
       notifier.notify("Error getting next config for daemon (" + getDaemonSignature() + ")", Optional.empty(),
           Optional.of(e));
-      return false;
-    } finally {
       lock.unlock();
+      return false;
     }
+
     ExecutionContext<T> executionContext;
     if (!(this.running && jobletConfig != null && configBasedExecutionCondition.apply(jobletConfig))) {
+      lock.unlock();
       silentSleep(options.configWaitSeconds);
       return true;
     }
@@ -162,6 +163,8 @@ public class Daemon<T extends JobletConfig> {
           Optional.of(jobletConfig.toString() + "\n" + preExecutionCallback.toString()),
           Optional.of(e));
       return false;
+    } finally {
+      lock.unlock();
     }
 
     try {
