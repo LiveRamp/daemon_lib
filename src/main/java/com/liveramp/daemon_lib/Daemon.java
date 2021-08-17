@@ -127,6 +127,9 @@ public class Daemon<T extends JobletConfig> {
       T jobletConfig;
       try {
         lock.lock();
+        if (!this.running) {
+          return false;
+        }
         jobletConfig = configProducer.getNextConfig();
       } catch (DaemonException e) {
         notifier.notify("Error getting next config for daemon (" + getDaemonSignature() + ")", Optional.empty(), Optional.of(e));
