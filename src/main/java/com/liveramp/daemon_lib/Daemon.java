@@ -128,6 +128,7 @@ public class Daemon<T extends JobletConfig> {
       try {
         lock.lock();
         if (!this.running) {
+          lock.unlock();
           return false;
         }
         jobletConfig = configProducer.getNextConfig();
