@@ -1,5 +1,5 @@
 #!groovy
-@Library("liveramp-base@v1") _
+@Library("liveramp-base@v2") _
 
 mvnBuildPipeline {
   // Optional override maven Options and mvn Command
