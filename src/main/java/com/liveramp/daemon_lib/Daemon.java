@@ -1,5 +1,6 @@
 package com.liveramp.daemon_lib;
 
+import com.liveramp.daemon_lib.utils.LockTimeoutException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -14,6 +15,7 @@ import com.liveramp.daemon_lib.utils.DaemonException;
 import com.liveramp.daemon_lib.utils.HostUtil;
 
 public class Daemon<T extends JobletConfig> {
+
   private static final Logger LOG = LoggerFactory.getLogger(Daemon.class);
 
   private static final int DEFAULT_CONFIG_WAIT_SECONDS = 5;
@@ -22,16 +24,16 @@ public class Daemon<T extends JobletConfig> {
   private static final int DEFAULT_FAILURE_WAIT_SECONDS = 10;
 
   public static class Options {
+
     private int configWaitSeconds = DEFAULT_CONFIG_WAIT_SECONDS;
     private int executionSlotWaitSeconds = DEFAULT_EXECUTION_SLOT_WAIT_SECONDS;
     private int nextConfigWaitSeconds = DEFAULT_NEXT_CONFIG_WAIT_SECONDS;
     private int failureWaitSeconds = DEFAULT_FAILURE_WAIT_SECONDS;
 
     /**
-     * @param sleepingSeconds How long the daemon should wait before retrying when there is no config available.
-     *                        Please avoid setting this below the default value of 1, this typically leads to
-     *                        spinning on the database, or whatever you're checking for new configs.  In the worst case,
-     *                        setting this to 1 should delay all work by at most 1 second (i.e. add 1 second to your SLAs).
+     * @param sleepingSeconds How long the daemon should wait before retrying when there is no config available. Please
+     *                        avoid setting this below 1s, this typically leads to spinning on the database, or whatever
+     *                        you're checking for new configs.
      * @return options for fluent usage
      */
     public Options setConfigWaitSeconds(int sleepingSeconds) {
@@ -40,7 +42,8 @@ public class Daemon<T extends JobletConfig> {
     }
 
     /**
-     * @param sleepingSeconds How long the daemon should wait before retrying when the max number of running joblets is reached.
+     * @param sleepingSeconds How long the daemon should wait before retrying when the max number of running joblets is
+     *                        reached.
      * @return options for fluent usage
      */
     public Options setExecutionSlotWaitSeconds(int sleepingSeconds) {
@@ -58,7 +61,8 @@ public class Daemon<T extends JobletConfig> {
     }
 
     /**
-     * @param sleepingSeconds How long the daemon should wait before retrying when it did not successfully execute a config.
+     * @param sleepingSeconds How long the daemon should wait before retrying when it did not successfully execute a
+     *                        config.
      * @return options for fluent usage
      */
     public Options setFailureWaitSeconds(int sleepingSeconds) {
@@ -80,7 +84,10 @@ public class Daemon<T extends JobletConfig> {
   private final ExecutionCondition executionCondition;
   private final ConfigBasedExecutionCondition<T> configBasedExecutionCondition;
 
-  public Daemon(String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer, JobletCallback<? super T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options, ExecutionCondition executionCondition, ConfigBasedExecutionCondition<T> configBasedExecutionCondition) {
+  public Daemon(
+      String identifier, JobletExecutor<T> executor, JobletConfigProducer<T> configProducer,
+      JobletCallback<? super T> preExecutionCallback, DaemonLock lock, DaemonNotifier notifier, Options options,
+      ExecutionCondition executionCondition, ConfigBasedExecutionCondition<T> configBasedExecutionCondition) {
     this.preExecutionCallback = preExecutionCallback;
     this.executionCondition = executionCondition;
     this.configBasedExecutionCondition = configBasedExecutionCondition;
@@ -111,7 +118,8 @@ public class Daemon<T extends JobletConfig> {
         silentSleep(options.nextConfigWaitSeconds);
       }
     } catch (Exception e) {
-      notifier.notify("Fatal error occurred in daemon (" + getDaemonSignature() + "). Shutting down.", Optional.empty(), Optional.of(e));
+      notifier.notify("Fatal error occurred in daemon (" + getDaemonSignature() + "). Shutting down.", Optional.empty(),
+          Optional.of(e));
       stop();
       throw e;
     }
@@ -132,8 +140,12 @@ public class Daemon<T extends JobletConfig> {
           return false;
         }
         jobletConfig = configProducer.getNextConfig();
+      } catch (LockTimeoutException e) {
+        LOG.info("Timed out waiting for lock. %s", e);
+        return false;
       } catch (DaemonException e) {
-        notifier.notify("Error getting next config for daemon (" + getDaemonSignature() + ")", Optional.empty(), Optional.of(e));
+        notifier.notify("Error getting next config for daemon (" + getDaemonSignature() + ")", Optional.empty(),
+            Optional.of(e));
         lock.unlock();
         return false;
       }
@@ -144,7 +156,8 @@ public class Daemon<T extends JobletConfig> {
           executionContext = executor.createContext(jobletConfig);
           preExecutionCallback.callback(jobletConfig);
         } catch (DaemonException e) {
-          notifier.notify("Error executing callbacks for daemon (" + getDaemonSignature() + ")",
+          notifier.notify(
+              "Error executing callbacks for daemon (" + getDaemonSignature() + ")",
               Optional.of(jobletConfig.toString() + "\n" + preExecutionCallback.toString()),
               Optional.of(e));
           return false;
@@ -154,7 +167,8 @@ public class Daemon<T extends JobletConfig> {
         try {
           executor.execute(executionContext);
         } catch (Exception e) {
-          notifier.notify("Error executing joblet config for daemon (" + getDaemonSignature() + ")",
+          notifier.notify(
+              "Error executing joblet config for daemon (" + getDaemonSignature() + ")",
               Optional.of(jobletConfig.toString()),
               Optional.of(e));
           return false;
