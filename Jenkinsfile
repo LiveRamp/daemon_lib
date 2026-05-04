@@ -1,8 +1,8 @@
 #!groovy
-@Library("liveramp-base@v2") _
+@Library("liveramp-base@DEV-6236/k8s-shared-library") _
 
 env.JAVA_HOME = '/usr/lib/jvm/java-8-openjdk-amd64'
 
-mvnBuildPipeline {
+mvnBuildPipelineK8s {
     agentLabel = 'k8s-migration-test-2204'
 }
