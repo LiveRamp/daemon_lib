@@ -4,5 +4,5 @@
 env.JAVA_HOME = '/usr/lib/jvm/java-8-openjdk-amd64'
 
 mvnBuildPipeline {
-    agentLabel = 'k8s-test-2204-8'
+    agentLabel = 'k8s-migration-test-2204'
 }
