@@ -1,8 +1,8 @@
 #!groovy
-@Library("liveramp-base@v2") _
+@Library("liveramp-base@DEV-6236/k8s-shared-library") _
 
 env.JAVA_HOME = '/usr/lib/jvm/java-8-openjdk-amd64'
 
-mvnBuildPipeline {
-    agentLabel = 'jenkins-agent-hub-ubuntu-2204-n1-standard-8'
+mvnBuildPipelineK8s {
+    agentLabel = 'k8s-test-2204-8'
 }
